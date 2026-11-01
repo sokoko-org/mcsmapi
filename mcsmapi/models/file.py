@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Literal
-from pydantic import BaseModel, ConfigDict, PrivateAttr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 import posixpath
 
 if TYPE_CHECKING:
@@ -192,6 +192,20 @@ class FileList(BaseModel):
         return await File(self._req).createFolder(self.daemonId, self.uuid, target)
 
 
+class RemoteMappingEndpoint(BaseModel):
+    """远程映射端点"""
+    addr: str = ""
+    prefix: str = ""
+
+
+class RemoteMappingEntry(BaseModel):
+    """远程映射条目 (from -> to)"""
+    from_: RemoteMappingEndpoint = Field(default_factory=RemoteMappingEndpoint, alias="from")
+    to: RemoteMappingEndpoint = Field(default_factory=RemoteMappingEndpoint)
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
 class FileDownloadConfig(BaseModel):
     """文件下载配置"""
 
@@ -199,5 +213,5 @@ class FileDownloadConfig(BaseModel):
     """文件下载密码"""
     addr: str
     """文件下载地址"""
-    remoteMappings: dict[str, str] = {}
+    remoteMappings: list[RemoteMappingEntry] = []
     """远程端口映射"""
