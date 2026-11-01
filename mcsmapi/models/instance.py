@@ -164,31 +164,31 @@ class InstanceDetail(BaseModel):
     status: Status
     """实例状态"""
 
-    def start(self):
+    async def start(self):
         """启动该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return Instance.start(self.daemonId, self.instanceUuid)
+        return await Instance.start(self.daemonId, self.instanceUuid)
 
-    def stop(self):
+    async def stop(self):
         """停止该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return Instance.stop(self.daemonId, self.instanceUuid)
+        return await Instance.stop(self.daemonId, self.instanceUuid)
 
-    def restart(self):
+    async def restart(self):
         """重启该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return Instance.restart(self.daemonId, self.instanceUuid)
+        return await Instance.restart(self.daemonId, self.instanceUuid)
 
-    def kill(self):
+    async def kill(self):
         """强制关闭该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return Instance.kill(self.daemonId, self.instanceUuid)
+        return await Instance.kill(self.daemonId, self.instanceUuid)
 
-    def delete(self, deleteFile: bool = False):
+    async def delete(self, deleteFile: bool = False):
         """
         删除该实例
 
@@ -196,15 +196,16 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return Instance.delete(self.daemonId, [self.instanceUuid], deleteFile)[0]
+        result = await Instance.delete(self.daemonId, [self.instanceUuid], deleteFile)
+        return result[0]
 
-    def update(self):
+    async def update(self):
         """升级实例"""
         from mcsmapi.apis.instance import Instance
 
-        return Instance.update(self.daemonId, self.instanceUuid)
+        return await Instance.update(self.daemonId, self.instanceUuid)
 
-    def updateConfig(self, config: dict[str, Any]):
+    async def updateConfig(self, config: dict[str, Any]):
         """
         更新该实例配置（部分更新，只发送提供的字段）
 
@@ -212,9 +213,9 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return Instance.updateConfig(self.daemonId, self.instanceUuid, config)
+        return await Instance.updateConfig(self.daemonId, self.instanceUuid, config)
 
-    def reinstall(self, targetUrl: str, title: str = "", description: str = ""):
+    async def reinstall(self, targetUrl: str, title: str = "", description: str = ""):
         """
         重装实例
 
@@ -224,11 +225,11 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return Instance.reinstall(
+        return await Instance.reinstall(
             self.daemonId, self.instanceUuid, targetUrl, title, description
         )
 
-    def command(self, command: str) -> str:
+    async def command(self, command: str) -> str:
         """
         发送命令给实例
 
@@ -236,9 +237,9 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return Instance.command(self.daemonId, self.instanceUuid, command)
+        return await Instance.command(self.daemonId, self.instanceUuid, command)
 
-    def get_output(self, size: int | None = None) -> str:
+    async def get_output(self, size: int | None = None) -> str:
         """
         获取实例的输出
 
@@ -246,9 +247,9 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return Instance.get_output(self.daemonId, self.instanceUuid, size)
+        return await Instance.get_output(self.daemonId, self.instanceUuid, size)
 
-    def files(
+    async def files(
         self, target: str = "", page: int = 0, page_size: int = 100, file_name: str = ""
     ):
         """
@@ -261,17 +262,17 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.file import File
 
-        return File.show(
+        return await File.show(
             self.daemonId, self.instanceUuid, target, page, page_size, file_name
         )
 
-    def list_schedule(self) -> list[ScheduleDetail]:
+    async def list_schedule(self) -> list[ScheduleDetail]:
         """获取实例的计划任务列表"""
         from mcsmapi.apis.schedule import Schedule
 
-        return Schedule.list(self.daemonId, self.instanceUuid)
+        return await Schedule.list(self.daemonId, self.instanceUuid)
 
-    def create_schedule(self, config: SchedulePostBody) -> bool:
+    async def create_schedule(self, config: SchedulePostBody) -> bool:
         """
         创建计划任务
 
@@ -279,7 +280,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.schedule import Schedule
 
-        return Schedule.create(self.daemonId, self.instanceUuid, config)
+        return await Schedule.create(self.daemonId, self.instanceUuid, config)
 
 
 class InstanceCreateResult(BaseModel):

@@ -33,75 +33,75 @@ class FileItem(BaseModel):
     file_name: str
     """文件列表过滤条件"""
 
-    def rename(self, newName: str):
+    async def rename(self, newName: str):
         """重命名"""
         from mcsmapi.apis.file import File
 
-        return File.rename(
+        return await File.rename(
             self.daemonId, self.uuid, os.path.join(self.target, self.name), newName
         )
 
-    def delete(self):
+    async def delete(self):
         """删除"""
         from mcsmapi.apis.file import File
 
-        return File.delete(
+        return await File.delete(
             self.daemonId, self.uuid, [os.path.join(self.target, self.name)]
         )
 
-    def copy_to(self, target: str):
+    async def copy_to(self, target: str):
         """复制到目标路径"""
         from mcsmapi.apis.file import File
 
-        return File.copyOne(
+        return await File.copyOne(
             self.daemonId, self.uuid, os.path.join(self.target, self.name), target
         )
 
-    def move(self, target: str):
+    async def move(self, target: str):
         """移动到目标路径"""
         from mcsmapi.apis.file import File
 
-        return File.moveOne(
+        return await File.moveOne(
             self.daemonId, self.uuid, os.path.join(self.target, self.name), target
         )
 
-    def content(self):
+    async def content(self):
         """获取文件内容"""
         from mcsmapi.apis.file import File
 
-        return File.content(
+        return await File.content(
             self.daemonId, self.uuid, os.path.join(self.target, self.name)
         )
 
-    def zip(self, targets: list[str]):
+    async def zip(self, targets: list[str]):
         """压缩到指定位置"""
         from mcsmapi.apis.file import File
 
-        return File.zip(
+        return await File.zip(
             self.daemonId, self.uuid, os.path.join(self.target, self.name), targets
         )
 
-    def unzip(self, target: str, code: Literal["utf-8", "gbk", "big5"] = "utf-8"):
+    async def unzip(self, target: str, code: Literal["utf-8", "gbk", "big5"] = "utf-8"):
         """解压到目标路径"""
         from mcsmapi.apis.file import File
 
-        return File.unzip(
+        return await File.unzip(
             self.daemonId, self.uuid, os.path.join(self.target, self.name), target, code
         )
 
-    def update(self, text: str):
+    async def update(self, text: str):
         """更新文件内容"""
         from mcsmapi.apis.file import File
 
-        return File.update(
+        return await File.update(
             self.daemonId, self.uuid, os.path.join(self.target, self.name), text
         )
 
-    def download(self):
+    async def download(self):
         """获取下载URL"""
         from mcsmapi.apis.file import File
 
-        return File.download(
+        return await File.download(
             self.daemonId, self.uuid, os.path.join(self.target, self.name)
         )
 
@@ -148,17 +148,17 @@ class FileList(BaseModel):
 
         return await File.upload(self.daemonId, self.uuid, file, upload_dir)
 
-    def createFile(self, target: str) -> bool:
+    async def createFile(self, target: str) -> bool:
         """创建文件"""
         from mcsmapi.apis.file import File
 
-        return File.createFile(self.daemonId, self.uuid, target)
+        return await File.createFile(self.daemonId, self.uuid, target)
 
-    def createFolder(self, target: str) -> bool:
+    async def createFolder(self, target: str) -> bool:
         """创建文件夹"""
         from mcsmapi.apis.file import File
 
-        return File.createFolder(self.daemonId, self.uuid, target)
+        return await File.createFolder(self.daemonId, self.uuid, target)
 
 
 class FileDownloadConfig(BaseModel):

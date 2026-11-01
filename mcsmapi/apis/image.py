@@ -5,13 +5,13 @@ from mcsmapi.models.image import DockerImageItem, DockerContainerItem, DockerNet
 
 class Image:
     @staticmethod
-    def images(daemonId: str) -> list[DockerImageItem]:
+    async def images(daemonId: str) -> list[DockerImageItem]:
         """
         获取镜像列表
 
         :params daemonId: 节点的UUID
         """
-        result = send(
+        result = await send(
             "GET",
             f"{ApiPool.IMAGE}/image",
             params={"daemonId": daemonId},
@@ -19,13 +19,13 @@ class Image:
         return [DockerImageItem(**item) for item in result]
 
     @staticmethod
-    def containers(daemonId: str) -> list[DockerContainerItem]:
+    async def containers(daemonId: str) -> list[DockerContainerItem]:
         """
         获取容器列表
 
         :params daemonId: 节点的UUID
         """
-        result = send(
+        result = await send(
             "GET",
             f"{ApiPool.IMAGE}/containers",
             params={"daemonId": daemonId},
@@ -33,13 +33,13 @@ class Image:
         return [DockerContainerItem(**item) for item in result]
 
     @staticmethod
-    def network(daemonId: str) -> list[DockerNetworkItem]:
+    async def network(daemonId: str) -> list[DockerNetworkItem]:
         """
         获取网络接口列表
 
         :params daemonId: 节点的UUID
         """
-        result = send(
+        result = await send(
             "GET",
             f"{ApiPool.IMAGE}/networkModes",
             params={"daemonId": daemonId},
@@ -47,7 +47,7 @@ class Image:
         return [DockerNetworkItem(**item) for item in result]
 
     @staticmethod
-    def add(daemonId: str, dockerFile: str, name: str, tag: str) -> bool:
+    async def add(daemonId: str, dockerFile: str, name: str, tag: str) -> bool:
         """
         新增一个镜像
 
@@ -56,7 +56,7 @@ class Image:
         :params name: 镜像名称
         :params tag: 镜像版本
         """
-        return send(
+        return await send(
             "POST",
             f"{ApiPool.IMAGE}/image",
             params={"daemonId": daemonId},
@@ -64,21 +64,21 @@ class Image:
         )
 
     @staticmethod
-    def delete(daemonId: str, imageId: str) -> bool:
+    async def delete(daemonId: str, imageId: str) -> bool:
         """
         删除指定镜像
 
         :params daemonId: 节点的UUID
         :params imageId: 镜像 ID
         """
-        return send(
+        return await send(
             "DELETE",
             f"{ApiPool.IMAGE}/image",
             params={"daemonId": daemonId, "imageId": imageId},
         )
 
     @staticmethod
-    def progress(daemonId: str) -> dict[str, int]:
+    async def progress(daemonId: str) -> dict[str, int]:
         """
         获取镜像构建进度
 
@@ -86,7 +86,7 @@ class Image:
 
         :returns: {容器名称: 当前状态} (-1: 失败, 1: 构建中, 2: 完成)
         """
-        return send(
+        return await send(
             "GET",
             f"{ApiPool.IMAGE}/progress",
             params={"daemonId": daemonId},

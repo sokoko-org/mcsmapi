@@ -6,23 +6,23 @@ from mcsmapi.models.overview import OverviewModel, LogDetail
 
 class Overview:
     @staticmethod
-    def overview() -> OverviewModel:
+    async def overview() -> OverviewModel:
         """获取面板基本信息"""
-        result = send("GET", ApiPool.OVERVIEW)
+        result = await send("GET", ApiPool.OVERVIEW)
         return OverviewModel(**result)
 
     @staticmethod
-    def logs(limit: int = 20) -> list[LogDetail]:
+    async def logs(limit: int = 20) -> list[LogDetail]:
         """
         获取面板操作日志
 
         :params limit: 返回的日志条数 (1-200)
         """
-        result = send("GET", ApiPool.LOG, params={"limit": limit})
+        result = await send("GET", ApiPool.LOG, params={"limit": limit})
         return [LogDetail(**item) for item in result]
 
     @staticmethod
-    def log_search(
+    async def log_search(
         page: int = 1,
         page_size: int = 20,
         type: str | None = None,
@@ -57,18 +57,18 @@ class Overview:
             params["end_time"] = end_time
         if keyword is not None:
             params["keyword"] = keyword
-        return send("GET", f"{ApiPool.LOG}/search", params=params)
+        return await send("GET", f"{ApiPool.LOG}/search", params=params)
 
     @staticmethod
-    def setting() -> dict[str, Any]:
+    async def setting() -> dict[str, Any]:
         """获取面板配置项 (管理员)"""
-        return send("GET", f"{ApiPool.OVERVIEW}/setting")
+        return await send("GET", f"{ApiPool.OVERVIEW}/setting")
 
     @staticmethod
-    def update_setting(config: dict[str, Any]) -> str:
+    async def update_setting(config: dict[str, Any]) -> str:
         """
         更新面板配置项（部分更新，只发送提供的字段）
 
         :params config: 要修改的配置字段
         """
-        return send("PUT", f"{ApiPool.OVERVIEW}/setting", data=config)
+        return await send("PUT", f"{ApiPool.OVERVIEW}/setting", data=config)

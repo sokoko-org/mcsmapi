@@ -57,13 +57,13 @@ class UserModel(BaseModel):
     secret: str = ""
     """2FA 密钥 (搜索接口返回掩码值)"""
 
-    def delete(self):
+    async def delete(self):
         """删除该用户"""
         from mcsmapi.apis.user import User
 
-        return User().delete([self.uuid])
+        return await User().delete([self.uuid])
 
-    def update(self, config: dict[str, Any]):
+    async def update(self, config: dict[str, Any]):
         """
         更新该用户的信息（部分更新，只发送提供的字段）
 
@@ -71,7 +71,7 @@ class UserModel(BaseModel):
         """
         from mcsmapi.apis.user import User
 
-        return User().update(self.uuid, config)
+        return await User().update(self.uuid, config)
 
 
 class SearchUserModel(BaseModel):

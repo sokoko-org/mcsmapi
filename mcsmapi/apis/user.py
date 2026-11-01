@@ -6,7 +6,7 @@ from mcsmapi.models.user import SearchUserModel, UserCreateResult
 
 class User:
     @staticmethod
-    def search(
+    async def search(
         username: str = "",
         page: int = 1,
         page_size: int = 20,
@@ -20,7 +20,7 @@ class User:
         :params page_size: 每页条数
         :params role: 权限过滤
         """
-        result = send(
+        result = await send(
             "GET",
             f"{ApiPool.AUTH}/search",
             params={
@@ -33,7 +33,7 @@ class User:
         return SearchUserModel(**result)
 
     @staticmethod
-    def create(username: str, password: str, permission: int = 1) -> UserCreateResult:
+    async def create(username: str, password: str, permission: int = 1) -> UserCreateResult:
         """
         创建用户
 
@@ -41,7 +41,7 @@ class User:
         :params password: 密码
         :params permission: 权限等级
         """
-        result = send(
+        result = await send(
             "POST",
             ApiPool.AUTH,
             data={"username": username, "password": password, "permission": permission},
@@ -49,24 +49,24 @@ class User:
         return UserCreateResult(**result)
 
     @staticmethod
-    def update(uuid: str, config: dict[str, Any]) -> bool:
+    async def update(uuid: str, config: dict[str, Any]) -> bool:
         """
         更新用户信息（部分更新）
 
         :params uuid: 用户UUID
         :params config: 要修改的字段
         """
-        return send(
+        return await send(
             "PUT",
             ApiPool.AUTH,
             data={"uuid": uuid, "config": config},
         )
 
     @staticmethod
-    def delete(uuids: list[str]) -> bool:
+    async def delete(uuids: list[str]) -> bool:
         """
         删除用户
 
         :params uuids: 用户UUID列表
         """
-        return send("DELETE", ApiPool.AUTH, data=uuids)
+        return await send("DELETE", ApiPool.AUTH, data=uuids)

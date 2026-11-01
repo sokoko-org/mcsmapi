@@ -1,5 +1,5 @@
 from typing import Any
-import requests
+import httpx
 import urllib.parse
 
 from mcsmapi.pool import ApiPool
@@ -9,10 +9,22 @@ from .exceptions import MCSMError
 class Request:
     mcsm_url: str = ""
     timeout: int = 5
-    session = requests.Session()
+    _client: httpx.AsyncClient | None = None
     apikey: str | None = None
     token: str | None = None
-    """token需和cookie配合使用, 两者有相符性校验"""
+
+    @classmethod
+    def _get_client(cls) -> httpx.AsyncClient:
+        if cls._client is None or cls._client.is_closed:
+            cls._client = httpx.AsyncClient(timeout=cls.timeout)
+        return cls._client
+
+    @classmethod
+    async def close(cls):
+        """关闭底层连接"""
+        if cls._client is not None and not cls._client.is_closed:
+            await cls._client.aclose()
+            cls._client = None
 
     @classmethod
     def set_mcsm_url(cls, url: str):
@@ -21,6 +33,9 @@ class Request:
     @classmethod
     def set_timeout(cls, timeout: int):
         cls.timeout = timeout
+        # 更新已有 client 的超时
+        if cls._client is not None and not cls._client.is_closed:
+            cls._client = httpx.AsyncClient(timeout=cls.timeout)
 
     @classmethod
     def set_apikey(cls, apikey: str):
@@ -31,13 +46,7 @@ class Request:
         cls.token = token
 
     @classmethod
-    def __init__(cls, mcsm_url: str | None = None, timeout: int | None = None):
-        """初始化时使用类变量，或者使用传入的参数覆盖默认值"""
-        cls.mcsm_url = mcsm_url or cls.mcsm_url
-        cls.timeout = timeout or cls.timeout
-
-    @classmethod
-    def send(
+    async def send(
         cls,
         method: str,
         endpoint: str | ApiPool,
@@ -58,17 +67,17 @@ class Request:
         if cls.token is not None:
             params["token"] = cls.token
 
-        response = cls.session.request(
+        client = cls._get_client()
+        response = await client.request(
             method.upper(),
             url,
             params=params,
             json=data,
-            timeout=cls.timeout,
         )
         try:
             response.raise_for_status()
             return response.json()["data"]
-        except requests.exceptions.HTTPError as e:
+        except httpx.HTTPStatusError as e:
             raise MCSMError(
                 response.status_code, response.json().get("data", response.text)
             ) from e
@@ -76,22 +85,19 @@ class Request:
     @classmethod
     async def upload(cls, url: str, file: bytes) -> bool:
         """上传文件"""
-
-        response = cls.session.request(
-            "POST",
+        client = cls._get_client()
+        response = await client.post(
             url,
-            headers={"Content-Type": "multipart/form-data"},
             files={"file": file},
-            timeout=cls.timeout,
         )
         try:
             response.raise_for_status()
             return True
-        except requests.exceptions.HTTPError as e:
+        except httpx.HTTPStatusError as e:
             raise MCSMError(
                 response.status_code, response.json().get("data", response.text)
             ) from e
 
 
-send = Request().send
-upload = Request().upload
+send = Request.send
+upload = Request.upload

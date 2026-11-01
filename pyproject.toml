@@ -19,6 +19,6 @@ requires-python = ">=3.10"
 urls = {"Source" = "https://github.com/molanp/mcsmapi"}
 
 dependencies = [
-  "requests",
+  "httpx>=0.27.0",
   "pydantic>=2.0.0, <3.0.0",
 ]

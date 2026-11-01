@@ -8,7 +8,7 @@ import os
 
 class File:
     @staticmethod
-    def show(
+    async def show(
         daemonId: str,
         uuid: str,
         target: str = "",
@@ -26,7 +26,7 @@ class File:
         :params page_size: 每页数量
         :params file_name: 文件名过滤
         """
-        result = send(
+        result = await send(
             "GET",
             f"{ApiPool.FILE}/list",
             params={
@@ -41,21 +41,21 @@ class File:
         return FileList(**result, daemonId=daemonId, uuid=uuid)
 
     @staticmethod
-    def status(daemonId: str, uuid: str) -> dict[str, Any]:
+    async def status(daemonId: str, uuid: str) -> dict[str, Any]:
         """
         获取文件管理器状态
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
         """
-        return send(
+        return await send(
             "GET",
             f"{ApiPool.FILE}/status",
             params={"daemonId": daemonId, "uuid": uuid},
         )
 
     @staticmethod
-    def content(daemonId: str, uuid: str, target: str) -> str:
+    async def content(daemonId: str, uuid: str, target: str) -> str:
         """
         获取文件内容
 
@@ -63,7 +63,7 @@ class File:
         :params uuid: 实例的UUID
         :params target: 文件路径
         """
-        return send(
+        return await send(
             "PUT",
             f"{ApiPool.FILE}",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -71,7 +71,7 @@ class File:
         )
 
     @staticmethod
-    def update(daemonId: str, uuid: str, target: str, text: str) -> bool:
+    async def update(daemonId: str, uuid: str, target: str, text: str) -> bool:
         """
         更新文件内容
 
@@ -80,7 +80,7 @@ class File:
         :params target: 文件路径
         :params text: 新的文件内容
         """
-        return send(
+        return await send(
             "PUT",
             f"{ApiPool.FILE}",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -88,7 +88,7 @@ class File:
         )
 
     @staticmethod
-    def chmod(daemonId: str, uuid: str, target: str, chmod: int, deep: bool = False) -> bool:
+    async def chmod(daemonId: str, uuid: str, target: str, chmod: int, deep: bool = False) -> bool:
         """
         修改文件权限 (仅 Linux)
 
@@ -98,7 +98,7 @@ class File:
         :params chmod: 权限值 (如 755)
         :params deep: 是否递归修改
         """
-        return send(
+        return await send(
             "PUT",
             f"{ApiPool.FILE}/chmod",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -106,7 +106,7 @@ class File:
         )
 
     @staticmethod
-    def chmod_batch(
+    async def chmod_batch(
         daemonId: str, uuid: str, targets: list[str], chmod: int, deep: bool = False
     ) -> bool:
         """
@@ -118,7 +118,7 @@ class File:
         :params chmod: 权限值 (如 755)
         :params deep: 是否递归修改
         """
-        return send(
+        return await send(
             "PUT",
             f"{ApiPool.FILE}/chmod_batch",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -126,7 +126,7 @@ class File:
         )
 
     @staticmethod
-    def download(daemonId: str, uuid: str, file_name: str) -> str:
+    async def download(daemonId: str, uuid: str, file_name: str) -> str:
         """
         下载文件
 
@@ -136,7 +136,7 @@ class File:
 
         :returns: 文件下载URL
         """
-        result = send(
+        result = await send(
             "POST",
             f"{ApiPool.FILE}/download",
             params={"daemonId": daemonId, "uuid": uuid, "file_name": file_name},
@@ -156,7 +156,7 @@ class File:
         :params file: 文件内容
         :params upload_dir: 上传目标路径
         """
-        result = send(
+        result = await send(
             "POST",
             f"{ApiPool.FILE}/upload",
             params={"daemonId": daemonId, "uuid": uuid, "upload_dir": upload_dir},
@@ -169,7 +169,7 @@ class File:
         return True
 
     @staticmethod
-    def copy_to(daemonId: str, uuid: str, copy_map: dict[str, str]) -> bool:
+    async def copy_to(daemonId: str, uuid: str, copy_map: dict[str, str]) -> bool:
         """
         复制多个文件或文件夹到指定位置
 
@@ -178,7 +178,7 @@ class File:
         :params copy_map: 复制映射 {源路径: 目标路径}
         """
         targets = [[source, target] for source, target in copy_map.items()]
-        return send(
+        return await send(
             "POST",
             f"{ApiPool.FILE}/copy",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -186,7 +186,7 @@ class File:
         )
 
     @staticmethod
-    def copyOne(daemonId: str, uuid: str, source: str, target: str) -> bool:
+    async def copyOne(daemonId: str, uuid: str, source: str, target: str) -> bool:
         """
         复制单个文件或文件夹
 
@@ -195,10 +195,10 @@ class File:
         :params source: 源路径
         :params target: 目标路径
         """
-        return File.copy_to(daemonId, uuid, {source: target})
+        return await File.copy_to(daemonId, uuid, {source: target})
 
     @staticmethod
-    def move(daemonId: str, uuid: str, copy_map: dict[str, str]) -> bool:
+    async def move(daemonId: str, uuid: str, copy_map: dict[str, str]) -> bool:
         """
         移动多个文件或文件夹
 
@@ -207,7 +207,7 @@ class File:
         :params copy_map: 移动映射 {源路径: 目标路径}
         """
         targets = [[source, target] for source, target in copy_map.items()]
-        return send(
+        return await send(
             "PUT",
             f"{ApiPool.FILE}/move",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -215,7 +215,7 @@ class File:
         )
 
     @staticmethod
-    def moveOne(daemonId: str, uuid: str, source: str, target: str) -> bool:
+    async def moveOne(daemonId: str, uuid: str, source: str, target: str) -> bool:
         """
         移动单个文件或文件夹
 
@@ -224,10 +224,10 @@ class File:
         :params source: 源路径
         :params target: 目标路径
         """
-        return File.move(daemonId, uuid, {source: target})
+        return await File.move(daemonId, uuid, {source: target})
 
     @staticmethod
-    def rename(daemonId: str, uuid: str, source: str, new_name: str) -> bool:
+    async def rename(daemonId: str, uuid: str, source: str, new_name: str) -> bool:
         """
         重命名文件或文件夹
 
@@ -238,10 +238,10 @@ class File:
         """
         directory = os.path.dirname(source)
         target = os.path.join(directory, new_name)
-        return File.moveOne(daemonId, uuid, source, target)
+        return await File.moveOne(daemonId, uuid, source, target)
 
     @staticmethod
-    def zip(daemonId: str, uuid: str, source: str, targets: list[str]) -> bool:
+    async def zip(daemonId: str, uuid: str, source: str, targets: list[str]) -> bool:
         """
         压缩文件或文件夹
 
@@ -250,7 +250,7 @@ class File:
         :params source: 压缩后的文件路径
         :params targets: 需要压缩的文件路径列表
         """
-        return send(
+        return await send(
             "POST",
             f"{ApiPool.FILE}/compress",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -258,7 +258,7 @@ class File:
         )
 
     @staticmethod
-    def unzip(
+    async def unzip(
         daemonId: str,
         uuid: str,
         source: str,
@@ -274,7 +274,7 @@ class File:
         :params targets: 解压目标路径
         :params code: 编码方式
         """
-        return send(
+        return await send(
             "POST",
             f"{ApiPool.FILE}/compress",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -282,7 +282,7 @@ class File:
         )
 
     @staticmethod
-    def delete(daemonId: str, uuid: str, targets: list[str]) -> bool:
+    async def delete(daemonId: str, uuid: str, targets: list[str]) -> bool:
         """
         删除文件或文件夹
 
@@ -290,7 +290,7 @@ class File:
         :params uuid: 实例的UUID
         :params targets: 要删除的路径列表
         """
-        return send(
+        return await send(
             "DELETE",
             ApiPool.FILE,
             params={"daemonId": daemonId, "uuid": uuid},
@@ -298,7 +298,7 @@ class File:
         )
 
     @staticmethod
-    def createFile(daemonId: str, uuid: str, target: str) -> bool:
+    async def createFile(daemonId: str, uuid: str, target: str) -> bool:
         """
         创建文件
 
@@ -306,7 +306,7 @@ class File:
         :params uuid: 实例的UUID
         :params target: 文件路径
         """
-        return send(
+        return await send(
             "POST",
             f"{ApiPool.FILE}/touch",
             params={"daemonId": daemonId, "uuid": uuid},
@@ -314,7 +314,7 @@ class File:
         )
 
     @staticmethod
-    def createFolder(daemonId: str, uuid: str, target: str) -> bool:
+    async def createFolder(daemonId: str, uuid: str, target: str) -> bool:
         """
         创建文件夹
 
@@ -322,7 +322,7 @@ class File:
         :params uuid: 实例的UUID
         :params target: 文件夹路径
         """
-        return send(
+        return await send(
             "POST",
             f"{ApiPool.FILE}/mkdir",
             params={"daemonId": daemonId, "uuid": uuid},

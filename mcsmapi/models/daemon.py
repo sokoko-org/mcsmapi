@@ -56,19 +56,19 @@ class DaemonOperation(BaseModel):
     uuid: str
     """节点UUID"""
 
-    def delete(self):
+    async def delete(self):
         """删除该节点"""
         from mcsmapi.apis.daemon import Daemon
 
-        return Daemon.delete(self.uuid)
+        return await Daemon.delete(self.uuid)
 
-    def link(self):
+    async def link(self):
         """连接该节点"""
         from mcsmapi.apis.daemon import Daemon
 
-        return Daemon.link(self.uuid)
+        return await Daemon.link(self.uuid)
 
-    def updateConfig(self, config: dict[str, Any]) -> bool:
+    async def updateConfig(self, config: dict[str, Any]) -> bool:
         """
         更新节点配置（部分更新）
 
@@ -76,9 +76,9 @@ class DaemonOperation(BaseModel):
         """
         from mcsmapi.apis.daemon import Daemon
 
-        return Daemon.update(self.uuid, config)
+        return await Daemon.update(self.uuid, config)
 
-    def createInstance(self, config: dict[str, Any]) -> InstanceCreateResult:
+    async def createInstance(self, config: dict[str, Any]) -> InstanceCreateResult:
         """
         在当前节点创建实例
 
@@ -87,9 +87,9 @@ class DaemonOperation(BaseModel):
         from mcsmapi.apis.instance import Instance
         from .instance import InstanceConfig
 
-        return Instance.create(self.uuid, InstanceConfig(**config).model_dump())
+        return await Instance.create(self.uuid, InstanceConfig(**config).model_dump())
 
-    def deleteInstance(self, uuids: list[str], deleteFile=False) -> list[str]:
+    async def deleteInstance(self, uuids: list[str], deleteFile=False) -> list[str]:
         """
         删除当前节点的实例
 
@@ -98,7 +98,7 @@ class DaemonOperation(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return Instance.delete(self.uuid, uuids, deleteFile)
+        return await Instance.delete(self.uuid, uuids, deleteFile)
 
 
 class DaemonConfig(BaseModel):

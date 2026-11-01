@@ -62,8 +62,8 @@ class ScheduleDetail(SchedulePostBody):
     daemonId: str
     """节点ID"""
 
-    def delete(self):
+    async def delete(self):
         """删除该计划任务"""
         from mcsmapi.apis.schedule import Schedule
 
-        return Schedule.delete(self.daemonId, self.instanceUuid, self.name)
+        return await Schedule.delete(self.daemonId, self.instanceUuid, self.name)

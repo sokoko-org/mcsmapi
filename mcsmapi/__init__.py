@@ -19,9 +19,9 @@ class MCSMAPI:
         )
         Request.set_timeout(timeout)
 
-    def login(self, username: str, password: str):
+    async def login(self, username: str, password: str):
         Request.set_token(
-            Request.send(
+            await Request.send(
                 "POST",
                 f"{ApiPool.AUTH}/login",
                 data={"username": username, "password": password},
@@ -34,6 +34,10 @@ class MCSMAPI:
         Request.set_apikey(apikey)
         self.authentication = "apikey"
         return self
+
+    async def close(self):
+        """关闭底层 HTTP 连接"""
+        await Request.close()
 
     @property
     def overview(self):
