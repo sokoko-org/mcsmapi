@@ -12,8 +12,6 @@ class Schedule:
 
         :param daemonId: 节点ID
         :param uuid: 实例ID
-
-        :returns: 计划任务列表
         """
         result = send(
             "GET",
@@ -30,8 +28,6 @@ class Schedule:
         :param daemonId: 节点ID
         :param uuid: 实例ID
         :param task_name: 计划任务名称
-
-        :returns: 是否成功
         """
         return send(
             "DELETE",
@@ -47,8 +43,6 @@ class Schedule:
         :param daemonId: 节点ID
         :param uuid: 实例ID
         :param config: 计划任务配置
-
-        :returns: 是否成功
         """
         return send(
             "POST",
@@ -56,16 +50,3 @@ class Schedule:
             params={"daemonId": daemonId, "uuid": uuid},
             data=config.model_dump(),
         )
-
-    @staticmethod
-    def update(daemonId: str, uuid: str, config: SchedulePostBody) -> bool:
-        """
-        更新计划任务
-
-        :param daemonId: 节点ID
-        :param uuid: 实例ID
-        :param config: 计划任务配置
-
-        :returns: 是否成功
-        """
-        return Schedule.create(daemonId, uuid, config)

@@ -15,32 +15,26 @@ class FileItem(BaseModel):
     """文件信息"""
 
     name: str
-    """文件或文件夹名称"""
+    """文件名"""
     size: int
-    """文件大小(单位: byte)"""
+    """文件大小(字节)"""
     time: str
-    """文件修改时间"""
+    """修改时间"""
     mode: int
-    """文件操作权限(仅适用于Linux)"""
+    """权限 (仅 Linux)"""
     type: FileType
     """文件类型"""
     daemonId: str = ""
-    """远程节点uuid"""
+    """节点UUID"""
     uuid: str = ""
-    """实例的uiid"""
+    """实例UUID"""
     target: str = ""
-    """文件所在路径"""
+    """所在路径"""
     file_name: str
-    """当前文件列表过滤条件"""
+    """文件列表过滤条件"""
 
     def rename(self, newName: str):
-        """
-        重命名该文件或文件夹
-
-        :params new_name: 源文件或文件夹的新名字
-
-        :returns: 操作成功后返回True
-        """
+        """重命名"""
         from mcsmapi.apis.file import File
 
         return File.rename(
@@ -48,11 +42,7 @@ class FileItem(BaseModel):
         )
 
     def delete(self):
-        """
-        删除该文件或文件夹
-
-        :returns: 操作成功后返回True
-        """
+        """删除"""
         from mcsmapi.apis.file import File
 
         return File.delete(
@@ -60,13 +50,7 @@ class FileItem(BaseModel):
         )
 
     def copy_to(self, target: str):
-        """
-        复制该文件或文件夹到目标路径
-
-        :param target: 目标路径
-
-        :returns: 操作成功后返回True
-        """
+        """复制到目标路径"""
         from mcsmapi.apis.file import File
 
         return File.copyOne(
@@ -74,13 +58,7 @@ class FileItem(BaseModel):
         )
 
     def move(self, target: str):
-        """
-        移动该文件或文件夹到目标路径
-
-        :params target: 目标文件或文件夹的路径
-
-        :returns: 操作成功后返回True
-        """
+        """移动到目标路径"""
         from mcsmapi.apis.file import File
 
         return File.moveOne(
@@ -88,11 +66,7 @@ class FileItem(BaseModel):
         )
 
     def content(self):
-        """
-        获取文件内容
-
-        :returns: 文件内容
-        """
+        """获取文件内容"""
         from mcsmapi.apis.file import File
 
         return File.content(
@@ -100,13 +74,7 @@ class FileItem(BaseModel):
         )
 
     def zip(self, targets: list[str]):
-        """
-        压缩该文件或文件夹到指定位置
-
-        :params targets: 要压缩到的目标文件的路径
-
-        :returns: 操作成功后返回True
-        """
+        """压缩到指定位置"""
         from mcsmapi.apis.file import File
 
         return File.zip(
@@ -114,14 +82,7 @@ class FileItem(BaseModel):
         )
 
     def unzip(self, target: str, code: Literal["utf-8", "gbk", "big5"] = "utf-8"):
-        """
-        解压缩该 zip 文件到目标位置
-
-        :params target: 解压到的目标路径
-        :params code: 压缩文件的编码方式
-
-        :returns: 操作成功后返回True
-        """
+        """解压到目标路径"""
         from mcsmapi.apis.file import File
 
         return File.unzip(
@@ -129,13 +90,7 @@ class FileItem(BaseModel):
         )
 
     def update(self, text: str):
-        """
-        更新该文件内容
-
-        :params text: 文件内容
-
-        :returns: 操作成功后返回True
-        """
+        """更新文件内容"""
         from mcsmapi.apis.file import File
 
         return File.update(
@@ -143,11 +98,7 @@ class FileItem(BaseModel):
         )
 
     def download(self):
-        """
-        下载该文件
-
-        :returns: 文件下载的URL
-        """
+        """获取下载URL"""
         from mcsmapi.apis.file import File
 
         return File.download(
@@ -159,21 +110,21 @@ class FileList(BaseModel):
     """文件列表"""
 
     items: list[FileItem]
-    """文件信息列表"""
+    """文件列表"""
     page: int
-    """当前页数"""
+    """当前页"""
     pageSize: int
-    """文件列表单页大小"""
+    """每页大小"""
     total: int
-    """总页数"""
+    """总数"""
     absolutePath: str
-    """当前路径在远程节点的绝对路径"""
+    """远程节点上的绝对路径"""
     daemonId: str
-    """远程节点uuid"""
+    """节点UUID"""
     uuid: str
-    """实例uuid"""
+    """实例UUID"""
     target: str
-    """文件（名称或目录）路径"""
+    """目录路径"""
 
     @field_validator("items", mode="before")
     @classmethod
@@ -192,38 +143,19 @@ class FileList(BaseModel):
         return v
 
     async def upload(self, file: bytes, upload_dir: str) -> bool:
-        """
-        上传文件到实例
-
-        :params file: 要上传的文件内容
-        :params upload_dir: 文件上传到的目标路径
-
-        :returns: 操作成功返回True
-        """
+        """上传文件"""
         from mcsmapi.apis.file import File
 
         return await File.upload(self.daemonId, self.uuid, file, upload_dir)
 
     def createFile(self, target: str) -> bool:
-        """
-        创建文件
-
-        :params target: 目标文件的路径，包含文件名
-
-        :returns: 操作成功后返回True
-        """
+        """创建文件"""
         from mcsmapi.apis.file import File
 
         return File.createFile(self.daemonId, self.uuid, target)
 
     def createFolder(self, target: str) -> bool:
-        """
-        创建文件夹
-
-        :params target: 目标文件夹的路径
-
-        :returns: 操作成功后返回True
-        """
+        """创建文件夹"""
         from mcsmapi.apis.file import File
 
         return File.createFolder(self.daemonId, self.uuid, target)

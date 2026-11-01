@@ -16,40 +16,40 @@ class SystemInfo(BaseModel):
     release: str
     """系统版本"""
     uptime: float
-    """系统运行时间(单位: sec)"""
+    """系统运行时间(秒)"""
     cwd: str
     """远程节点运行路径"""
     loadavg: tuple[float, float, float]
-    """系统负载平均值（仅适用于 Linux 和 macOS），表示过去 **1 分钟、5 分钟、15 分钟** 内的 CPU 负载情况"""
+    """系统负载平均值 (1/5/15 分钟)"""
     freemem: int
-    """可用内存(单位: byte)"""
+    """可用内存(字节)"""
     cpuUsage: float
-    """cpu使用率"""
+    """CPU 使用率"""
     memUsage: float
     """内存使用率"""
     totalmem: int
-    """内存总量(单位: byte)"""
+    """内存总量(字节)"""
 
 
 class DaemonSetting(BaseModel):
-    """节点系统配置信息"""
+    """节点系统配置"""
 
     language: str
     """节点语言"""
     uploadSpeedRate: int
-    """上传速度限制(0为不限制, 限制为(n * 64)KB/s)"""
+    """上传速度限制(0 不限制, 限制为 n*64 KB/s)"""
     downloadSpeedRate: int
-    """下载速度限制(0为不限制, 限制为(n * 64)KB/s)"""
+    """下载速度限制(0 不限制, 限制为 n*64 KB/s)"""
     portRangeStart: int
     """端口范围起始值"""
     portRangeEnd: int
     """端口范围结束值"""
     portAssignInterval: int
-    """未知"""
+    """端口分配间隔"""
     port: int
     """节点监听端口"""
     maxDownloadFromUrlFileCount: int
-    """允许同时下载的远程下载任务数量"""
+    """允许同时下载的远程任务数量"""
 
 
 class DaemonOperation(BaseModel):
@@ -57,32 +57,22 @@ class DaemonOperation(BaseModel):
     """节点UUID"""
 
     def delete(self):
-        """
-        删除该节点
-
-        :returns: 操作成功后返回True
-        """
+        """删除该节点"""
         from mcsmapi.apis.daemon import Daemon
 
         return Daemon.delete(self.uuid)
 
     def link(self):
-        """
-        尝试连接该节点
-
-        :returns: 操作成功后返回True
-        """
+        """连接该节点"""
         from mcsmapi.apis.daemon import Daemon
 
         return Daemon.link(self.uuid)
 
     def updateConfig(self, config: dict[str, Any]) -> bool:
         """
-        更新该节点的配置（支持部分更新，只发送提供的字段）
+        更新节点配置（部分更新）
 
-        :params config: 节点的配置信息，以字典形式提供，只需包含要修改的字段
-
-        :returns: 操作成功后返回True
+        :params config: 要修改的字段
         """
         from mcsmapi.apis.daemon import Daemon
 
@@ -90,11 +80,9 @@ class DaemonOperation(BaseModel):
 
     def createInstance(self, config: dict[str, Any]) -> InstanceCreateResult:
         """
-        在当前节点创建一个实例
+        在当前节点创建实例
 
-        :params config: 实例的配置信息，以字典形式提供，缺失内容由InstanceConfig模型补全
-
-        :returns: 一个包含新创建实例信息的结果对象
+        :params config: 实例配置
         """
         from mcsmapi.apis.instance import Instance
         from .instance import InstanceConfig
@@ -103,12 +91,10 @@ class DaemonOperation(BaseModel):
 
     def deleteInstance(self, uuids: list[str], deleteFile=False) -> list[str]:
         """
-        删除当前节点的一个或多个实例
+        删除当前节点的实例
 
-        :params uuids: 要删除的实例UUID列表
-        :params deleteFile: 是否删除关联的文件
-
-        :returns: 删除操作后返回的UUID列表
+        :params uuids: 实例UUID列表
+        :params deleteFile: 是否删除关联文件
         """
         from mcsmapi.apis.instance import Instance
 
@@ -119,15 +105,15 @@ class DaemonConfig(BaseModel):
     """节点配置信息"""
 
     ip: str = "localhost"
-    """远程节点的ip"""
+    """远程节点 IP"""
     port: int = 24444
-    """远程节点的端口"""
+    """远程节点端口"""
     prefix: str = ""
-    """远程节点的路径前缀"""
-    remarks: str = "Unnamed Node"
-    """远程节点的备注"""
+    """路径前缀"""
+    remarks: str = ""
+    """备注"""
     apiKey: str = ""
-    """远程节点的apiKey"""
+    """API Key"""
 
 
 class DaemonStatus(DaemonOperation):
@@ -136,34 +122,34 @@ class DaemonStatus(DaemonOperation):
     available: bool
     """节点可用状态"""
     ip: str
-    """节点ip"""
+    """节点 IP"""
     port: int
     """节点端口"""
     prefix: str
-    """节点路径前缀"""
+    """路径前缀"""
     remarks: str
-    """节点备注"""
+    """备注"""
 
 
 class DaemonSystemInfo(DaemonStatus):
-    """节点信息"""
+    """节点系统信息"""
 
     version: str | None = None
     """节点版本"""
     process: ProcessInfo | None = None
-    """节点进程信息"""
+    """进程信息"""
     instance: InstanceStat | None = None
-    """节点实例统计信息"""
+    """实例统计"""
     system: SystemInfo | None = None
-    """节点系统信息"""
+    """系统信息"""
     cpuMemChart: list[CpuMemChart] | None = None
-    """cpu和内存使用趋势"""
+    """CPU/内存使用趋势"""
     config: DaemonSetting | None = None
-    """节点配置信息"""
+    """节点配置"""
 
 
 class DaemonInfo(DaemonStatus):
-    """节点信息"""
+    """节点信息（含实例列表）"""
 
     instances: list[InstanceDetail]
-    """节点实例列表"""
+    """实例列表"""

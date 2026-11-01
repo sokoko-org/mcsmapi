@@ -45,36 +45,25 @@ class SchedulePostBody(BaseModel):
     name: str
     """计划任务名称"""
     count: int
-    """执行次数, -1表无限"""
+    """执行次数, -1 表无限"""
     time: str
-    """除了间隔时间任务是间隔秒数，其他都是rcon字符串"""
+    """间隔秒数 (INTERVAL) 或 cron 字符串 (CYCLE/SPECIFY)"""
     actions: list[ScheduleAction]
     """计划任务动作链"""
     type: ScheduleType
+    """任务类型"""
 
 
 class ScheduleDetail(SchedulePostBody):
     """计划任务信息"""
 
     instanceUuid: str
-    """实例uuid"""
+    """实例UUID"""
     daemonId: str
-    """节点id"""
+    """节点ID"""
 
     def delete(self):
-        """删除计划任务"""
+        """删除该计划任务"""
         from mcsmapi.apis.schedule import Schedule
 
         return Schedule.delete(self.daemonId, self.instanceUuid, self.name)
-
-    def update(self, config: SchedulePostBody):
-        """
-        更新计划任务
-
-        :param config: 计划任务配置
-
-        :returns: 是否成功
-        """
-        from mcsmapi.apis.schedule import Schedule
-
-        return Schedule.update(self.daemonId, self.instanceUuid, config)

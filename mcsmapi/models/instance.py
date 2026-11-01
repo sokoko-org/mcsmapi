@@ -50,14 +50,16 @@ class EventTask(BaseModel):
 
     autoStart: bool = False
     """是否自动启动"""
-    autoRestart: bool = True
+    autoRestart: bool = False
     """是否自动重启"""
+    autoRestartMaxTimes: int = -1
+    """自动重启最大次数(-1 为无限)"""
     ignore: bool = False
     """是否忽略该任务"""
 
 
 class PingConfig(BaseModel):
-    """服务器 Ping 配置(已弃用)"""
+    """服务器 Ping 配置"""
 
     ip: str = ""
     """服务器 IP 地址"""
@@ -67,20 +69,40 @@ class PingConfig(BaseModel):
     """Ping 类型 (0: UDP, 1: TCP)"""
 
 
+class ExtraServiceConfig(BaseModel):
+    """额外服务配置"""
+
+    openFrpTunnelId: str = ""
+    """OpenFrp 隧道 ID"""
+    openFrpToken: str = ""
+    """OpenFrp Token"""
+
+
+class ActionCommand(BaseModel):
+    """操作命令"""
+
+    name: str = ""
+    """命令名称"""
+    command: str = ""
+    """命令内容"""
+
+
 class InstanceConfig(BaseModel):
     """实例配置信息"""
 
     nickname: str = "New Name"
     """实例名称"""
-    startCommand: str = "cmd.exe"
+    startCommand: str = ""
     """启动命令"""
     stopCommand: str = "^C"
     """停止命令"""
+    stopTimeout: int = 0
+    """停止超时时间(秒), 超时后强制终止进程"""
     cwd: str = ""
     """工作目录"""
-    ie: str = "utf8"
+    ie: str = "utf-8"
     """输入编码"""
-    oe: str = "UTF-8"
+    oe: str = "utf-8"
     """输出编码"""
     createDatetime: int = 0
     """创建时间 (Unix 时间戳)"""
@@ -90,16 +112,16 @@ class InstanceConfig(BaseModel):
     """实例类型 (universal, minecraft 等)"""
     tag: list[str] = []
     """实例标签"""
-    endTime: int | None = None
-    """实例到期时间"""
-    fileCode: str = "utf8"
+    endTime: int = 0
+    """实例到期时间 (Unix 时间戳, 0 为不限制)"""
+    fileCode: str = "utf-8"
     """文件编码"""
     processType: str = "general"
-    """进程类型 (如 docker, general)"""
-    updateCommand: str = "shutdown -s"
+    """进程类型 (general, docker)"""
+    updateCommand: str = ""
     """更新命令"""
-    actionCommandList: list[str] = []
-    """实例可执行的操作命令列表"""
+    actionCommandList: list[ActionCommand] = []
+    """自定义操作命令列表"""
     crlf: CRLFType = CRLFType.CRLF
     """换行符"""
     docker: DockerConfig = DockerConfig()
@@ -108,7 +130,7 @@ class InstanceConfig(BaseModel):
     """是否启用 RCON 远程控制"""
     rconPassword: str = ""
     """RCON 连接密码"""
-    rconPort: int = 2557
+    rconPort: int = 0
     """RCON 端口"""
     rconIp: str = ""
     """RCON IP 地址"""
@@ -117,11 +139,15 @@ class InstanceConfig(BaseModel):
     eventTask: EventTask = EventTask()
     """事件任务配置"""
     pingConfig: PingConfig = PingConfig()
-    """服务器 Ping 监测配置(已弃用)"""
+    """服务器 Ping 监测配置"""
+    extraServiceConfig: ExtraServiceConfig = ExtraServiceConfig()
+    """额外服务配置"""
     runAs: str = ""
     """运行该实例的系统用户，为空则使用启动面板的系统用户"""
+    category: int = 0
+    """分类 ID"""
     basePort: int = 0
-    """分配的起始端口，这个数字对应 到 的变量，每次新增实例都会递增分配"""
+    """分配的起始端口"""
 
 
 class InstanceDetail(BaseModel):
@@ -139,41 +165,25 @@ class InstanceDetail(BaseModel):
     """实例状态"""
 
     def start(self):
-        """
-        启动该实例
-
-        :returns: 被启动的实例的UUID
-        """
+        """启动该实例"""
         from mcsmapi.apis.instance import Instance
 
         return Instance.start(self.daemonId, self.instanceUuid)
 
     def stop(self):
-        """
-        停止该实例
-
-        :returns: 被停止的实例的UUID
-        """
+        """停止该实例"""
         from mcsmapi.apis.instance import Instance
 
         return Instance.stop(self.daemonId, self.instanceUuid)
 
     def restart(self):
-        """
-        重启该实例
-
-        :returns: 被重启的实例的UUID
-        """
+        """重启该实例"""
         from mcsmapi.apis.instance import Instance
 
         return Instance.restart(self.daemonId, self.instanceUuid)
 
     def kill(self):
-        """
-        强制关闭该实例
-
-        :returns: 被强制关闭的实例的UUID
-        """
+        """强制关闭该实例"""
         from mcsmapi.apis.instance import Instance
 
         return Instance.kill(self.daemonId, self.instanceUuid)
@@ -183,33 +193,22 @@ class InstanceDetail(BaseModel):
         删除该实例
 
         :params deleteFile: 是否删除关联的文件
-
-        :returns: 被删除的实例的uuid
         """
         from mcsmapi.apis.instance import Instance
 
         return Instance.delete(self.daemonId, [self.instanceUuid], deleteFile)[0]
 
     def update(self):
-        """
-        升级实例
-
-        :returns: 操作成功返回True
-        """
+        """升级实例"""
         from mcsmapi.apis.instance import Instance
 
         return Instance.update(self.daemonId, self.instanceUuid)
 
     def updateConfig(self, config: dict[str, Any]):
         """
-        更新该实例配置（支持部分更新，只发送提供的字段）
+        更新该实例配置（部分更新，只发送提供的字段）
 
-        MCSManager 服务端使用 configureEntityParams 逐字段更新，
-        只有请求中包含的字段才会被修改，未包含的字段保持不变。
-
-        :params config: 新的实例配置，以字典形式提供，只需包含要修改的字段
-
-        :returns: 更新成功后返回更新的实例UUID
+        :params config: 要修改的配置字段
         """
         from mcsmapi.apis.instance import Instance
 
@@ -221,9 +220,7 @@ class InstanceDetail(BaseModel):
 
         :params targetUrl: 重装文件的目标URL
         :params title: 重装文件的标题
-        :params description: 重装文件的描述，默认为空字符串
-
-        :returns: 操作成功返回True
+        :params description: 重装文件的描述
         """
         from mcsmapi.apis.instance import Instance
 
@@ -236,8 +233,6 @@ class InstanceDetail(BaseModel):
         发送命令给实例
 
         :params command: 要发送的命令
-
-        :returns: 被操作的实例的UUID
         """
         from mcsmapi.apis.instance import Instance
 
@@ -248,8 +243,6 @@ class InstanceDetail(BaseModel):
         获取实例的输出
 
         :params size: 要获取的输出大小
-
-        :returns: 输出结果
         """
         from mcsmapi.apis.instance import Instance
 
@@ -261,12 +254,10 @@ class InstanceDetail(BaseModel):
         """
         获取实例的文件列表
 
-        :params target: 用于文件过滤的目标路径默认为空字符串，表示不按路径过滤
-        :params page: 指定分页的页码
-        :params page_size: 指定每页的文件数量
-        :params file_name: 用于在文件列表中过滤出名称包含指定字符串的文件或文件夹
-
-        :returns: 文件列表
+        :params target: 目标路径
+        :params page: 页码
+        :params page_size: 每页数量
+        :params file_name: 文件名过滤
         """
         from mcsmapi.apis.file import File
 
@@ -275,11 +266,7 @@ class InstanceDetail(BaseModel):
         )
 
     def list_schedule(self) -> list[ScheduleDetail]:
-        """
-        获取实例的计划任务列表
-
-        :returns: 计划任务列表
-        """
+        """获取实例的计划任务列表"""
         from mcsmapi.apis.schedule import Schedule
 
         return Schedule.list(self.daemonId, self.instanceUuid)
@@ -289,8 +276,6 @@ class InstanceDetail(BaseModel):
         创建计划任务
 
         :param config: 计划任务配置
-
-        :returns: 是否成功
         """
         from mcsmapi.apis.schedule import Schedule
 

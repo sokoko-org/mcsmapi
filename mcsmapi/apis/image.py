@@ -10,17 +10,12 @@ class Image:
         获取镜像列表
 
         :params daemonId: 节点的UUID
-
-        :returns: 包含镜像列表详情的 ImageModel 模型的列表
         """
         result = send(
             "GET",
             f"{ApiPool.IMAGE}/image",
-            params={
-                "daemonId": daemonId,
-            },
+            params={"daemonId": daemonId},
         )
-
         return [DockerImageItem(**item) for item in result]
 
     @staticmethod
@@ -29,17 +24,12 @@ class Image:
         获取容器列表
 
         :params daemonId: 节点的UUID
-
-        :params: 包含容器列表详情的 DockerContainerItem 模型的列表
         """
         result = send(
             "GET",
             f"{ApiPool.IMAGE}/containers",
-            params={
-                "daemonId": daemonId,
-            },
+            params={"daemonId": daemonId},
         )
-
         return [DockerContainerItem(**item) for item in result]
 
     @staticmethod
@@ -48,15 +38,11 @@ class Image:
         获取网络接口列表
 
         :params daemonId: 节点的UUID
-
-        :returns: 包含网络接口列表详情的 DockerNetworkItem 模型的列表
         """
         result = send(
             "GET",
-            f"{ApiPool.IMAGE}/network",
-            params={
-                "daemonId": daemonId,
-            },
+            f"{ApiPool.IMAGE}/networkModes",
+            params={"daemonId": daemonId},
         )
         return [DockerNetworkItem(**item) for item in result]
 
@@ -66,11 +52,9 @@ class Image:
         新增一个镜像
 
         :params daemonId: 节点的UUID
-        :params dockerFile: DockerFile Config 内容
+        :params dockerFile: DockerFile 内容
         :params name: 镜像名称
         :params tag: 镜像版本
-
-        :returns: 操作成功后返回True
         """
         return send(
             "POST",
@@ -80,19 +64,27 @@ class Image:
         )
 
     @staticmethod
+    def delete(daemonId: str, imageId: str) -> bool:
+        """
+        删除指定镜像
+
+        :params daemonId: 节点的UUID
+        :params imageId: 镜像 ID
+        """
+        return send(
+            "DELETE",
+            f"{ApiPool.IMAGE}/image",
+            params={"daemonId": daemonId, "imageId": imageId},
+        )
+
+    @staticmethod
     def progress(daemonId: str) -> dict[str, int]:
         """
         获取镜像构建进度
 
         :params daemonId: 节点的UUID
 
-        :returns: {容器名称: 当前状态}
-
-        状态码对照:
-        ```
-        -1: 镜像构建失败
-         1: 镜像构建中
-         2: 镜像构建完成
+        :returns: {容器名称: 当前状态} (-1: 失败, 1: 构建中, 2: 完成)
         """
         return send(
             "GET",

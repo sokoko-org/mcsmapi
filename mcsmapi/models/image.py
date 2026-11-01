@@ -9,6 +9,8 @@ class DockerConfig(BaseModel):
     """容器名称"""
     image: str = ""
     """镜像名称"""
+    updateCommandImage: str = "HOST"
+    """更新命令使用的镜像 (HOST 表示使用宿主机执行更新命令)"""
     ports: list[str] = []
     """容器端口映射, eg:["25565:25565/tcp"]"""
     extraVolumes: list[str] = []
@@ -26,19 +28,45 @@ class DockerConfig(BaseModel):
     maxSpace: int = 0
     """容器可使用的最大磁盘空间(单位: MB)"""
     network: int = 0
-    """网络配置(已弃用)"""
+    """网络限速"""
     io: int = 0
     """容器的 IO 限制"""
     cpusetCpus: str = ""
-    """绑定的 CPU 核心, eg: `0,1`"""
+    """绑定的 CPU 核心, eg: ,1"""
     cpuUsage: int = 0
     """限制CPU 使用率(单位: %)"""
     workingDir: str = "/workspace/"
     """工作目录"""
     env: list[str] = []
     """环境变量设置"""
+    labels: list[str] = []
+    """容器标签"""
     changeWorkdir: bool = True
     """是否更变容器默认工作目录"""
+    uploadSpeedLimit: int = 0
+    """上传速度限制"""
+    downloadSpeedLimit: int = 0
+    """下载速度限制"""
+    capAdd: list[str] = []
+    """添加的 Linux capabilities"""
+    capDrop: list[str] = []
+    """移除的 Linux capabilities"""
+    devices: list[str] = []
+    """映射的设备列表"""
+    privileged: bool = False
+    """是否启用特权模式"""
+    gpuEnabled: bool = False
+    """是否启用 GPU"""
+    gpuCount: int = -1
+    """GPU 数量(-1 表示全部)"""
+    gpuDeviceIds: list[str] = []
+    """指定的 GPU 设备 ID 列表"""
+    gpuDriver: str = "nvidia"
+    """GPU 驱动"""
+    deviceReadBps: list[str] = []
+    """设备读取速率限制"""
+    deviceWriteBps: list[str] = []
+    """设备写入速率限制"""
 
 
 class DockerImageItem(BaseModel):

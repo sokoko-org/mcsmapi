@@ -6,6 +6,7 @@ from mcsmapi.apis.image import Image
 from mcsmapi.apis.daemon import Daemon
 from mcsmapi.apis.instance import Instance
 from mcsmapi.apis.overview import Overview
+from mcsmapi.apis.schedule import Schedule
 from mcsmapi.request import Request
 
 
@@ -43,7 +44,7 @@ class MCSMAPI:
         return Instance()
 
     @property
-    def user(self) :
+    def user(self):
         return User()
 
     @property
@@ -57,3 +58,7 @@ class MCSMAPI:
     @property
     def image(self):
         return Image()
+
+    @property
+    def schedule(self):
+        return Schedule()

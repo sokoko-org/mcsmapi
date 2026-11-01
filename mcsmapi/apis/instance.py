@@ -21,16 +21,14 @@ class Instance:
         tag: list[str] | None = None,
     ) -> InstanceSearchList:
         """
-        根据指定的参数搜索实例信息
+        搜索指定节点的实例
 
         :params daemonId: 节点的UUID
-        :params page: 页码，用于指示返回数据的页数
-        :params page_size: 每页大小，用于指定每页包含的数据条数
-        :params instance_name: 用于过滤的实例名称
-        :params status: 用于过滤的实例状态
-        :params tag: 用于过滤的实例标签列表
-
-        :returns: 包含搜索结果的模型
+        :params page: 页码
+        :params page_size: 每页大小
+        :params instance_name: 实例名称过滤
+        :params status: 实例状态过滤
+        :params tag: 标签过滤
         """
         if tag is None:
             tag = []
@@ -49,14 +47,40 @@ class Instance:
         return InstanceSearchList(**result, daemonId=daemonId)
 
     @staticmethod
+    def search_global(
+        page: int = 1,
+        page_size: int = 20,
+        instance_name: str = "",
+        status: Literal[-1, 0, 1, 2, 3, ""] = "",
+    ) -> dict[str, Any]:
+        """
+        跨所有节点搜索实例
+
+        :params page: 页码
+        :params page_size: 每页大小
+        :params instance_name: 实例名称过滤
+        :params status: 实例状态过滤
+
+        :returns: {daemonId: {instances, maxPage, page}}
+        """
+        return send(
+            "GET",
+            "api/service/remote_services_instances_global",
+            params={
+                "page": page,
+                "page_size": page_size,
+                "instance_name": instance_name,
+                "status": status,
+            },
+        )
+
+    @staticmethod
     def detail(daemonId: str, uuid: str) -> InstanceDetail:
         """
-        获取指定实例的详细信息
+        获取实例详细信息
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-
-        :returns: 包含实例详细信息的模型
         """
         result = send(
             "GET",
@@ -68,12 +92,10 @@ class Instance:
     @staticmethod
     def create(daemonId: str, config: dict[str, Any]) -> InstanceCreateResult:
         """
-        创建一个实例
+        创建实例
 
-        :params daemonId: 节点的UUID，用于关联新创建的实例
-        :params config: 实例的配置信息，以字典形式提供，缺失内容由InstanceConfig模型补全
-
-        :returns: 一个包含新创建实例信息的结果对象，内容由InstanceCreateResult模型定义
+        :params daemonId: 节点的UUID
+        :params config: 实例配置，缺失字段由 InstanceConfig 默认值补全
         """
         result = send(
             "POST",
@@ -86,15 +108,11 @@ class Instance:
     @staticmethod
     def updateConfig(daemonId: str, uuid: str, config: dict[str, Any]) -> str:
         """
-        更新实例配置（支持部分更新，只发送提供的字段）
+        更新实例配置（部分更新）
 
-        **不建议直接使用此函数，建议调用search后使用实例对象的updateConfig方法按需更新**
-
-        :params daemonId: 节点的标识符
+        :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params config: 新的实例配置，以字典形式提供，只需包含要修改的字段
-
-        :returns: 被更新配置的实例UUID
+        :params config: 要修改的配置字段
         """
         result = send(
             "PUT",
@@ -110,10 +128,8 @@ class Instance:
         删除实例
 
         :params daemonId: 节点的UUID
-        :params uuids: 要删除的实例UUID列表
-        :params deleteFile: 是否删除关联的文件
-
-        :returns: 被删除的实例UUID列表
+        :params uuids: 实例UUID列表
+        :params deleteFile: 是否删除关联文件
         """
         return send(
             "DELETE",
@@ -129,8 +145,6 @@ class Instance:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-
-        :returns: 被启动的实例的UUID
         """
         result = send(
             "GET",
@@ -142,12 +156,10 @@ class Instance:
     @staticmethod
     def stop(daemonId: str, uuid: str) -> str:
         """
-        关闭实例
+        停止实例
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-
-        :returns: 被关闭的实例的UUID
         """
         result = send(
             "GET",
@@ -163,8 +175,6 @@ class Instance:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-
-        :returns: 被重启的实例的UUID
         """
         result = send(
             "GET",
@@ -180,8 +190,6 @@ class Instance:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-
-        :returns: 被强制关闭的实例的UUID
         """
         result = send(
             "GET",
@@ -196,24 +204,20 @@ class Instance:
         operation: Literal["start", "stop", "restart", "kill"],
     ) -> bool:
         """
-        对多个实例进行批量操作
+        批量操作多个实例
 
-        :params instances: 包含多个实例信息的列表
-        :params operation: 要执行的操作
-
-        :returns: 操作成功返回True
+        :params instances: 实例信息列表
+        :params operation: 操作类型
         """
         return send("POST", f"{ApiPool.INSTANCE}/multi_{operation}", data=instances)
 
     @staticmethod
     def update(daemonId: str, uuid: str) -> bool:
         """
-        更新实例
+        执行实例的更新任务
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-
-        :returns: 操作成功返回True
         """
         return send(
             "POST",
@@ -228,9 +232,7 @@ class Instance:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params command: 要发送的命令
-
-        :returns: 被操作的实例的UUID
+        :params command: 命令内容
         """
         result = send(
             "GET",
@@ -242,11 +244,11 @@ class Instance:
     @staticmethod
     def get_output(daemonId: str, uuid: str, size: int | None = None) -> str:
         """
-        获取实例输出
+        获取实例输出日志
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params size: 获取的输出大小: 1KB ~ 2048KB，如果未设置，则返回所有日志
+        :params size: 获取的输出大小 (1KB~2048KB)，未设置则返回全部
         """
         return send(
             "GET",
@@ -267,11 +269,9 @@ class Instance:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params targetUrl: 重装文件的目标URL
-        :params title: 重装文件的标题
-        :params description: 重装文件的描述
-
-        :returns: 操作成功返回True
+        :params targetUrl: 重装文件URL
+        :params title: 标题
+        :params description: 描述
         """
         return send(
             "POST",

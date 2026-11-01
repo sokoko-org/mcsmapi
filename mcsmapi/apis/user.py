@@ -1,7 +1,7 @@
 from typing import Any, Literal
 from mcsmapi.pool import ApiPool
 from mcsmapi.request import send
-from mcsmapi.models.user import SearchUserModel, UserCreateResult, UserModel
+from mcsmapi.models.user import SearchUserModel, UserCreateResult
 
 
 class User:
@@ -13,14 +13,12 @@ class User:
         role: Literal[-1, 1, 10, ""] = "",
     ) -> SearchUserModel:
         """
-        根据用户名和角色搜索用户信息
+        搜索用户
 
-        :params uername: 要搜索的用户名,为空则列出全部用户
-        :params page: 页码，用于指示返回数据的第几页
-        :params page_size: 每页数据条数
-        :params role: 用于过滤的用户权限
-
-        :returns: 包含搜索结果的模型
+        :params username: 用户名过滤，为空列出全部
+        :params page: 页码
+        :params page_size: 每页条数
+        :params role: 权限过滤
         """
         result = send(
             "GET",
@@ -37,13 +35,11 @@ class User:
     @staticmethod
     def create(username: str, password: str, permission: int = 1) -> UserCreateResult:
         """
-        创建新用户
+        创建用户
 
         :params username: 用户名
         :params password: 密码
         :params permission: 权限等级
-
-        :returns: 包含创建结果的模型
         """
         result = send(
             "POST",
@@ -55,17 +51,10 @@ class User:
     @staticmethod
     def update(uuid: str, config: dict[str, Any]) -> bool:
         """
-        更新用户信息（支持部分更新，只发送提供的字段）
+        更新用户信息（部分更新）
 
-        MCSManager 服务端的 userSystem.edit() 会逐字段检查 config 中的值，
-        只有存在且非空的字段才会被更新，因此只需传入要修改的字段即可。
-
-        **不建议直接使用此函数，建议调用search后使用用户对象的update方法按需更新**
-
-        :params uuid: 用户的UUID
-        :params config: 要更新的用户信息，以字典形式提供，只需包含要修改的字段
-
-        :returns: 成功时返回True
+        :params uuid: 用户UUID
+        :params config: 要修改的字段
         """
         return send(
             "PUT",
@@ -78,8 +67,6 @@ class User:
         """
         删除用户
 
-        :params uuids: 包含要删除的用户UUID的列表
-
-        :returns: 成功时返回True
+        :params uuids: 用户UUID列表
         """
         return send("DELETE", ApiPool.AUTH, data=uuids)

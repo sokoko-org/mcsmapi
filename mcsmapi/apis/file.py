@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 from mcsmapi.pool import ApiPool
 from mcsmapi.request import Request, send, upload
 from mcsmapi.models.file import FileDownloadConfig, FileList
@@ -21,12 +21,10 @@ class File:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params target: 用于文件过滤的目标路径
-        :params page: 指定分页的页码
-        :params page_size: 指定每页的文件数量
-        :params file_name: 用于在文件列表中过滤出名称包含指定字符串的文件或文件夹
-
-        :returns: 包含文件列表信息和分页详情的FileList模型
+        :params target: 目标路径
+        :params page: 页码
+        :params page_size: 每页数量
+        :params file_name: 文件名过滤
         """
         result = send(
             "GET",
@@ -43,15 +41,27 @@ class File:
         return FileList(**result, daemonId=daemonId, uuid=uuid)
 
     @staticmethod
+    def status(daemonId: str, uuid: str) -> dict[str, Any]:
+        """
+        获取文件管理器状态
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        """
+        return send(
+            "GET",
+            f"{ApiPool.FILE}/status",
+            params={"daemonId": daemonId, "uuid": uuid},
+        )
+
+    @staticmethod
     def content(daemonId: str, uuid: str, target: str) -> str:
         """
         获取文件内容
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params target: 文件的目标路径
-
-        :returns: 文件的内容信息
+        :params target: 文件路径
         """
         return send(
             "PUT",
@@ -67,10 +77,8 @@ class File:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params target: 目标文件的路径
+        :params target: 文件路径
         :params text: 新的文件内容
-
-        :returns: 操作成功后返回True
         """
         return send(
             "PUT",
@@ -80,17 +88,54 @@ class File:
         )
 
     @staticmethod
+    def chmod(daemonId: str, uuid: str, target: str, chmod: int, deep: bool = False) -> bool:
+        """
+        修改文件权限 (仅 Linux)
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params target: 文件路径
+        :params chmod: 权限值 (如 755)
+        :params deep: 是否递归修改
+        """
+        return send(
+            "PUT",
+            f"{ApiPool.FILE}/chmod",
+            params={"daemonId": daemonId, "uuid": uuid},
+            data={"target": target, "chmod": chmod, "deep": deep},
+        )
+
+    @staticmethod
+    def chmod_batch(
+        daemonId: str, uuid: str, targets: list[str], chmod: int, deep: bool = False
+    ) -> bool:
+        """
+        批量修改文件权限 (仅 Linux)
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params targets: 文件路径列表
+        :params chmod: 权限值 (如 755)
+        :params deep: 是否递归修改
+        """
+        return send(
+            "PUT",
+            f"{ApiPool.FILE}/chmod_batch",
+            params={"daemonId": daemonId, "uuid": uuid},
+            data={"targets": targets, "chmod": chmod, "deep": deep},
+        )
+
+    @staticmethod
     def download(daemonId: str, uuid: str, file_name: str) -> str:
         """
         下载文件
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params file_name: 要下载的文件的实例内完整路径, eg: /backup/world.zip
+        :params file_name: 文件的实例内完整路径, eg: /backup/world.zip
 
         :returns: 文件下载URL
         """
-
         result = send(
             "POST",
             f"{ApiPool.FILE}/download",
@@ -108,10 +153,8 @@ class File:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params file: 要上传的文件内容
-        :params upload_dir: 文件上传到的目标路径
-
-        :returns: 操作成功后返回True
+        :params file: 文件内容
+        :params upload_dir: 上传目标路径
         """
         result = send(
             "POST",
@@ -128,13 +171,11 @@ class File:
     @staticmethod
     def copy_to(daemonId: str, uuid: str, copy_map: dict[str, str]) -> bool:
         """
-        复制多个文件夹或文件到指定位置
+        复制多个文件或文件夹到指定位置
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params copy_map: 复制映射，格式为 {源路径: 目标路径}
-
-        :returns: 操作成功后返回True
+        :params copy_map: 复制映射 {源路径: 目标路径}
         """
         targets = [[source, target] for source, target in copy_map.items()]
         return send(
@@ -147,27 +188,23 @@ class File:
     @staticmethod
     def copyOne(daemonId: str, uuid: str, source: str, target: str) -> bool:
         """
-        复制单个文件或文件夹到指定位置
+        复制单个文件或文件夹
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params source: 源文件或文件夹的路径
-        :params target: 目标文件或文件夹的路径
-
-        :returns: 操作成功后返回True
+        :params source: 源路径
+        :params target: 目标路径
         """
         return File.copy_to(daemonId, uuid, {source: target})
 
     @staticmethod
     def move(daemonId: str, uuid: str, copy_map: dict[str, str]) -> bool:
         """
-        移动多个文件或文件夹到指定位置
+        移动多个文件或文件夹
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params copy_map: 移动映射，格式为 {源路径: 目标路径}
-
-        :returns: 操作成功后返回True
+        :params copy_map: 移动映射 {源路径: 目标路径}
         """
         targets = [[source, target] for source, target in copy_map.items()]
         return send(
@@ -180,28 +217,24 @@ class File:
     @staticmethod
     def moveOne(daemonId: str, uuid: str, source: str, target: str) -> bool:
         """
-        从源路径移动单个文件或文件夹到目标路径
+        移动单个文件或文件夹
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params source: 源文件或文件夹的路径
-        :params target: 目标文件或文件夹的路径
-
-        :returns: 操作成功后返回True
+        :params source: 源路径
+        :params target: 目标路径
         """
         return File.move(daemonId, uuid, {source: target})
 
     @staticmethod
     def rename(daemonId: str, uuid: str, source: str, new_name: str) -> bool:
         """
-        重命名单个文件或文件夹
+        重命名文件或文件夹
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params source: 源文件或文件夹的路径
-        :params new_name: 源文件或文件夹的新名字
-
-        :returns: 操作成功后返回True
+        :params source: 源路径
+        :params new_name: 新名称
         """
         directory = os.path.dirname(source)
         target = os.path.join(directory, new_name)
@@ -210,14 +243,12 @@ class File:
     @staticmethod
     def zip(daemonId: str, uuid: str, source: str, targets: list[str]) -> bool:
         """
-        压缩多个文件或文件夹到指定位置
+        压缩文件或文件夹
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params source: 要压缩到的目标文件的路径
-        :params targets: 需要压缩的文件路径
-
-        :returns: 操作成功后返回True
+        :params source: 压缩后的文件路径
+        :params targets: 需要压缩的文件路径列表
         """
         return send(
             "POST",
@@ -235,15 +266,13 @@ class File:
         code: Literal["utf-8", "gbk", "big5"] = "utf-8",
     ) -> bool:
         """
-        解压缩指定的zip文件到目标位置
+        解压缩 zip 文件
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params source: 需要解压的zip文件路径
-        :params targets: 解压到的目标路径
-        :params code: 压缩文件的编码方式
-
-        :returns: 操作成功后返回True
+        :params source: zip 文件路径
+        :params targets: 解压目标路径
+        :params code: 编码方式
         """
         return send(
             "POST",
@@ -255,13 +284,11 @@ class File:
     @staticmethod
     def delete(daemonId: str, uuid: str, targets: list[str]) -> bool:
         """
-        删除多个文件或文件夹
+        删除文件或文件夹
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params targets: 要删除的文件或文件夹的路径
-
-        :returns: 操作成功后返回True
+        :params targets: 要删除的路径列表
         """
         return send(
             "DELETE",
@@ -277,9 +304,7 @@ class File:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params target: 目标文件的路径，包含文件名
-
-        :returns: 操作成功后返回True
+        :params target: 文件路径
         """
         return send(
             "POST",
@@ -295,9 +320,7 @@ class File:
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params target: 目标文件夹的路径
-
-        :returns: 操作成功后返回True
+        :params target: 文件夹路径
         """
         return send(
             "POST",
