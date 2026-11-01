@@ -57,31 +57,33 @@ from mcsmapi import MCSMAPI
 
 
 async def main():
-    async with MCSMAPI("http://localhost:23333") as mcsm:
-        await mcsm.login("admin", "password")
+    mcsm = MCSMAPI("http://localhost:23333")
+    await mcsm.login("admin", "password")
 
-        # Dashboard
-        data = await mcsm.overview.overview()
-        print(f"Panel version: {data.version}")
+    # Dashboard
+    data = await mcsm.overview.overview()
+    print(f"Panel version: {data.version}")
 
-        # List daemons
-        daemons = await mcsm.daemon.config()
-        for d in daemons:
-            print(f"  {d.remarks} ({d.ip}:{d.port})")
+    # List daemons
+    daemons = await mcsm.daemon.config()
+    for d in daemons:
+        print(f"  {d.remarks} ({d.ip}:{d.port})")
 
-        # Search instances on a daemon
-        instances = await daemons[0].search_instances()
-        for inst in instances.data:
-            print(f"  {inst.config.nickname} [{inst.status.name}]")
+    # Search instances on a daemon
+    instances = await daemons[0].search_instances()
+    for inst in instances.data:
+        print(f"  {inst.config.nickname} [{inst.status.name}]")
 
-        # Partial config update (only sends provided fields)
-        inst = instances.data[0]
-        await inst.updateConfig({"nickname": "My Server"})
+    # Partial config update (only sends provided fields)
+    inst = instances.data[0]
+    await inst.updateConfig({"nickname": "My Server"})
 
-        # File operations via chaining
-        files = await inst.files(target="")
-        for f in files.items[:5]:
-            print(f"  {f.name}")
+    # File operations via chaining
+    files = await inst.files(target=".")
+    for f in files.items[:5]:
+        print(f"  {f.name}")
+
+    await mcsm.close()
 
 
 asyncio.run(main())

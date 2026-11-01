@@ -57,31 +57,33 @@ from mcsmapi import MCSMAPI
 
 
 async def main():
-    async with MCSMAPI("http://localhost:23333") as mcsm:
-        await mcsm.login("admin", "password")
+    mcsm = MCSMAPI("http://localhost:23333")
+    await mcsm.login("admin", "password")
 
-        # 仪表盘
-        data = await mcsm.overview.overview()
-        print(f"面板版本: {data.version}")
+    # 仪表盘
+    data = await mcsm.overview.overview()
+    print(f"面板版本: {data.version}")
 
-        # 节点列表
-        daemons = await mcsm.daemon.config()
-        for d in daemons:
-            print(f"  {d.remarks} ({d.ip}:{d.port})")
+    # 节点列表
+    daemons = await mcsm.daemon.config()
+    for d in daemons:
+        print(f"  {d.remarks} ({d.ip}:{d.port})")
 
-        # 搜索实例
-        instances = await daemons[0].search_instances()
-        for inst in instances.data:
-            print(f"  {inst.config.nickname} [{inst.status.name}]")
+    # 搜索实例
+    instances = await daemons[0].search_instances()
+    for inst in instances.data:
+        print(f"  {inst.config.nickname} [{inst.status.name}]")
 
-        # 部分更新配置（只发送传入的字段，不会重置其他字段）
-        inst = instances.data[0]
-        await inst.updateConfig({"nickname": "我的服务器"})
+    # 部分更新配置（只发送传入的字段，不会重置其他字段）
+    inst = instances.data[0]
+    await inst.updateConfig({"nickname": "我的服务器"})
 
-        # 链式文件操作
-        files = await inst.files(target="")
-        for f in files.items[:5]:
-            print(f"  {f.name}")
+    # 链式文件操作
+    files = await inst.files(target=".")
+    for f in files.items[:5]:
+        print(f"  {f.name}")
+
+    await mcsm.close()
 
 
 asyncio.run(main())
