@@ -1,8 +1,12 @@
+from __future__ import annotations
 from enum import IntEnum
-from typing import Any, TypedDict
-from pydantic import BaseModel, field_validator
+from typing import TYPE_CHECKING, Any, TypedDict
+from pydantic import BaseModel, ConfigDict, PrivateAttr, field_validator
 from mcsmapi.models.image import DockerConfig
 from mcsmapi.models.schedule import ScheduleDetail, SchedulePostBody
+
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
 
 
 class CRLFType(IntEnum):
@@ -153,6 +157,10 @@ class InstanceConfig(BaseModel):
 class InstanceDetail(BaseModel):
     """实例详细信息"""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    _req: Any = PrivateAttr(default=None)
+
     config: InstanceConfig
     """实例的配置信息"""
     daemonId: str
@@ -164,29 +172,33 @@ class InstanceDetail(BaseModel):
     status: Status
     """实例状态"""
 
+    def __init__(self, _req: Request | None = None, **data: Any):
+        super().__init__(**data)
+        self._req = _req
+
     async def start(self):
         """启动该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.start(self.daemonId, self.instanceUuid)
+        return await Instance(self._req).start(self.daemonId, self.instanceUuid)
 
     async def stop(self):
         """停止该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.stop(self.daemonId, self.instanceUuid)
+        return await Instance(self._req).stop(self.daemonId, self.instanceUuid)
 
     async def restart(self):
         """重启该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.restart(self.daemonId, self.instanceUuid)
+        return await Instance(self._req).restart(self.daemonId, self.instanceUuid)
 
     async def kill(self):
         """强制关闭该实例"""
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.kill(self.daemonId, self.instanceUuid)
+        return await Instance(self._req).kill(self.daemonId, self.instanceUuid)
 
     async def delete(self, deleteFile: bool = False):
         """
@@ -196,14 +208,14 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        result = await Instance.delete(self.daemonId, [self.instanceUuid], deleteFile)
+        result = await Instance(self._req).delete(self.daemonId, [self.instanceUuid], deleteFile)
         return result[0]
 
     async def update(self):
         """升级实例"""
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.update(self.daemonId, self.instanceUuid)
+        return await Instance(self._req).update(self.daemonId, self.instanceUuid)
 
     async def updateConfig(self, config: dict[str, Any]):
         """
@@ -213,7 +225,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.updateConfig(self.daemonId, self.instanceUuid, config)
+        return await Instance(self._req).updateConfig(self.daemonId, self.instanceUuid, config)
 
     async def reinstall(self, targetUrl: str, title: str = "", description: str = ""):
         """
@@ -225,7 +237,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.reinstall(
+        return await Instance(self._req).reinstall(
             self.daemonId, self.instanceUuid, targetUrl, title, description
         )
 
@@ -237,7 +249,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.command(self.daemonId, self.instanceUuid, command)
+        return await Instance(self._req).command(self.daemonId, self.instanceUuid, command)
 
     async def get_output(self, size: int | None = None) -> str:
         """
@@ -247,7 +259,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.get_output(self.daemonId, self.instanceUuid, size)
+        return await Instance(self._req).get_output(self.daemonId, self.instanceUuid, size)
 
     async def files(
         self, target: str = "", page: int = 0, page_size: int = 100, file_name: str = ""
@@ -262,7 +274,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.file import File
 
-        return await File.show(
+        return await File(self._req).show(
             self.daemonId, self.instanceUuid, target, page, page_size, file_name
         )
 
@@ -270,7 +282,7 @@ class InstanceDetail(BaseModel):
         """获取实例的计划任务列表"""
         from mcsmapi.apis.schedule import Schedule
 
-        return await Schedule.list(self.daemonId, self.instanceUuid)
+        return await Schedule(self._req).list(self.daemonId, self.instanceUuid)
 
     async def create_schedule(self, config: SchedulePostBody) -> bool:
         """
@@ -280,7 +292,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.schedule import Schedule
 
-        return await Schedule.create(self.daemonId, self.instanceUuid, config)
+        return await Schedule(self._req).create(self.daemonId, self.instanceUuid, config)
 
 
 class InstanceCreateResult(BaseModel):
@@ -295,6 +307,10 @@ class InstanceCreateResult(BaseModel):
 class InstanceSearchList(BaseModel):
     """实例搜索列表"""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    _req: Any = PrivateAttr(default=None)
+
     pageSize: int = 0
     """每页的实例数量"""
     maxPage: int = 0
@@ -303,6 +319,13 @@ class InstanceSearchList(BaseModel):
     """实例详细信息列表"""
     daemonId: str = ""
     """所属的节点UUID"""
+
+    def __init__(self, _req: Request | None = None, **data: Any):
+        super().__init__(**data)
+        self._req = _req
+        # 向子模型注入 _req
+        for inst in self.data:
+            inst._req = _req
 
     @field_validator("data", mode="before")
     @classmethod

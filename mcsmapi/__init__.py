@@ -14,14 +14,14 @@ class MCSMAPI:
 
     def __init__(self, url: str, timeout: int = 5):
         split_url = urllib.parse.urlsplit(url)
-        Request.set_mcsm_url(
-            urllib.parse.urljoin(f"{split_url.scheme}://{split_url.netloc}", "")
+        mcsm_url = urllib.parse.urljoin(
+            f"{split_url.scheme}://{split_url.netloc}", ""
         )
-        Request.set_timeout(timeout)
+        self._req = Request(mcsm_url, timeout)
 
     async def login(self, username: str, password: str):
-        Request.set_token(
-            await Request.send(
+        self._req.set_token(
+            await self._req.send(
                 "POST",
                 f"{ApiPool.AUTH}/login",
                 data={"username": username, "password": password},
@@ -31,38 +31,38 @@ class MCSMAPI:
         return self
 
     def login_with_apikey(self, apikey: str):
-        Request.set_apikey(apikey)
+        self._req.set_apikey(apikey)
         self.authentication = "apikey"
         return self
 
     async def close(self):
         """关闭底层 HTTP 连接"""
-        await Request.close()
+        await self._req.close()
 
     @property
     def overview(self):
-        return Overview()
+        return Overview(self._req)
 
     @property
     def instance(self):
-        return Instance()
+        return Instance(self._req)
 
     @property
     def user(self):
-        return User()
+        return User(self._req)
 
     @property
     def daemon(self):
-        return Daemon()
+        return Daemon(self._req)
 
     @property
     def file(self):
-        return File()
+        return File(self._req)
 
     @property
     def image(self):
-        return Image()
+        return Image(self._req)
 
     @property
     def schedule(self):
-        return Schedule()
+        return Schedule(self._req)

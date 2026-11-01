@@ -1,12 +1,18 @@
-from typing import Any, Literal
+from __future__ import annotations
+from typing import TYPE_CHECKING, Any, Literal
 from mcsmapi.pool import ApiPool
-from mcsmapi.request import send
 from mcsmapi.models.user import SearchUserModel, UserCreateResult
+
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
 
 
 class User:
-    @staticmethod
+    def __init__(self, req: Request):
+        self._req = req
+
     async def search(
+        self,
         username: str = "",
         page: int = 1,
         page_size: int = 20,
@@ -20,7 +26,7 @@ class User:
         :params page_size: 每页条数
         :params role: 权限过滤
         """
-        result = await send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.AUTH}/search",
             params={
@@ -30,10 +36,9 @@ class User:
                 "role": role,
             },
         )
-        return SearchUserModel(**result)
+        return SearchUserModel(**result, _req=self._req)
 
-    @staticmethod
-    async def create(username: str, password: str, permission: int = 1) -> UserCreateResult:
+    async def create(self, username: str, password: str, permission: int = 1) -> UserCreateResult:
         """
         创建用户
 
@@ -41,32 +46,30 @@ class User:
         :params password: 密码
         :params permission: 权限等级
         """
-        result = await send(
+        result = await self._req.send(
             "POST",
             ApiPool.AUTH,
             data={"username": username, "password": password, "permission": permission},
         )
         return UserCreateResult(**result)
 
-    @staticmethod
-    async def update(uuid: str, config: dict[str, Any]) -> bool:
+    async def update(self, uuid: str, config: dict[str, Any]) -> bool:
         """
         更新用户信息（部分更新）
 
         :params uuid: 用户UUID
         :params config: 要修改的字段
         """
-        return await send(
+        return await self._req.send(
             "PUT",
             ApiPool.AUTH,
             data={"uuid": uuid, "config": config},
         )
 
-    @staticmethod
-    async def delete(uuids: list[str]) -> bool:
+    async def delete(self, uuids: list[str]) -> bool:
         """
         删除用户
 
         :params uuids: 用户UUID列表
         """
-        return await send("DELETE", ApiPool.AUTH, data=uuids)
+        return await self._req.send("DELETE", ApiPool.AUTH, data=uuids)

@@ -1,6 +1,6 @@
-from typing import Any, Literal
+from __future__ import annotations
+from typing import TYPE_CHECKING, Any, Literal
 from mcsmapi.pool import ApiPool
-from mcsmapi.request import send
 from mcsmapi.models.instance import (
     InstanceSearchList,
     InstanceDetail,
@@ -9,10 +9,16 @@ from mcsmapi.models.instance import (
     batchOperationDetail,
 )
 
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
+
 
 class Instance:
-    @staticmethod
+    def __init__(self, req: Request):
+        self._req = req
+
     async def search(
+        self,
         daemonId: str,
         page: int = 1,
         page_size: int = 20,
@@ -32,7 +38,7 @@ class Instance:
         """
         if tag is None:
             tag = []
-        result = await send(
+        result = await self._req.send(
             "GET",
             "api/service/remote_service_instances",
             params={
@@ -44,10 +50,10 @@ class Instance:
                 "tag": tag,
             },
         )
-        return InstanceSearchList(**result, daemonId=daemonId)
+        return InstanceSearchList(**result, daemonId=daemonId, _req=self._req)
 
-    @staticmethod
     async def search_global(
+        self,
         page: int = 1,
         page_size: int = 20,
         instance_name: str = "",
@@ -63,7 +69,7 @@ class Instance:
 
         :returns: {daemonId: {instances, maxPage, page}}
         """
-        return await send(
+        return await self._req.send(
             "GET",
             "api/service/remote_services_instances_global",
             params={
@@ -74,30 +80,28 @@ class Instance:
             },
         )
 
-    @staticmethod
-    async def detail(daemonId: str, uuid: str) -> InstanceDetail:
+    async def detail(self, daemonId: str, uuid: str) -> InstanceDetail:
         """
         获取实例详细信息
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
         """
-        result = await send(
+        result = await self._req.send(
             "GET",
             ApiPool.INSTANCE,
             params={"uuid": uuid, "daemonId": daemonId},
         )
-        return InstanceDetail(**result, daemonId=daemonId)
+        return InstanceDetail(**result, daemonId=daemonId, _req=self._req)
 
-    @staticmethod
-    async def create(daemonId: str, config: dict[str, Any]) -> InstanceCreateResult:
+    async def create(self, daemonId: str, config: dict[str, Any]) -> InstanceCreateResult:
         """
         创建实例
 
         :params daemonId: 节点的UUID
         :params config: 实例配置，缺失字段由 InstanceConfig 默认值补全
         """
-        result = await send(
+        result = await self._req.send(
             "POST",
             ApiPool.INSTANCE,
             params={"daemonId": daemonId},
@@ -105,8 +109,7 @@ class Instance:
         )
         return InstanceCreateResult(**result)
 
-    @staticmethod
-    async def updateConfig(daemonId: str, uuid: str, config: dict[str, Any]) -> str:
+    async def updateConfig(self, daemonId: str, uuid: str, config: dict[str, Any]) -> str:
         """
         更新实例配置（部分更新）
 
@@ -114,7 +117,7 @@ class Instance:
         :params uuid: 实例的UUID
         :params config: 要修改的配置字段
         """
-        result = await send(
+        result = await self._req.send(
             "PUT",
             ApiPool.INSTANCE,
             params={"uuid": uuid, "daemonId": daemonId},
@@ -122,8 +125,7 @@ class Instance:
         )
         return result["instanceUuid"]
 
-    @staticmethod
-    async def delete(daemonId: str, uuids: list[str], deleteFile: bool = False) -> list[str]:
+    async def delete(self, daemonId: str, uuids: list[str], deleteFile: bool = False) -> list[str]:
         """
         删除实例
 
@@ -131,75 +133,71 @@ class Instance:
         :params uuids: 实例UUID列表
         :params deleteFile: 是否删除关联文件
         """
-        return await send(
+        return await self._req.send(
             "DELETE",
             ApiPool.INSTANCE,
             params={"daemonId": daemonId},
             data={"uuids": uuids, "deleteFile": deleteFile},
         )
 
-    @staticmethod
-    async def start(daemonId: str, uuid: str) -> str:
+    async def start(self, daemonId: str, uuid: str) -> str:
         """
         启动实例
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
         """
-        result = await send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.PROTECTED_INSTANCE}/open",
             params={"daemonId": daemonId, "uuid": uuid},
         )
         return result["instanceUuid"]
 
-    @staticmethod
-    async def stop(daemonId: str, uuid: str) -> str:
+    async def stop(self, daemonId: str, uuid: str) -> str:
         """
         停止实例
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
         """
-        result = await send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.PROTECTED_INSTANCE}/stop",
             params={"daemonId": daemonId, "uuid": uuid},
         )
         return result["instanceUuid"]
 
-    @staticmethod
-    async def restart(daemonId: str, uuid: str) -> str:
+    async def restart(self, daemonId: str, uuid: str) -> str:
         """
         重启实例
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
         """
-        result = await send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.PROTECTED_INSTANCE}/restart",
             params={"daemonId": daemonId, "uuid": uuid},
         )
         return result["instanceUuid"]
 
-    @staticmethod
-    async def kill(daemonId: str, uuid: str) -> str:
+    async def kill(self, daemonId: str, uuid: str) -> str:
         """
         强制关闭实例
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
         """
-        result = await send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.PROTECTED_INSTANCE}/kill",
             params={"daemonId": daemonId, "uuid": uuid},
         )
         return result["instanceUuid"]
 
-    @staticmethod
     async def batchOperation(
+        self,
         instances: list[batchOperationDetail],
         operation: Literal["start", "stop", "restart", "kill"],
     ) -> bool:
@@ -209,24 +207,22 @@ class Instance:
         :params instances: 实例信息列表
         :params operation: 操作类型
         """
-        return await send("POST", f"{ApiPool.INSTANCE}/multi_{operation}", data=instances)
+        return await self._req.send("POST", f"{ApiPool.INSTANCE}/multi_{operation}", data=instances)
 
-    @staticmethod
-    async def update(daemonId: str, uuid: str) -> bool:
+    async def update(self, daemonId: str, uuid: str) -> bool:
         """
         执行实例的更新任务
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
         """
-        return await send(
+        return await self._req.send(
             "POST",
             f"{ApiPool.PROTECTED_INSTANCE}/asynchronous",
             params={"daemonId": daemonId, "uuid": uuid, "task_name": "update"},
         )
 
-    @staticmethod
-    async def command(daemonId: str, uuid: str, command: str) -> str:
+    async def command(self, daemonId: str, uuid: str, command: str) -> str:
         """
         向实例发送命令
 
@@ -234,15 +230,14 @@ class Instance:
         :params uuid: 实例的UUID
         :params command: 命令内容
         """
-        result = await send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.PROTECTED_INSTANCE}/command",
             params={"daemonId": daemonId, "uuid": uuid, "command": command},
         )
         return result["instanceUuid"]
 
-    @staticmethod
-    async def get_output(daemonId: str, uuid: str, size: int | None = None) -> str:
+    async def get_output(self, daemonId: str, uuid: str, size: int | None = None) -> str:
         """
         获取实例输出日志
 
@@ -250,14 +245,14 @@ class Instance:
         :params uuid: 实例的UUID
         :params size: 获取的输出大小 (1KB~2048KB)，未设置则返回全部
         """
-        return await send(
+        return await self._req.send(
             "GET",
             f"{ApiPool.PROTECTED_INSTANCE}/outputlog",
             params={"daemonId": daemonId, "uuid": uuid, "size": size},
         )
 
-    @staticmethod
     async def reinstall(
+        self,
         daemonId: str,
         uuid: str,
         targetUrl: str,
@@ -273,7 +268,7 @@ class Instance:
         :params title: 标题
         :params description: 描述
         """
-        return await send(
+        return await self._req.send(
             "POST",
             f"{ApiPool.PROTECTED_INSTANCE}/install_instance",
             params={"uuid": uuid, "daemonId": daemonId},

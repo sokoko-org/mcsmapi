@@ -7,47 +7,40 @@ from .exceptions import MCSMError
 
 
 class Request:
-    mcsm_url: str = ""
-    timeout: int = 5
-    _client: httpx.AsyncClient | None = None
-    apikey: str | None = None
-    token: str | None = None
+    def __init__(self, mcsm_url: str = "", timeout: int = 5):
+        self.mcsm_url = mcsm_url
+        self.timeout = timeout
+        self._client: httpx.AsyncClient | None = None
+        self.apikey: str | None = None
+        self.token: str | None = None
 
-    @classmethod
-    def _get_client(cls) -> httpx.AsyncClient:
-        if cls._client is None or cls._client.is_closed:
-            cls._client = httpx.AsyncClient(timeout=cls.timeout)
-        return cls._client
+    def _get_client(self) -> httpx.AsyncClient:
+        if self._client is None or self._client.is_closed:
+            self._client = httpx.AsyncClient(timeout=self.timeout)
+        return self._client
 
-    @classmethod
-    async def close(cls):
+    async def close(self):
         """关闭底层连接"""
-        if cls._client is not None and not cls._client.is_closed:
-            await cls._client.aclose()
-            cls._client = None
+        if self._client is not None and not self._client.is_closed:
+            await self._client.aclose()
+            self._client = None
 
-    @classmethod
-    def set_mcsm_url(cls, url: str):
-        cls.mcsm_url = url
+    def set_mcsm_url(self, url: str):
+        self.mcsm_url = url
 
-    @classmethod
-    def set_timeout(cls, timeout: int):
-        cls.timeout = timeout
-        # 更新已有 client 的超时
-        if cls._client is not None and not cls._client.is_closed:
-            cls._client = httpx.AsyncClient(timeout=cls.timeout)
+    def set_timeout(self, timeout: int):
+        self.timeout = timeout
+        if self._client is not None and not self._client.is_closed:
+            self._client = httpx.AsyncClient(timeout=self.timeout)
 
-    @classmethod
-    def set_apikey(cls, apikey: str):
-        cls.apikey = apikey
+    def set_apikey(self, apikey: str):
+        self.apikey = apikey
 
-    @classmethod
-    def set_token(cls, token: str):
-        cls.token = token
+    def set_token(self, token: str):
+        self.token = token
 
-    @classmethod
     async def send(
-        cls,
+        self,
         method: str,
         endpoint: str | ApiPool,
         params: dict | None = None,
@@ -61,13 +54,13 @@ class Request:
         if isinstance(endpoint, ApiPool):
             endpoint = endpoint.value
 
-        url = urllib.parse.urljoin(cls.mcsm_url, endpoint)
-        if cls.apikey is not None:
-            params["apikey"] = cls.apikey
-        if cls.token is not None:
-            params["token"] = cls.token
+        url = urllib.parse.urljoin(self.mcsm_url, endpoint)
+        if self.apikey is not None:
+            params["apikey"] = self.apikey
+        if self.token is not None:
+            params["token"] = self.token
 
-        client = cls._get_client()
+        client = self._get_client()
         response = await client.request(
             method.upper(),
             url,
@@ -82,10 +75,9 @@ class Request:
                 response.status_code, response.json().get("data", response.text)
             ) from e
 
-    @classmethod
-    async def upload(cls, url: str, file: bytes) -> bool:
+    async def upload(self, url: str, file: bytes) -> bool:
         """上传文件"""
-        client = cls._get_client()
+        client = self._get_client()
         response = await client.post(
             url,
             files={"file": file},
@@ -97,7 +89,3 @@ class Request:
             raise MCSMError(
                 response.status_code, response.json().get("data", response.text)
             ) from e
-
-
-send = Request.send
-upload = Request.upload

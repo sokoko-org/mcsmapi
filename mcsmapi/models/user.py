@@ -1,6 +1,10 @@
+from __future__ import annotations
 from enum import IntEnum
-from typing import Any
-from pydantic import BaseModel
+from typing import TYPE_CHECKING, Any
+from pydantic import BaseModel, ConfigDict, PrivateAttr
+
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
 
 
 class UserPermission(IntEnum):
@@ -34,6 +38,10 @@ class UserCreateResult(BaseModel):
 class UserModel(BaseModel):
     """用户信息模型"""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    _req: Any = PrivateAttr(default=None)
+
     uuid: str = ""
     """用户UUID"""
     userName: str = ""
@@ -57,11 +65,15 @@ class UserModel(BaseModel):
     secret: str = ""
     """2FA 密钥 (搜索接口返回掩码值)"""
 
+    def __init__(self, _req: Request | None = None, **data: Any):
+        super().__init__(**data)
+        self._req = _req
+
     async def delete(self):
         """删除该用户"""
         from mcsmapi.apis.user import User
 
-        return await User().delete([self.uuid])
+        return await User(self._req).delete([self.uuid])
 
     async def update(self, config: dict[str, Any]):
         """
@@ -71,11 +83,15 @@ class UserModel(BaseModel):
         """
         from mcsmapi.apis.user import User
 
-        return await User().update(self.uuid, config)
+        return await User(self._req).update(self.uuid, config)
 
 
 class SearchUserModel(BaseModel):
     """用户搜索结果"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    _req: Any = PrivateAttr(default=None)
 
     total: int
     """匹配的用户总数"""
@@ -87,3 +103,9 @@ class SearchUserModel(BaseModel):
     """最大可用页数"""
     data: list[UserModel]
     """用户信息列表"""
+
+    def __init__(self, _req: Request | None = None, **data: Any):
+        super().__init__(**data)
+        self._req = _req
+        for user in self.data:
+            user._req = _req

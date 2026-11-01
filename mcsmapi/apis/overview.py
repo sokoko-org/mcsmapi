@@ -1,28 +1,32 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING, Any
 from mcsmapi.pool import ApiPool
-from mcsmapi.request import send
 from mcsmapi.models.overview import OverviewModel, LogDetail
+
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
 
 
 class Overview:
-    @staticmethod
-    async def overview() -> OverviewModel:
+    def __init__(self, req: Request):
+        self._req = req
+
+    async def overview(self) -> OverviewModel:
         """获取面板基本信息"""
-        result = await send("GET", ApiPool.OVERVIEW)
+        result = await self._req.send("GET", ApiPool.OVERVIEW)
         return OverviewModel(**result)
 
-    @staticmethod
-    async def logs(limit: int = 20) -> list[LogDetail]:
+    async def logs(self, limit: int = 20) -> list[LogDetail]:
         """
         获取面板操作日志
 
         :params limit: 返回的日志条数 (1-200)
         """
-        result = await send("GET", ApiPool.LOG, params={"limit": limit})
+        result = await self._req.send("GET", ApiPool.LOG, params={"limit": limit})
         return [LogDetail(**item) for item in result]
 
-    @staticmethod
     async def log_search(
+        self,
         page: int = 1,
         page_size: int = 20,
         type: str | None = None,
@@ -57,18 +61,16 @@ class Overview:
             params["end_time"] = end_time
         if keyword is not None:
             params["keyword"] = keyword
-        return await send("GET", f"{ApiPool.LOG}/search", params=params)
+        return await self._req.send("GET", f"{ApiPool.LOG}/search", params=params)
 
-    @staticmethod
-    async def setting() -> dict[str, Any]:
+    async def setting(self) -> dict[str, Any]:
         """获取面板配置项 (管理员)"""
-        return await send("GET", f"{ApiPool.OVERVIEW}/setting")
+        return await self._req.send("GET", f"{ApiPool.OVERVIEW}/setting")
 
-    @staticmethod
-    async def update_setting(config: dict[str, Any]) -> str:
+    async def update_setting(self, config: dict[str, Any]) -> str:
         """
         更新面板配置项（部分更新，只发送提供的字段）
 
         :params config: 要修改的配置字段
         """
-        return await send("PUT", f"{ApiPool.OVERVIEW}/setting", data=config)
+        return await self._req.send("PUT", f"{ApiPool.OVERVIEW}/setting", data=config)

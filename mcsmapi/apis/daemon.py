@@ -1,6 +1,6 @@
-from typing import Any
+from __future__ import annotations
+from typing import TYPE_CHECKING, Any
 from mcsmapi.pool import ApiPool
-from mcsmapi.request import send
 from mcsmapi.models.daemon import (
     DaemonConfig,
     DaemonInfo,
@@ -8,79 +8,78 @@ from mcsmapi.models.daemon import (
     DaemonStatus,
 )
 
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
+
 
 class Daemon:
-    @staticmethod
-    async def config() -> list[DaemonStatus]:
+    def __init__(self, req: Request):
+        self._req = req
+
+    async def config(self) -> list[DaemonStatus]:
         """获取全部节点配置信息"""
-        daemons = await send(
+        daemons = await self._req.send(
             "GET",
             f"{ApiPool.SERVICE}/remote_services_list",
         )
-        return [DaemonStatus(**daemon) for daemon in daemons]
+        return [DaemonStatus(**daemon, _req=self._req) for daemon in daemons]
 
-    @staticmethod
-    async def info() -> list[DaemonInfo]:
+    async def info(self) -> list[DaemonInfo]:
         """获取全部节点信息（含实例列表）"""
-        daemons = await send(
+        daemons = await self._req.send(
             "GET",
             f"{ApiPool.SERVICE}/remote_services",
         )
-        return [DaemonInfo(**daemon) for daemon in daemons]
+        return [DaemonInfo(**daemon, _req=self._req) for daemon in daemons]
 
-    @staticmethod
-    async def system() -> list[DaemonSystemInfo]:
+    async def system(self) -> list[DaemonSystemInfo]:
         """获取全部节点的系统信息"""
-        daemons = await send(
+        daemons = await self._req.send(
             "GET",
             f"{ApiPool.SERVICE}/remote_services_system",
         )
-        return [DaemonSystemInfo(**daemon) for daemon in daemons]
+        return [DaemonSystemInfo(**daemon, _req=self._req) for daemon in daemons]
 
-    @staticmethod
-    async def add(config: DaemonConfig) -> str:
+    async def add(self, config: DaemonConfig) -> str:
         """
         新增节点
 
         :params config: 节点配置信息
         """
-        return await send(
+        return await self._req.send(
             "POST",
             f"{ApiPool.SERVICE}/remote_service",
             data=config.model_dump(),
         )
 
-    @staticmethod
-    async def delete(daemonId: str) -> bool:
+    async def delete(self, daemonId: str) -> bool:
         """
         删除节点
 
         :params daemonId: 节点的UUID
         """
-        return await send(
+        return await self._req.send(
             "DELETE", f"{ApiPool.SERVICE}/remote_service", params={"uuid": daemonId}
         )
 
-    @staticmethod
-    async def link(daemonId: str) -> bool:
+    async def link(self, daemonId: str) -> bool:
         """
         连接节点
 
         :params daemonId: 节点的UUID
         """
-        return await send(
+        return await self._req.send(
             "GET", f"{ApiPool.SERVICE}/link_remote_service", params={"uuid": daemonId}
         )
 
-    @staticmethod
-    async def update(daemonId: str, config: dict[str, Any]) -> bool:
+    async def update(self, daemonId: str, config: dict[str, Any]) -> bool:
         """
         更新节点配置（部分更新）
 
         :params daemonId: 节点的UUID
         :params config: 要修改的配置字段
         """
-        return await send(
+        return await self._req.send(
             "PUT",
             f"{ApiPool.SERVICE}/remote_service",
             params={"uuid": daemonId},

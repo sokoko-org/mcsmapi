@@ -1,7 +1,11 @@
-from typing import Any
-from pydantic import BaseModel
+from __future__ import annotations
+from typing import TYPE_CHECKING, Any
+from pydantic import BaseModel, ConfigDict, PrivateAttr
 from mcsmapi.models.instance import InstanceCreateResult, InstanceDetail
 from mcsmapi.models.common import ProcessInfo, InstanceStat, CpuMemChart
+
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
 
 
 class SystemInfo(BaseModel):
@@ -53,20 +57,30 @@ class DaemonSetting(BaseModel):
 
 
 class DaemonOperation(BaseModel):
+    """节点操作基类"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    _req: Any = PrivateAttr(default=None)
+
     uuid: str
     """节点UUID"""
+
+    def __init__(self, _req: Request | None = None, **data: Any):
+        super().__init__(**data)
+        self._req = _req
 
     async def delete(self):
         """删除该节点"""
         from mcsmapi.apis.daemon import Daemon
 
-        return await Daemon.delete(self.uuid)
+        return await Daemon(self._req).delete(self.uuid)
 
     async def link(self):
         """连接该节点"""
         from mcsmapi.apis.daemon import Daemon
 
-        return await Daemon.link(self.uuid)
+        return await Daemon(self._req).link(self.uuid)
 
     async def updateConfig(self, config: dict[str, Any]) -> bool:
         """
@@ -76,7 +90,7 @@ class DaemonOperation(BaseModel):
         """
         from mcsmapi.apis.daemon import Daemon
 
-        return await Daemon.update(self.uuid, config)
+        return await Daemon(self._req).update(self.uuid, config)
 
     async def createInstance(self, config: dict[str, Any]) -> InstanceCreateResult:
         """
@@ -85,9 +99,8 @@ class DaemonOperation(BaseModel):
         :params config: 实例配置
         """
         from mcsmapi.apis.instance import Instance
-        from .instance import InstanceConfig
 
-        return await Instance.create(self.uuid, InstanceConfig(**config).model_dump())
+        return await Instance(self._req).create(self.uuid, config)
 
     async def deleteInstance(self, uuids: list[str], deleteFile=False) -> list[str]:
         """
@@ -98,7 +111,7 @@ class DaemonOperation(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        return await Instance.delete(self.uuid, uuids, deleteFile)
+        return await Instance(self._req).delete(self.uuid, uuids, deleteFile)
 
 
 class DaemonConfig(BaseModel):

@@ -1,5 +1,10 @@
+from __future__ import annotations
 from enum import Enum, IntEnum
-from pydantic import BaseModel
+from typing import TYPE_CHECKING, Any
+from pydantic import BaseModel, ConfigDict, PrivateAttr
+
+if TYPE_CHECKING:
+    from mcsmapi.request import Request
 
 
 class ScheduleActionType(Enum):
@@ -57,13 +62,21 @@ class SchedulePostBody(BaseModel):
 class ScheduleDetail(SchedulePostBody):
     """计划任务信息"""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    _req: Any = PrivateAttr(default=None)
+
     instanceUuid: str
     """实例UUID"""
     daemonId: str
     """节点ID"""
 
+    def __init__(self, _req: Request | None = None, **data: Any):
+        super().__init__(**data)
+        self._req = _req
+
     async def delete(self):
         """删除该计划任务"""
         from mcsmapi.apis.schedule import Schedule
 
-        return await Schedule.delete(self.daemonId, self.instanceUuid, self.name)
+        return await Schedule(self._req).delete(self.daemonId, self.instanceUuid, self.name)
