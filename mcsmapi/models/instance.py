@@ -202,20 +202,18 @@ class InstanceDetail(BaseModel):
 
     def updateConfig(self, config: dict[str, Any]):
         """
-        更新该实例配置
+        更新该实例配置（支持部分更新，只发送提供的字段）
 
-        :params config: 新的实例配置，以字典形式提供，缺失内容由使用原实例配置填充
+        MCSManager 服务端使用 configureEntityParams 逐字段更新，
+        只有请求中包含的字段才会被修改，未包含的字段保持不变。
+
+        :params config: 新的实例配置，以字典形式提供，只需包含要修改的字段
 
         :returns: 更新成功后返回更新的实例UUID
         """
         from mcsmapi.apis.instance import Instance
 
-        updated_config = self.config.model_dump()
-        updated_config.update(config)
-
-        instance_config = InstanceConfig(**updated_config).model_dump()
-
-        return Instance.updateConfig(self.daemonId, self.instanceUuid, instance_config)
+        return Instance.updateConfig(self.daemonId, self.instanceUuid, config)
 
     def reinstall(self, targetUrl: str, title: str = "", description: str = ""):
         """

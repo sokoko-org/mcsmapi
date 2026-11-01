@@ -6,7 +6,6 @@ from mcsmapi.models.daemon import (
     DaemonInfo,
     DaemonSystemInfo,
     DaemonStatus,
-    DaemonUpdateConfig,
 )
 
 
@@ -94,10 +93,13 @@ class Daemon:
     @staticmethod
     def update(daemonId: str, config: dict[str, Any]) -> bool:
         """
-        更新一个节点的配置
+        更新一个节点的配置（支持部分更新，只发送提供的字段）
+
+        MCSManager 服务端会分别处理连接配置 (ip/port/prefix/apiKey/remarks) 和
+        节点系统设置 (setting)，只有请求中包含的字段才会被修改。
 
         :params daemonId: 节点的UUID
-        :params config: 节点的配置信息，以字典形式提供，缺失内容由DaemonUpdateConfig模型补全
+        :params config: 节点的配置信息，以字典形式提供，只需包含要修改的字段
 
         :returns: 操作成功后返回True
         """
@@ -105,5 +107,5 @@ class Daemon:
             "PUT",
             f"{ApiPool.SERVICE}/remote_service",
             params={"uuid": daemonId},
-            data=DaemonUpdateConfig(**config).model_dump(),
+            data=config,
         )

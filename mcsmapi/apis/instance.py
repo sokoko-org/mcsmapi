@@ -86,13 +86,13 @@ class Instance:
     @staticmethod
     def updateConfig(daemonId: str, uuid: str, config: dict[str, Any]) -> str:
         """
-        更新实例配置
+        更新实例配置（支持部分更新，只发送提供的字段）
 
         **不建议直接使用此函数，建议调用search后使用实例对象的updateConfig方法按需更新**
 
         :params daemonId: 节点的标识符
         :params uuid: 实例的UUID
-        :params config: 新的实例配置，以字典形式提供，缺失内容由InstanceConfig模型补全
+        :params config: 新的实例配置，以字典形式提供，只需包含要修改的字段
 
         :returns: 被更新配置的实例UUID
         """
@@ -100,7 +100,7 @@ class Instance:
             "PUT",
             ApiPool.INSTANCE,
             params={"uuid": uuid, "daemonId": daemonId},
-            data=InstanceConfig(**config).model_dump(),
+            data=config,
         )
         return result["instanceUuid"]
 

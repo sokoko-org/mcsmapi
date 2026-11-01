@@ -62,7 +62,7 @@ class Request:
             method.upper(),
             url,
             params=params,
-            data=data,
+            json=data,
             timeout=cls.timeout,
         )
         try:

@@ -78,20 +78,15 @@ class DaemonOperation(BaseModel):
 
     def updateConfig(self, config: dict[str, Any]) -> bool:
         """
-        更新该节点的配置
+        更新该节点的配置（支持部分更新，只发送提供的字段）
 
-        :params config: 节点的配置信息，以字典形式提供，缺失内容使用原节点配置填充
+        :params config: 节点的配置信息，以字典形式提供，只需包含要修改的字段
 
         :returns: 操作成功后返回True
         """
         from mcsmapi.apis.daemon import Daemon
 
-        updated_config = self.model_dump()
-        updated_config.update(config)
-
-        daemon_config = DaemonUpdateConfig(**updated_config).model_dump()
-
-        return Daemon.update(self.uuid, daemon_config)
+        return Daemon.update(self.uuid, config)
 
     def createInstance(self, config: dict[str, Any]) -> InstanceCreateResult:
         """
@@ -172,10 +167,3 @@ class DaemonInfo(DaemonStatus):
 
     instances: list[InstanceDetail]
     """节点实例列表"""
-
-
-class DaemonUpdateConfig(DaemonConfig):
-    """节点更新配置信息"""
-
-    setting: DaemonSetting
-    """节点系统配置"""

@@ -73,18 +73,17 @@ class UserModel(BaseModel):
 
     def update(self, config: dict[str, Any]):
         """
-        更新该用户的信息
+        更新该用户的信息（支持部分更新，只发送提供的字段）
 
-        :params config: 用户的新信息，以字典形式提供，缺失内容使用原用户信息填充
+        MCSManager 服务端会逐字段检查并更新，未包含的字段保持不变。
+
+        :params config: 要更新的用户信息，以字典形式提供，只需包含要修改的字段
 
         :returns: 操作成功后返回True
         """
         from mcsmapi.apis.user import User
 
-        user_config = self.model_dump()
-        user_config.update(config)
-
-        return User().update(self.uuid, user_config)
+        return User().update(self.uuid, config)
 
 
 class SearchUserModel(BaseModel):
