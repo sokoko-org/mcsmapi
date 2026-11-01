@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Shortcut the pypi package of MCSM./快捷操作MCSM的pypi包"
 readme = "README.md"
 authors = [
-  {name = "molanp", email = "molanpp@outlook.com"},
+  {name = "sokoko-org", email = "contact@sokoko.org"},
 ]
 license = "MIT"
 classifiers = [
@@ -16,7 +16,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
 ]
 requires-python = ">=3.10"
-urls = {"Source" = "https://github.com/molanp/mcsmapi"}
+urls = {"Source" = "https://github.com/sokoko-org/mcsmapi"}
 
 dependencies = [
   "httpx>=0.27.0",
