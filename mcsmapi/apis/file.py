@@ -44,7 +44,14 @@ class File:
                 "file_name": file_name,
             },
         )
-        return FileList(**result, daemonId=daemonId, uuid=uuid, _req=self._req)
+        # API 不返回 daemonId/uuid/target，由 SDK 注入以支持模型辅助方法
+        return FileList(
+            **result,
+            daemonId=daemonId,
+            uuid=uuid,
+            _target=target,
+            _req=self._req,
+        )
 
     async def status(self, daemonId: str, uuid: str) -> dict[str, Any]:
         """

@@ -20,13 +20,26 @@ class MCSMAPI:
         self._req = Request(mcsm_url, timeout)
 
     async def login(self, username: str, password: str):
-        self._req.set_token(
-            await self._req.send(
+        """
+        使用账号密码登录面板。
+
+        重复调用时，如果服务端 session 仍有效，MCSManager 会返回 `"Logined"`
+        而非新 token。此时会先注销旧 session 再重新登录以获取有效 token。
+        """
+        result = await self._req.send(
+            "POST",
+            f"{ApiPool.AUTH}/login",
+            data={"username": username, "password": password},
+        )
+        if result == "Logined":
+            # session 仍有效，先注销再重新登录
+            await self._req.send("GET", f"{ApiPool.AUTH}/logout")
+            result = await self._req.send(
                 "POST",
                 f"{ApiPool.AUTH}/login",
                 data={"username": username, "password": password},
             )
-        )
+        self._req.set_token(result)
         self.authentication = "account"
         return self
 

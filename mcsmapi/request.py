@@ -16,7 +16,10 @@ class Request:
 
     def _get_client(self) -> httpx.AsyncClient:
         if self._client is None or self._client.is_closed:
-            self._client = httpx.AsyncClient(timeout=self.timeout)
+            self._client = httpx.AsyncClient(
+                timeout=self.timeout,
+                headers={"X-Requested-With": "XMLHttpRequest"},
+            )
         return self._client
 
     async def close(self):
@@ -30,8 +33,12 @@ class Request:
 
     def set_timeout(self, timeout: int):
         self.timeout = timeout
+        # 重建 client 以应用新超时
         if self._client is not None and not self._client.is_closed:
-            self._client = httpx.AsyncClient(timeout=self.timeout)
+            self._client = httpx.AsyncClient(
+                timeout=self.timeout,
+                headers={"X-Requested-With": "XMLHttpRequest"},
+            )
 
     def set_apikey(self, apikey: str):
         self.apikey = apikey
@@ -49,8 +56,6 @@ class Request:
         """发送 HTTP 请求"""
         if params is None:
             params = {}
-        if data is None:
-            data = {}
         if isinstance(endpoint, ApiPool):
             endpoint = endpoint.value
 
@@ -61,12 +66,14 @@ class Request:
             params["token"] = self.token
 
         client = self._get_client()
-        response = await client.request(
-            method.upper(),
-            url,
-            params=params,
-            json=data,
-        )
+
+        kwargs: dict[str, Any] = {
+            "params": params,
+        }
+        if data is not None:
+            kwargs["json"] = data
+
+        response = await client.request(method.upper(), url, **kwargs)
         try:
             response.raise_for_status()
             return response.json()["data"]

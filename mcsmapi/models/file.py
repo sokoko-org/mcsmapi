@@ -33,13 +33,11 @@ class FileItem(BaseModel):
     type: FileType
     """文件类型"""
     daemonId: str = ""
-    """节点UUID"""
+    """节点UUID（由 SDK 注入，API 不返回）"""
     uuid: str = ""
-    """实例UUID"""
+    """实例UUID（由 SDK 注入，API 不返回）"""
     target: str = ""
-    """所在路径"""
-    file_name: str
-    """文件列表过滤条件"""
+    """所在路径（由 SDK 注入，API 不返回）"""
 
     def __init__(self, _req: Request | None = None, **data: Any):
         super().__init__(**data)
@@ -119,12 +117,23 @@ class FileItem(BaseModel):
 
 
 class FileList(BaseModel):
-    """文件列表"""
+    """文件列表
+
+    API 返回的字段: items, page, pageSize, total, absolutePath
+    SDK 注入的字段: daemonId, uuid（用于模型辅助方法）
+    """
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     _req: Any = PrivateAttr(default=None)
+    _target: str = PrivateAttr(default="")
 
+    # daemonId/uuid 必须定义在 items 之前，Pydantic v2 的 field_validator
+    # 在 mode='before' 时 info.data 只包含已验证的字段
+    daemonId: str = ""
+    """节点UUID（由 SDK 注入）"""
+    uuid: str = ""
+    """实例UUID（由 SDK 注入）"""
     items: list[FileItem]
     """文件列表"""
     page: int
@@ -135,33 +144,33 @@ class FileList(BaseModel):
     """总数"""
     absolutePath: str
     """远程节点上的绝对路径"""
-    daemonId: str
-    """节点UUID"""
-    uuid: str
-    """实例UUID"""
-    target: str
-    """目录路径"""
 
-    def __init__(self, _req: Request | None = None, **data: Any):
+    def __init__(
+        self,
+        _req: Request | None = None,
+        _target: str = "",
+        **data: Any,
+    ):
         super().__init__(**data)
         self._req = _req
+        self._target = _target
+        # 向子 FileItem 注入 _req 和 target
         for item in self.items:
             item._req = _req
+            item.target = _target
 
     @field_validator("items", mode="before")
     @classmethod
     def fill_info(cls, v: Any, info) -> Any:
-        """在验证 items 字段前填充基本信息"""
+        """在验证 items 字段前，将 SDK 注入的 daemonId/uuid 填充到每个 FileItem"""
         if isinstance(info.data, dict):
             daemon_id = info.data.get("daemonId", "")
             uuid = info.data.get("uuid", "")
-            target = info.data.get("target", "")
             if isinstance(v, list):
                 for item in v:
                     if isinstance(item, dict):
                         item["daemonId"] = daemon_id
                         item["uuid"] = uuid
-                        item["target"] = target
         return v
 
     async def upload(self, file: bytes, upload_dir: str) -> bool:

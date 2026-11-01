@@ -311,14 +311,16 @@ class InstanceSearchList(BaseModel):
 
     _req: Any = PrivateAttr(default=None)
 
+    # daemonId 必须定义在 data 之前，Pydantic v2 的 field_validator
+    # 在 mode='before' 时 info.data 只包含已验证的字段
+    daemonId: str = ""
+    """所属的节点UUID"""
     pageSize: int = 0
     """每页的实例数量"""
     maxPage: int = 0
     """最大页数"""
     data: list[InstanceDetail] = []
     """实例详细信息列表"""
-    daemonId: str = ""
-    """所属的节点UUID"""
 
     def __init__(self, _req: Request | None = None, **data: Any):
         super().__init__(**data)
