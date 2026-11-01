@@ -1,47 +1,62 @@
+"""
+实例管理：搜索、启停、发送命令、文件操作
+"""
+
+import asyncio
 from mcsmapi import MCSMAPI
 
-api = MCSMAPI("http://localhost:23333")
 
-api.login("admin", "547cABC9bf88@")
+async def main():
+    async with MCSMAPI("http://localhost:23333") as mcsm:
+        await mcsm.login("admin", "password")
 
-instance_object = api.instance
+        # 获取节点列表
+        daemons = await mcsm.daemon.config()
+        daemon_id = daemons[0].uuid
 
-instance_list = instance_object.search("xxx")
+        # 搜索实例
+        result = await mcsm.instance.search(daemon_id, instance_name="Survival")
+        print(f"找到 {len(result.data)} 个实例")
 
-instance = instance_list.data[0]
+        if not result.data:
+            return
 
-# start
-instance.start()
+        inst = result.data[0]
+        print(f"实例: {inst.config.nickname} [{inst.status.name}]")
 
-# stop
-instance.stop()
+        # 启动 / 停止 / 重启 / 强制终止
+        await inst.start()
+        await inst.stop()
+        await inst.restart()
+        await inst.kill()
 
-# restart
-instance.restart()
+        # 发送命令
+        await inst.command("say Hello from SDK!")
 
-# kill
-instance.kill()
+        # 获取输出
+        output = await inst.get_output()
+        print(output[-200:])
 
-# show files
-file_list = instance.files("", 1, 20)
+        # 部分更新配置（只修改传入的字段，不会重置其他字段）
+        await inst.updateConfig({"nickname": "My Server", "stopCommand": "stop"})
 
-# show total files
-print(file_list.total)
+        # 文件操作
+        files = await inst.files(target="", page=0, page_size=20)
+        print(f"文件数: {files.total}")
+        for f in files.items[:5]:
+            print(f"  {f.name} ({f.size} bytes)")
 
-# show file list
-fs = file_list.items
+        # 创建实例
+        new = await mcsm.instance.create(daemon_id, {
+            "nickname": "Test Server",
+            "startCommand": "java -jar server.jar",
+            "stopCommand": "stop",
+            "type": "minecraft",
+        })
+        print(f"创建成功: {new.instanceUuid}")
 
-f = fs[0]
-
-# rename file
-f.rename("new_name")
-
-# copy file
-f.copy_to("new_path")
-# move file
-f.move("new_path")
+        # 删除实例
+        await mcsm.instance.delete(daemon_id, [new.instanceUuid], deleteFile=True)
 
 
-# delete file
-f.delete()
-
+asyncio.run(main())

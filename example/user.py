@@ -1,30 +1,40 @@
+"""
+用户管理：搜索、创建、更新、删除用户
+"""
+
+import asyncio
 from mcsmapi import MCSMAPI
 
-api = MCSMAPI("http://localhost:23333")
 
-api.login("admin", "547cABC9bf88@")
+async def main():
+    async with MCSMAPI("http://localhost:23333") as mcsm:
+        await mcsm.login("admin", "password")
 
-userManager = api.user
+        # 搜索全部用户
+        users = await mcsm.user.search()
+        for u in users.data:
+            print(f"{u.userName} (权限: {u.permission.name})")
 
-users = userManager.search()
+        # 按权限搜索管理员
+        admins = await mcsm.user.search(role=10)
+        print(f"管理员数量: {admins.total}")
 
-for user in users.data:
-    # 打印所有用户的用户名
-    print(user.userName)
+        # 创建新用户
+        result = await mcsm.user.create("player1", "SecurePass123#")
+        print(f"创建用户: {result.userName} ({result.uuid})")
 
-# 查找第一个管理员账号
-user = userManager.search(role=10).data[0]
+        # 更新用户权限（部分更新）
+        await mcsm.user.update(result.uuid, {"permission": 1})
 
-# 封禁管理员账号
-user.update({"permission": -1})
+        # 删除用户
+        await mcsm.user.delete([result.uuid])
 
-# 删除管理员账号
-user.delete()
+        # 修改当前用户密码
+        # await mcsm.user.update_password("NewPassword456#")
 
-# 创建新用户
-uuid = userManager.create("test", "54ABCd9bf#").uuid
+        # API Key 管理
+        # api_key = await mcsm.user.toggle_apikey(True)
+        # print(f"API Key: {api_key}")
 
-print("New user uuid:", uuid)
 
-# 删除新用户
-userManager.delete([uuid])
+asyncio.run(main())

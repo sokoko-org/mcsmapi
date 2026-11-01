@@ -15,30 +15,33 @@ English|[Chinese Simplified](README_zh-cn.md)
 
 ## Introduction
 
-`mcsmapi` is a PyPI package based on [MCSManager](https://github.com/MCSManager/MCSManager), designed to simplify interactions with the MCSM API.
+mcsmapi is an async Python SDK for [MCSManager](https://github.com/MCSManager/MCSManager), built on httpx + pydantic.
 
-With this library, you can more easily access and operate the various features provided by MCSM.
+- Fully async (sync/await)
+- Typed models with IDE autocompletion
+- Chainable operations on returned objects
+- Supports sync with context manager
 
 ## Installation
 
-You can install `mcsmapi` using `pip`:
-
-```bash
+`ash
 pip install mcsmapi
-```
+`
 
-If you need the latest build files, please visit
-[Actions](https://github.com/molanp/mcsmapi/actions/workflows/auto-build.yml)
+For the latest build: [Actions](https://github.com/molanp/mcsmapi/actions/workflows/auto-build.yml)
 
 ## Supported Features
 
-- [x] Dashboard data (`Overview`)
-- [x] User management (`User`)
-- [x] Instance management (`Instance`)
-- [x] Daemon management (`Daemon`)
-- [x] File management (`File`)
-- [x] Image management (`Image`)
-- [x] Schedule task management (`Schedule`)
+- [x] Dashboard data (Overview)
+- [x] User management (User)
+- [x] Instance management (Instance)
+- [x] Daemon management (Daemon)
+- [x] File management (File)
+- [x] Image management (Image)
+- [x] Schedule task management (Schedule)
+- [x] Java runtime management (Java)
+- [x] Mod management (Mod)
+- [x] Panel & Daemon upgrade (Upgrade)
 
 ## Supported MCSM Versions
 
@@ -46,34 +49,50 @@ If you need the latest build files, please visit
 | :----------: | :------------: |
 |     10.x     |       ✅       |
 
-### Quick Example
+## Quick Example
 
-```python
+`python
+import asyncio
 from mcsmapi import MCSMAPI
 
-# Initialize
-mcsm = MCSMAPI("https://example.com") # https or http required
 
-# Log in with username and password (API permissions depend on the account permissions)
-mcsm.login("username", "password")
+async def main():
+    async with MCSMAPI("http://localhost:23333") as mcsm:
+        await mcsm.login("admin", "password")
 
-# Log in with API key (API permissions depend on the API key permissions)
-mcsm.login_with_apikey("apikey")
+        # Dashboard
+        data = await mcsm.overview.overview()
+        print(f"Panel version: {data.version}")
 
-# Get dashboard data
-overview = mcsm.overview
-overview_data = overview.overview()
+        # List daemons
+        daemons = await mcsm.daemon.config()
+        for d in daemons:
+            print(f"  {d.remarks} ({d.ip}:{d.port})")
 
-# Get MCSM version
-mcsm_version = overview_data.version
-```
+        # Search instances on a daemon
+        instances = await daemons[0].search_instances()
+        for inst in instances.data:
+            print(f"  {inst.config.nickname} [{inst.status.name}]")
+
+        # Partial config update (only sends provided fields)
+        inst = instances.data[0]
+        await inst.updateConfig({"nickname": "My Server"})
+
+        # File operations via chaining
+        files = await inst.files(target="")
+        for f in files.items[:5]:
+            print(f"  {f.name}")
+
+
+asyncio.run(main())
+`
+
+See [example/](example/) for more usage patterns.
 
 ## Contributing
 
-If you encounter any issues or have suggestions for improvements, feel free to submit an [Issue](https://github.com/molanp/mcsmapi/issues) or create a [Pull Request](https://github.com/molanp/mcsmapi/pulls).
+Feel free to submit an [Issue](https://github.com/molanp/mcsmapi/issues) or [Pull Request](https://github.com/molanp/mcsmapi/pulls).
 
 ## License
 
-`mcsmapi` is licensed under the [MIT License](https://opensource.org/licenses/MIT).
-
-Please refer to the [LICENSE](LICENSE) file for more details.
+[MIT License](https://opensource.org/licenses/MIT) — see [LICENSE](LICENSE).

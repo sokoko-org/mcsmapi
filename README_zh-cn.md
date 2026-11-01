@@ -9,9 +9,12 @@
 
 ## 简介
 
-`mcsmapi` 是一个基于 [MCSManager](https://github.com/MCSManager/MCSManager) 的 Pypi 包，旨在简化与 MCSM API 的交互。
+mcsmapi 是 [MCSManager](https://github.com/MCSManager/MCSManager) 的异步 Python SDK，基于 httpx + pydantic 构建。
 
-通过这个库，您可以更轻松地访问和操作 MCSM 提供的各种功能。
+- 全异步 (sync/await)
+- 类型化模型，IDE 自动补全
+- 返回对象支持链式操作
+- 支持 sync with 上下文管理器
 
 ## 文档
 
@@ -21,24 +24,24 @@
 
 ## 安装
 
-您可以使用 `pip` 安装 `mcsmapi`：
-
-```bash
+`ash
 pip install mcsmapi
-```
+`
 
-如果你需要最新的构建文件，请访问
-[Actions](https://github.com/molanp/mcsmapi/actions/workflows/auto-build.yml)
+最新构建: [Actions](https://github.com/molanp/mcsmapi/actions/workflows/auto-build.yml)
 
 ## 支持的功能
 
-- [x] 仪表盘数据(`Overview`)
-- [x] 用户管理(`User`)
-- [x] 实例管理(`Instance`)
-- [x] 节点管理(`Daemon`)
-- [x] 文件管理(`File`)
-- [x] 镜像管理(`Image`)
-- [x] 计划任务管理(`Schedule`)
+- [x] 仪表盘数据 (Overview)
+- [x] 用户管理 (User)
+- [x] 实例管理 (Instance)
+- [x] 节点管理 (Daemon)
+- [x] 文件管理 (File)
+- [x] 镜像管理 (Image)
+- [x] 计划任务管理 (Schedule)
+- [x] Java 运行环境管理 (Java)
+- [x] Mod 管理 (Mod)
+- [x] 面板与节点升级 (Upgrade)
 
 ## 支持的 MCSM 版本
 
@@ -46,34 +49,50 @@ pip install mcsmapi
 | :-------: | :------: |
 |   10.x    |    ✅    |
 
-### 快速示例
+## 快速示例
 
-```python
+`python
+import asyncio
 from mcsmapi import MCSMAPI
 
-# 初始化
-mcsm = MCSMAPI("https://example.com")
 
-# 使用账号密码登录(API权限取决于账号权限)
-mcsm.login("username", "password")
+async def main():
+    async with MCSMAPI("http://localhost:23333") as mcsm:
+        await mcsm.login("admin", "password")
 
-# 使用apikey登录(API权限取决于apikey权限)
-mcsm.login_with_apikey("apikey")
+        # 仪表盘
+        data = await mcsm.overview.overview()
+        print(f"面板版本: {data.version}")
 
-# 获取仪表盘数据
-overview = mcsm.overview
-overview_data = overview.overview()
+        # 节点列表
+        daemons = await mcsm.daemon.config()
+        for d in daemons:
+            print(f"  {d.remarks} ({d.ip}:{d.port})")
 
-# 获取 MCSM 版本
-mcsm_version = overview_data.version
-```
+        # 搜索实例
+        instances = await daemons[0].search_instances()
+        for inst in instances.data:
+            print(f"  {inst.config.nickname} [{inst.status.name}]")
+
+        # 部分更新配置（只发送传入的字段，不会重置其他字段）
+        inst = instances.data[0]
+        await inst.updateConfig({"nickname": "我的服务器"})
+
+        # 链式文件操作
+        files = await inst.files(target="")
+        for f in files.items[:5]:
+            print(f"  {f.name}")
+
+
+asyncio.run(main())
+`
+
+更多用法见 [example/](example/)。
 
 ## 贡献
 
-如果您发现任何问题或有改进建议，欢迎提交 [Issue](https://github.com/molanp/mcsmapi/issues) 或者创建 [Pull Request](https://github.com/molanp/mcsmapi/pulls)。
+欢迎提交 [Issue](https://github.com/molanp/mcsmapi/issues) 或 [Pull Request](https://github.com/molanp/mcsmapi/pulls)。
 
 ## 许可
 
-`mcsmapi` 使用 [MIT 许可证](https://opensource.org/licenses/MIT)。
-
-请参阅 [LICENSE](LICENSE) 文件以获取更多信息。
+[MIT License](https://opensource.org/licenses/MIT) — 详见 [LICENSE](LICENSE)。
