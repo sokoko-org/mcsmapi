@@ -269,7 +269,7 @@ class InstanceDetail(BaseModel):
         return await Instance(self._req).get_output(self.daemonId, self.instanceUuid, size)
 
     async def files(
-        self, target: str = "", page: int = 0, page_size: int = 100, file_name: str = ""
+        self, target: str = ".", page: int = 0, page_size: int = 100, file_name: str = ""
     ):
         """
         获取实例的文件列表

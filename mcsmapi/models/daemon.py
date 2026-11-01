@@ -176,9 +176,22 @@ class DaemonStatus(DaemonOperation):
     """备注"""
 
 
-class DaemonSystemInfo(DaemonStatus):
-    """节点系统信息"""
+class DaemonSystemInfo(DaemonOperation):
+    """节点系统信息（含节点标识）
 
+    daemon.system() 会将节点标识合并到 daemon 返回的系统数据中。
+    """
+
+    available: bool = False
+    """节点可用状态"""
+    ip: str = ""
+    """节点 IP"""
+    port: int = 0
+    """节点端口"""
+    prefix: str = ""
+    """路径前缀"""
+    remarks: str = ""
+    """备注"""
     version: str | None = None
     """节点版本"""
     process: ProcessInfo | None = None

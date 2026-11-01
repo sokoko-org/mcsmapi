@@ -246,10 +246,13 @@ class Instance:
         :params uuid: 实例的UUID
         :params size: 获取的输出大小 (1KB~2048KB)，未设置则返回全部
         """
+        params: dict[str, Any] = {"daemonId": daemonId, "uuid": uuid}
+        if size is not None:
+            params["size"] = size
         return await self._req.send(
             "GET",
             f"{ApiPool.PROTECTED_INSTANCE}/outputlog",
-            params={"daemonId": daemonId, "uuid": uuid, "size": size},
+            params=params,
         )
 
     async def reinstall(

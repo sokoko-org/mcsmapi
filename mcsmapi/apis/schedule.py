@@ -51,5 +51,5 @@ class Schedule:
             "POST",
             f"{ApiPool.SCHEDULE}",
             params={"daemonId": daemonId, "uuid": uuid},
-            data=config.model_dump(),
+            data=config.model_dump(mode="json"),
         )

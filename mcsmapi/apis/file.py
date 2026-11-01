@@ -17,7 +17,7 @@ class File:
         self,
         daemonId: str,
         uuid: str,
-        target: str = "",
+        target: str = ".",
         page: int = 0,
         page_size: int = 100,
         file_name: str = "",

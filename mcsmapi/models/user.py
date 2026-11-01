@@ -56,6 +56,10 @@ class UserModel(BaseModel):
     """用户权限级别"""
     passWord: str = ""
     """用户密码 (搜索接口返回空字符串)"""
+    passWordType: int = 0
+    """密码类型"""
+    salt: str = ""
+    """密码盐值"""
     open2FA: bool = False
     """是否启用双因素认证"""
     apiKey: str = ""
@@ -64,6 +68,10 @@ class UserModel(BaseModel):
     """是否为初始化用户"""
     secret: str = ""
     """2FA 密钥 (搜索接口返回掩码值)"""
+    ssoSub: str = ""
+    """SSO 主题标识"""
+    ssoBound: bool = False
+    """是否绑定 SSO"""
 
     def __init__(self, _req: Request | None = None, **data: Any):
         super().__init__(**data)
@@ -97,9 +105,9 @@ class SearchUserModel(BaseModel):
     """匹配的用户总数"""
     page: int
     """当前页码"""
-    page_size: int
+    pageSize: int
     """每页返回的用户数量"""
-    max_page: int
+    maxPage: int
     """最大可用页数"""
     data: list[UserModel]
     """用户信息列表"""
