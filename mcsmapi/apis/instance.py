@@ -399,3 +399,23 @@ class Instance:
             params={"daemonId": daemonId, "uuid": uuid},
         )
         return StreamChannelResult(**result)
+
+    async def updateConfigUser(self, daemonId: str, uuid: str, config: dict[str, Any]) -> str:
+        """
+        更新实例配置（普通用户权限，服务端会过滤可修改字段）
+
+        与 updateConfig 的区别：此接口普通用户也可调用，但服务端只允许修改
+        部分安全字段（如 pingConfig、eventTask、terminalOption 等），
+        不允许修改 startCommand 等敏感配置。
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params config: 要修改的配置字段
+        """
+        result = await self._req.send(
+            "PUT",
+            f"{ApiPool.PROTECTED_INSTANCE}/instance_update",
+            params={"uuid": uuid, "daemonId": daemonId},
+            data=config,
+        )
+        return result

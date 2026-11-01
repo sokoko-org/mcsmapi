@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Literal
 from pydantic import BaseModel
-from mcsmapi.models.common import CpuMemChart, ProcessInfo
-from mcsmapi.models.daemon import DaemonSystemInfo
+from mcsmapi.models.common import CpuMemChart, InstanceStat, ProcessInfo
+
 
 
 class SystemUser(BaseModel):
@@ -93,6 +93,85 @@ class RemoteCountInfo(BaseModel):
     """可用节点数"""
 
 
+class OverviewRemoteSetting(BaseModel):
+    """概览中的节点配置"""
+
+    language: str = ""
+    """节点语言"""
+    uploadSpeedRate: int = 0
+    """上传速度限制"""
+    downloadSpeedRate: int = 0
+    """下载速度限制"""
+    portRangeStart: int = 0
+    """端口范围起始"""
+    portRangeEnd: int = 0
+    """端口范围结束"""
+    portAssignInterval: int = 0
+    """端口分配间隔"""
+    port: int = 0
+    """节点端口"""
+    maxDownloadFromUrlFileCount: int = 0
+    """允许同时下载的远程任务数"""
+
+
+class OverviewRemoteSystem(BaseModel):
+    """概览中的节点系统信息"""
+
+    type: str = ""
+    """系统类型"""
+    hostname: str = ""
+    """主机名"""
+    platform: str = ""
+    """平台"""
+    release: str = ""
+    """系统版本"""
+    uptime: float = 0
+    """运行时间（秒）"""
+    cwd: str = ""
+    """工作路径"""
+    loadavg: tuple[float, float, float] = (0, 0, 0)
+    """负载平均值"""
+    freemem: int = 0
+    """空闲内存（字节）"""
+    cpuUsage: float = 0
+    """CPU 使用率"""
+    memUsage: float = 0
+    """内存使用率"""
+    totalmem: int = 0
+    """内存总量（字节）"""
+
+
+class OverviewRemote(BaseModel):
+    """概览中的远程节点信息"""
+
+    uuid: str = ""
+    """节点UUID"""
+    ip: str = ""
+    """节点 IP"""
+    port: int = 0
+    """节点端口"""
+    prefix: str = ""
+    """路径前缀"""
+    available: bool = False
+    """节点可用状态"""
+    remarks: str = ""
+    """备注"""
+    version: str | None = None
+    """节点版本"""
+    process: ProcessInfo | None = None
+    """进程信息"""
+    instance: InstanceStat | None = None
+    """实例统计"""
+    system: OverviewRemoteSystem | None = None
+    """系统信息"""
+    cpuMemChart: list[CpuMemChart] | None = None
+    """CPU/内存使用趋势"""
+    config: OverviewRemoteSetting | None = None
+    """节点配置"""
+    remoteMappings: list | None = None
+    """远程端口映射"""
+
+
 class OverviewModel(BaseModel):
     """系统概览"""
 
@@ -110,7 +189,7 @@ class OverviewModel(BaseModel):
     """图表数据"""
     remoteCount: RemoteCountInfo
     """远程节点统计"""
-    remote: list[DaemonSystemInfo]
+    remote: list[OverviewRemote]
     """远程节点详细信息"""
 
 

@@ -3,8 +3,6 @@ from typing import TYPE_CHECKING, Any
 from mcsmapi.pool import ApiPool
 from mcsmapi.models.daemon import (
     DaemonConfig,
-    DaemonInfo,
-    DaemonSystemInfo,
     DaemonStatus,
 )
 
@@ -24,32 +22,7 @@ class Daemon:
         )
         return [DaemonStatus(**daemon, _req=self._req) for daemon in daemons]
 
-    async def info(self) -> list[DaemonInfo]:
-        """获取全部节点信息（含实例列表）"""
-        daemons = await self._req.send(
-            "GET",
-            f"{ApiPool.SERVICE}/remote_services",
-        )
-        return [DaemonInfo(**daemon, _req=self._req) for daemon in daemons]
 
-    async def system(self) -> list[DaemonSystemInfo]:
-        """获取全部节点的系统信息（含节点标识）"""
-        # remote_services_system 只返回节点系统数据，不含 uuid/ip 等标识
-        # 需要同时请求 remote_services_list 合并节点信息
-        nodes = await self._req.send(
-            "GET",
-            f"{ApiPool.SERVICE}/remote_services_list",
-        )
-        sys_data = await self._req.send(
-            "GET",
-            f"{ApiPool.SERVICE}/remote_services_system",
-        )
-        result = []
-        for i, data in enumerate(sys_data):
-            if i < len(nodes):
-                data.update(nodes[i])
-            result.append(DaemonSystemInfo(**data, _req=self._req))
-        return result
 
     async def add(self, config: DaemonConfig) -> str:
         """
