@@ -28,9 +28,6 @@ class Request:
             await self._client.aclose()
             self._client = None
 
-    def set_mcsm_url(self, url: str):
-        self.mcsm_url = url
-
     async def set_timeout(self, timeout: int):
         """设置超时并重建连接"""
         self.timeout = timeout

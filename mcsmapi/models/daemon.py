@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 from mcsmapi.models.instance import InstanceCreateResult, InstanceDetail
 from mcsmapi.models.common import ProcessInfo, InstanceStat, CpuMemChart
+from mcsmapi.models.file import RemoteMappingEntry
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
@@ -134,7 +135,7 @@ class DaemonOperation(BaseModel):
 
         return await Instance(self._req).create(self.uuid, config)
 
-    async def deleteInstance(self, uuids: list[str], deleteFile=False) -> list[str]:
+    async def deleteInstance(self, uuids: list[str], deleteFile=False) -> dict:
         """
         删除当前节点的实例
 
@@ -204,6 +205,8 @@ class DaemonSystemInfo(DaemonOperation):
     """CPU/内存使用趋势"""
     config: DaemonSetting | None = None
     """节点配置"""
+    remoteMappings: list[RemoteMappingEntry] = []
+    """远程端口映射"""
 
 
 class DaemonInfo(DaemonStatus):

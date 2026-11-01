@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, TypedDict
-from pydantic import BaseModel, ConfigDict, PrivateAttr, field_validator
+from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 from mcsmapi.models.image import DockerConfig
 from mcsmapi.models.schedule import ScheduleDetail, SchedulePostBody
 
@@ -120,7 +120,7 @@ class InstanceConfig(BaseModel):
     """最后修改时间 (Unix 时间戳)"""
     type: str = "universal"
     """实例类型 (universal, minecraft 等)"""
-    tag: list[str] = []
+    tag: list[str] = Field(default_factory=list)
     """实例标签"""
     endTime: int = 0
     """实例到期时间 (Unix 时间戳, 0 为不限制)"""
@@ -130,7 +130,7 @@ class InstanceConfig(BaseModel):
     """进程类型 (general, docker)"""
     updateCommand: str = ""
     """更新命令"""
-    actionCommandList: list[ActionCommand] = []
+    actionCommandList: list[ActionCommand] = Field(default_factory=list)
     """自定义操作命令列表"""
     crlf: CRLFType = CRLFType.CRLF
     """换行符"""
@@ -175,7 +175,7 @@ class InstanceDetail(BaseModel):
     """所属的节点UUID"""
     instanceUuid: str
     """实例UUID"""
-    started: int
+    started: int = 0
     """实例的启动次数"""
     status: Status
     """实例状态"""
@@ -216,8 +216,7 @@ class InstanceDetail(BaseModel):
         """
         from mcsmapi.apis.instance import Instance
 
-        result = await Instance(self._req).delete(self.daemonId, [self.instanceUuid], deleteFile)
-        return result[0]
+        return await Instance(self._req).delete(self.daemonId, [self.instanceUuid], deleteFile)
 
     async def update(self):
         """升级实例"""

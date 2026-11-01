@@ -126,13 +126,14 @@ class Instance:
         )
         return result["instanceUuid"]
 
-    async def delete(self, daemonId: str, uuids: list[str], deleteFile: bool = False) -> list[str]:
+    async def delete(self, daemonId: str, uuids: list[str], deleteFile: bool = False) -> dict[str, Any]:
         """
         删除实例
 
         :params daemonId: 节点的UUID
         :params uuids: 实例UUID列表
         :params deleteFile: 是否删除关联文件
+        :returns: {"instances": [{"instanceUuid": ..., "nickname": ...}]}
         """
         return await self._req.send(
             "DELETE",
@@ -348,4 +349,51 @@ class Instance:
                 "type": type,
             },
             data=config,
+        )
+
+    async def stop_asynchronous(self, daemonId: str, uuid: str, taskId: str = "") -> bool:
+        """
+        停止异步任务
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params taskId: 任务ID
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.PROTECTED_INSTANCE}/stop_asynchronous",
+            params={"daemonId": daemonId, "uuid": uuid},
+            data={"taskId": taskId} if taskId else {},
+        )
+
+    async def query_asynchronous(
+        self, daemonId: str, uuid: str, task_name: str = "", taskId: str = ""
+    ) -> Any:
+        """
+        查询异步任务状态
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params task_name: 任务名称
+        :params taskId: 任务ID
+        """
+        return await self._req.send(
+            "GET",
+            f"{ApiPool.PROTECTED_INSTANCE}/query_asynchronous",
+            params={"daemonId": daemonId, "uuid": uuid, "task_name": task_name},
+            data={"taskId": taskId} if taskId else {},
+        )
+
+    async def stream_channel(self, daemonId: str, uuid: str) -> dict[str, Any]:
+        """
+        请求建立数据流通道
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :returns: {"password": ..., "addr": ..., "prefix": ..., "remoteMappings": [...]}
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.PROTECTED_INSTANCE}/stream_channel",
+            params={"daemonId": daemonId, "uuid": uuid},
         )

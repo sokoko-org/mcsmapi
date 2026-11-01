@@ -16,7 +16,7 @@ class ProcessInfo(BaseModel):
     cpu: int
     """CPU 使用率（百分比）"""
     memory: int
-    """内存使用量（MB）"""
+    """内存使用量（字节）"""
     cwd: str
     """工作路径"""
 

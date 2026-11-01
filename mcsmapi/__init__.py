@@ -79,40 +79,80 @@ class MCSMAPI:
 
     @property
     def overview(self) -> Overview:
-        return Overview(self._req)
+        try:
+            return self._overview
+        except AttributeError:
+            self._overview = Overview(self._req)
+            return self._overview
 
     @property
     def instance(self) -> Instance:
-        return Instance(self._req)
+        try:
+            return self._instance
+        except AttributeError:
+            self._instance = Instance(self._req)
+            return self._instance
 
     @property
     def user(self) -> User:
-        return User(self._req)
+        try:
+            return self._user
+        except AttributeError:
+            self._user = User(self._req)
+            return self._user
 
     @property
     def daemon(self) -> Daemon:
-        return Daemon(self._req)
+        try:
+            return self._daemon
+        except AttributeError:
+            self._daemon = Daemon(self._req)
+            return self._daemon
 
     @property
     def file(self) -> File:
-        return File(self._req)
+        try:
+            return self._file
+        except AttributeError:
+            self._file = File(self._req)
+            return self._file
 
     @property
     def image(self) -> Image:
-        return Image(self._req)
+        try:
+            return self._image
+        except AttributeError:
+            self._image = Image(self._req)
+            return self._image
 
     @property
     def schedule(self) -> Schedule:
-        return Schedule(self._req)
+        try:
+            return self._schedule
+        except AttributeError:
+            self._schedule = Schedule(self._req)
+            return self._schedule
 
     @property
     def java(self) -> Java:
-        return Java(self._req)
+        try:
+            return self._java
+        except AttributeError:
+            self._java = Java(self._req)
+            return self._java
 
     @property
     def mod(self) -> Mod:
-        return Mod(self._req)
+        try:
+            return self._mod
+        except AttributeError:
+            self._mod = Mod(self._req)
+            return self._mod
 
     @property
     def upgrade(self) -> Upgrade:
-        return Upgrade(self._req)
+        try:
+            return self._upgrade
+        except AttributeError:
+            self._upgrade = Upgrade(self._req)
+            return self._upgrade
