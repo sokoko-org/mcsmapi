@@ -90,3 +90,14 @@ class Overview:
     async def reset_layout(self) -> bool:
         """重置前端布局为默认值（管理员）"""
         return await self._req.send("DELETE", f"{ApiPool.OVERVIEW}/layout")
+
+    async def upload_assets(self, file: bytes) -> bool:
+        """
+        上传静态资源文件（管理员）
+
+        :params file: 文件内容
+        """
+        return await self._req.upload(
+            f"{self._req.mcsm_url}{ApiPool.OVERVIEW}/upload_assets?token={self._req.token or ''}",
+            file,
+        )

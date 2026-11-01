@@ -14,3 +14,6 @@ class ApiPool(Enum):
     IMAGE = "api/environment"
     LOG = "api/overview/operation_logs"
     SCHEDULE = "api/protected_schedule"
+    JAVA = "api/java_manager"
+    MOD = "api/mod"
+    UPGRADE = "api/upgrade"

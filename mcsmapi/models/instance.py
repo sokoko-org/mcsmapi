@@ -235,18 +235,17 @@ class InstanceDetail(BaseModel):
 
         return await Instance(self._req).updateConfig(self.daemonId, self.instanceUuid, config)
 
-    async def reinstall(self, targetUrl: str, title: str = "", description: str = ""):
+    async def reinstall(self, title: str, description: str):
         """
-        重装实例
+        重装实例（通过应用市场预设）
 
-        :params targetUrl: 重装文件的目标URL
-        :params title: 重装文件的标题
-        :params description: 重装文件的描述
+        :params title: 预设标题（需与应用市场一致）
+        :params description: 预设描述（需与应用市场一致）
         """
         from mcsmapi.apis.instance import Instance
 
         return await Instance(self._req).reinstall(
-            self.daemonId, self.instanceUuid, targetUrl, title, description
+            self.daemonId, self.instanceUuid, title, description
         )
 
     async def command(self, command: str) -> str:

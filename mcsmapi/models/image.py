@@ -1,5 +1,5 @@
 from typing import Literal
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DockerConfig(BaseModel):
@@ -208,9 +208,11 @@ class DockerNetworkItemIPAMConfig(BaseModel):
 class DockerNetworkItemIPAM(BaseModel):
     """Docker 网络的 IP 地址管理"""
 
+    model_config = ConfigDict(populate_by_name=True)
+
     Driver: str = ""
     """驱动类型"""
-    Config: list[DockerNetworkItemIPAMConfig] = []
+    ipam_config: list[DockerNetworkItemIPAMConfig] = Field(default=[], alias="Config")
     """IPAM 配置"""
 
 

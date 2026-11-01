@@ -311,6 +311,50 @@ class File:
             data={"target": target},
         )
 
+    async def download_from_url(
+        self,
+        daemonId: str,
+        uuid: str,
+        url: str,
+        file_name: str,
+    ) -> str:
+        """
+        从 URL 下载文件到实例
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params url: 下载地址
+        :params file_name: 保存的文件名
+
+        :returns: 下载任务 ID
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.FILE}/download_from_url",
+            params={"daemonId": daemonId, "uuid": uuid},
+            data={"url": url, "file_name": file_name},
+        )
+
+    async def download_from_url_stop(
+        self,
+        daemonId: str,
+        uuid: str,
+        taskId: str,
+    ) -> bool:
+        """
+        停止从 URL 下载文件的任务
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params taskId: 下载任务 ID
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.FILE}/download_from_url_stop",
+            params={"daemonId": daemonId, "uuid": uuid},
+            data={"taskId": taskId},
+        )
+
     async def createFolder(self, daemonId: str, uuid: str, target: str) -> bool:
         """
         创建文件夹

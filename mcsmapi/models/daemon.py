@@ -1,11 +1,12 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 from mcsmapi.models.instance import InstanceCreateResult, InstanceDetail
 from mcsmapi.models.common import ProcessInfo, InstanceStat, CpuMemChart
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
+    from mcsmapi.models.instance import InstanceSearchList
 
 
 class SystemInfo(BaseModel):
@@ -69,6 +70,37 @@ class DaemonOperation(BaseModel):
     def __init__(self, _req: Request | None = None, **data: Any):
         super().__init__(**data)
         self._req = _req
+
+    async def search_instances(
+        self,
+        page: int = 1,
+        page_size: int = 20,
+        instance_name: str = "",
+        status: Literal[-1, 0, 1, 2, 3, ""] = "",
+    ) -> InstanceSearchList:
+        """
+        搜索当前节点的实例列表
+
+        :params page: 页码
+        :params page_size: 每页大小
+        :params instance_name: 实例名称过滤
+        :params status: 实例状态过滤
+        """
+        from mcsmapi.apis.instance import Instance
+
+        return await Instance(self._req).search(
+            self.uuid, page, page_size, instance_name, status
+        )
+
+    async def detail(self, instanceUuid: str) -> InstanceDetail:
+        """
+        获取当前节点上指定实例的详细信息
+
+        :params instanceUuid: 实例UUID
+        """
+        from mcsmapi.apis.instance import Instance
+
+        return await Instance(self._req).detail(self.uuid, instanceUuid)
 
     async def delete(self):
         """删除该节点"""
@@ -166,3 +198,4 @@ class DaemonInfo(DaemonStatus):
 
     instances: list[InstanceDetail]
     """实例列表"""
+

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from mcsmapi.pool import ApiPool
+from typing import Any
 from mcsmapi.models.image import DockerImageItem, DockerContainerItem, DockerNetworkItem
 
 if TYPE_CHECKING:
@@ -91,4 +92,30 @@ class Image:
             "GET",
             f"{ApiPool.IMAGE}/progress",
             params={"daemonId": daemonId},
+        )
+
+    async def image_platforms(self, daemonId: str, imageName: str) -> Any:
+        """
+        获取镜像支持的平台架构（通过节点查询）
+
+        :params daemonId: 节点的UUID
+        :params imageName: 镜像名称
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.IMAGE}/image_platforms",
+            params={"daemonId": daemonId},
+            data={"imageName": imageName},
+        )
+
+    async def dockerhub_image_platforms(self, imageName: str) -> list[str]:
+        """
+        获取 DockerHub 镜像支持的平台架构（面板代理请求）
+
+        :params imageName: 镜像名称 (如 ubuntu:latest)
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.IMAGE}/dockerhub_image_platforms",
+            data={"imageName": imageName},
         )

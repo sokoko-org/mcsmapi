@@ -44,7 +44,7 @@ class User:
             params={
                 "userName": username,
                 "page": page,
-                "pageSize": page_size,
+                "page_size": page_size,
                 "role": role,
             },
         )
@@ -114,3 +114,32 @@ class User:
         :params uuids: 用户UUID列表
         """
         return await self._req.send("DELETE", ApiPool.AUTH, data=uuids)
+
+    async def login_info(self) -> dict[str, Any]:
+        """获取登录页面信息文本（公开接口）"""
+        return await self._req.send("GET", f"{ApiPool.AUTH}/login_info")
+
+    async def status(self) -> dict[str, Any]:
+        """获取面板公开状态信息（安装状态、语言、设置等）"""
+        return await self._req.send("GET", f"{ApiPool.AUTH}/status")
+
+    async def token(self) -> str:
+        """获取当前会话的 Token"""
+        return await self._req.send("GET", f"{ApiPool.AUTH}/token")
+
+    async def bind2fa(self) -> Any:
+        """生成双因素认证二维码"""
+        return await self._req.send("POST", f"{ApiPool.AUTH}/bind2fa")
+
+    async def confirm2fa(self, enable: bool, code: str) -> Any:
+        """
+        确认或关闭双因素认证
+
+        :params enable: True 启用，False 关闭
+        :params code: 验证码
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.AUTH}/confirm2fa",
+            data={"enable": enable, "code": code},
+        )

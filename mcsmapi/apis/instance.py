@@ -255,24 +255,24 @@ class Instance:
         self,
         daemonId: str,
         uuid: str,
-        targetUrl: str,
-        title: str = "",
-        description: str = "",
+        title: str,
+        description: str,
     ) -> bool:
         """
-        重装实例
+        重装实例（通过应用市场预设）
+
+        服务端使用 title + description 匹配应用市场中的预设配置。
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :params targetUrl: 重装文件URL
-        :params title: 标题
-        :params description: 描述
+        :params title: 预设标题（需与应用市场一致）
+        :params description: 预设描述（需与应用市场一致）
         """
         return await self._req.send(
             "POST",
             f"{ApiPool.PROTECTED_INSTANCE}/install_instance",
             params={"uuid": uuid, "daemonId": daemonId},
-            data={"targetUrl": targetUrl, "title": title, "description": description},
+            data={"title": title, "description": description},
         )
 
 
