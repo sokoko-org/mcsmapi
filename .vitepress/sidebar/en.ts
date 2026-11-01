@@ -5,8 +5,8 @@ export const enSidebar: DefaultTheme.Sidebar = {
       text: "User Guide",
       collapsed: false,
       items: [
-        { text: "Quick Start", link: `/en/quick-started` },
-        { text: "Initialization", link: `/en/initialization` },
+        { text: "Quick Start", link: /en/quick-started },
+        { text: "Initialization", link: /en/initialization },
       ],
     },
     {
@@ -19,6 +19,9 @@ export const enSidebar: DefaultTheme.Sidebar = {
         { text: "Files", link: "/en/endpoints/file" },
         { text: "Daemons", link: "/en/endpoints/daemon" },
         { text: "Scheduled Tasks", link: "/en/endpoints/schedule" },
+        { text: "Java Management", link: "/en/endpoints/java" },
+        { text: "Mod Management", link: "/en/endpoints/mod" },
+        { text: "Upgrade", link: "/en/endpoints/upgrade" },
       ],
     },
     {
@@ -33,6 +36,9 @@ export const enSidebar: DefaultTheme.Sidebar = {
         { text: "Node Model", link: "/en/models/daemon" },
         { text: "Common Model", link: "/en/models/common" },
         { text: "Scheduled Task Model", link: "/en/models/schedule" },
+        { text: "Java Model", link: "/en/models/java" },
+        { text: "Mod Model", link: "/en/models/mod" },
+        { text: "Upgrade Model", link: "/en/models/upgrade" },
       ],
     },
   ],

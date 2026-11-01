@@ -4,21 +4,51 @@
 All subsequent operations assume you have completed this configuration.
 :::
 
-## _class_ `MCSMAPI(url, timeout: int = 5)`
+## _class_ `MCSMAPI(url: str, timeout: int = 5)`
 
-Initialize the MCSMAPI object.
+Initialize the MCSMAPI client.
 
 ### Parameters
 
 - `url`: The URL of the MCSM frontend (including the protocol).
 - `timeout`: Request timeout in seconds, defaults to 5.
 
-### Example
+### Using `async with` (recommended)
 
-```py
+```python
+import asyncio
 from mcsmapi import MCSMAPI
-mcsm = MCSMAPI("http://127.0.0.1:8080")
+
+async def main():
+    async with MCSMAPI("http://127.0.0.1:23333") as mcsm:
+        await mcsm.login("username", "password")
+        daemons = await mcsm.daemon.config()
+        print(daemons)
+
+asyncio.run(main())
 ```
+
+The client is automatically closed when the `async with` block exits.
+
+### Manual style
+
+```python
+import asyncio
+from mcsmapi import MCSMAPI
+
+async def main():
+    mcsm = MCSMAPI("http://127.0.0.1:23333")
+    await mcsm.login("username", "password")
+    daemons = await mcsm.daemon.config()
+    print(daemons)
+    await mcsm.close()
+
+asyncio.run(main())
+```
+
+::: warning
+When using the manual style, always call `await mcsm.close()` when you are done to release the underlying httpx connection pool.
+:::
 
 ## Authentication
 
@@ -28,6 +58,10 @@ Most APIs require authentication to be used.
 
 #### _method_ `login(username: str, password: str)`
 
+This method is **async** — you must `await` it.
+
+If you call `login()` again on an already-authenticated instance, the previous session is replaced automatically.
+
 ##### Parameters
 
 - `username`: Your username.
@@ -35,13 +69,15 @@ Most APIs require authentication to be used.
 
 ##### Example
 
-```py
-mcsm.login("username", "password")
+```python
+await mcsm.login("username", "password")
 ```
 
 ### API Key Login
 
 #### _method_ `login_with_apikey(apikey: str)`
+
+This method is **sync** — no `await` needed.
 
 ##### Parameters
 
@@ -49,12 +85,52 @@ mcsm.login("username", "password")
 
 ##### Example
 
-```py
-mcsm.login_with_apikey("apikey")
+```python
+mcsm.login_with_apikey("your-api-key")
 ```
 
-## Quick Operations Guide
+## Accessing Endpoints
 
-Every interface within the `MCSMAPI` object can be called directly from its corresponding model.
+Every endpoint group is exposed as a `cached_property` on the `MCSMAPI` instance:
 
-For example, you can use most methods from `MCSMAPI.user()` within the `User` model.
+```python
+mcsm.overview   # Overview
+mcsm.daemon     # Daemon
+mcsm.instance   # Instance
+mcsm.user       # User
+mcsm.file       # File
+mcsm.image      # Image
+mcsm.schedule   # Schedule
+mcsm.java       # Java
+mcsm.mod        # Mod
+mcsm.upgrade    # Upgrade
+```
+
+All methods on these endpoint objects are `async` and must be called with `await`.
+
+## Complete Example
+
+```python
+import asyncio
+from mcsmapi import MCSMAPI
+
+async def main():
+    async with MCSMAPI("http://127.0.0.1:23333") as mcsm:
+        await mcsm.login("admin", "password")
+
+        # Get panel overview
+        info = await mcsm.overview.overview()
+        print("Panel version:", info.version)
+
+        # List all daemons
+        daemons = await mcsm.daemon.config()
+        for d in daemons:
+            print("Daemon:", d.remarks, d.ip)
+
+        # Search instances on the first daemon
+        result = await mcsm.instance.search(daemons[0].uuid)
+        for inst in result.data:
+            print("Instance:", inst.config.nickname)
+
+asyncio.run(main())
+```

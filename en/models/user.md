@@ -1,82 +1,146 @@
-# User Model
+# User Models
 
 ## _class_ `UserPermission(IntEnum)`
 
 User permission level
 
-| Enum Item | Enum Value | Description              |
-| --------- | ---------- | ------------------------ |
-| `BANNED`  | -1         | Banned user permission   |
-| `USER`    | 1          | Regular user permission  |
-| `ADMIN`   | 10         | Administrator permission |
+| Variant | Value | Description |
+| --- | --- | --- |
+| `BANNED` | -1 | 封禁 |
+| `USER` | 1 | 普通用户 |
+| `ADMIN` | 10 | 管理员 |
 
 ## _class_ `UserInstances(BaseModel)`
 
-User instance information
+User instance info
 
-| Field Name     | Type | Description           |
-| -------------- | ---- | --------------------- |
-| `instanceUuid` | str  | Instance UUID         |
-| `daemonId`     | str  | ID of the owning node |
+| Field | Type | Description |
+| --- | --- | --- |
+| `instanceUuid` | str | 实例 UUID |
+| `daemonId` | str | 节点 ID |
 
 ## _class_ `UserCreateResult(BaseModel)`
 
 User creation result
 
-| Field Name   | Type           | Description                   |
-| ------------ | -------------- | ----------------------------- |
-| `uuid`       | str            | User unique identifier (UUID) |
-| `userName`   | str            | Username                      |
-| `permission` | UserPermission | User permission level         |
+| Field | Type | Description |
+| --- | --- | --- |
+| `uuid` | str | 用户 UUID |
+| `userName` | str | 用户名 |
+| `permission` | UserPermission | User permission level |
 
 ## _class_ `UserModel(BaseModel)`
 
-User information model
+User info model
 
-| Field Name     | Type                | Description                                        |
-| -------------- | ------------------- | -------------------------------------------------- |
-| `uuid`         | str                 | User unique identifier (UUID)                      |
-| `userName`     | str                 | Username                                           |
-| `permission`   | UserPermission      | User permission level                              |
-| `registerTime` | str                 | User registration time (YYYY/M/D hh:mm:ss)         |
-| `loginTime`    | str                 | User last login time (YYYY/M/D hh:mm:ss)           |
-| `apiKey`       | str                 | User API key                                       |
-| `passWord`     | str                 | User password                                      |
-| `open2FA`      | bool                | Whether Two-Factor Authentication (2FA) is enabled |
-| `instances`    | list[UserInstances] | List of instances associated with the user         |
-| `isInit`       | bool                | Whether it is an initialized user (Deprecated)     |
-| `secret`       | str                 | User security secret (Deprecated)                  |
-| `passWordType` | int                 | Password type (Deprecated)                         |
-| `salt`         | str                 | Password salt (Deprecated)                         |
+| Field | Type | Description |
+| --- | --- | --- |
+| `uuid` | str | 用户 UUID |
+| `userName` | str | 用户名 |
+| `loginTime` | str | 最后登录时间 |
+| `registerTime` | str | 注册时间 |
+| `instances` | list[UserInstances] | 用户拥有的实例列表 |
+| `permission` | UserPermission | 权限级别 |
+| `passWord` | str | 密码 (搜索接口返回空字符串) |
+| `passWordType` | int | 密码类型 |
+| `salt` | str | 密码盐值 |
+| `open2FA` | bool | 是否启用双因素认证 |
+| `apiKey` | str | API 密钥 (掩码值) |
+| `isInit` | bool | 是否为初始化用户 |
+| `secret` | str | 2FA 密钥 (掩码值) |
+| `ssoSub` | str | SSO 主题标识 |
+| `ssoBound` | bool | 是否绑定 SSO |
 
-### _method_ `delete(self)`
+### _method_ `delete()`
 
-Deletes this user.
+Delete this user
 
-#### Returns
+#### 返回
 
-- `bool`: Returns True if the deletion is successful.
+- `bool`
 
-### _method_ `update(self, config: dict[str, Any])`
+### _method_ `update(config)`
 
-Updates this user's information.
+Update this user (partial)
 
-#### Parameters
+#### 参数
 
-- `config`: The new user information, provided as a dictionary. Missing information will be filled with the original user's information.
+- `config`: 要修改的字段 (dict)
 
-#### Returns
+#### 返回
 
-- `bool`: Returns True if the update is successful.
+- `bool`
 
 ## _class_ `SearchUserModel(BaseModel)`
 
-User search results
+User search result
 
-| Field Name  | Type            | Description                       |
-| ----------- | --------------- | --------------------------------- |
-| `total`     | int             | Total number of matching users    |
-| `page`      | int             | Current page number               |
-| `page_size` | int             | Number of users returned per page |
-| `max_page`  | int             | Maximum available page number     |
-| `data`      | list[UserModel] | List of user information          |
+| Field | Type | Description |
+| --- | --- | --- |
+| `total` | int | 匹配的用户总数 |
+| `page` | int | 当前页码 |
+| `pageSize` | int | 每页返回的用户数量 |
+| `maxPage` | int | 最大可用页数 |
+| `data` | list[UserModel] | 用户信息列表 |
+
+## _class_ `UserInfo(BaseModel)`
+
+Current user info
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `uuid` | str | 用户 UUID |
+| `userName` | str | 用户名 |
+| `loginTime` | str | 最后登录时间 |
+| `registerTime` | str | 注册时间 |
+| `instances` | list[UserInstances] | 用户拥有的实例列表 |
+| `permission` | UserPermission | 权限级别 |
+| `apiKey` | str | API 密钥 (掩码值) |
+| `isInit` | bool | 是否为初始化用户 |
+| `open2FA` | bool | 是否启用双因素认证 |
+| `token` | str | 当前会话 Token |
+
+## _class_ `LoginInfo(BaseModel)`
+
+Login page info
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `loginInfo` | str \| None | 登录页面自定义文本 |
+
+## _class_ `PanelStatusSettings(BaseModel)`
+
+Panel status settings
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `businessMode` | bool | 是否为商业模式 |
+| `businessId` | str | 商业模式 ID |
+| `canFileManager` | bool \| None | 是否允许文件管理 |
+| `allowUsePreset` | bool \| None | 是否允许使用预设 |
+| `allowChangeCmd` | bool \| None | 是否允许修改启动命令 |
+| `panelId` | str \| None | 面板 ID |
+| `ssoEnabled` | bool \| None | 是否启用 SSO |
+
+## _class_ `PanelStatus(BaseModel)`
+
+Panel public status
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `isInstall` | bool | 面板是否已安装 |
+| `language` | str \| None | 面板语言 |
+| `settings` | PanelStatusSettings | 面板设置项 |
+
+## _class_ `UserOverviewItem(BaseModel)`
+
+User overview item
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `uuid` | str | 用户 UUID |
+| `userName` | str | 用户名 |
+| `permission` | UserPermission | 权限级别 |
+| `instances` | list[UserInstances] | 用户拥有的实例列表 |
+| `loginTime` | str | 最后登录时间 |
+| `registerTime` | str | 注册时间 |

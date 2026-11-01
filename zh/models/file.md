@@ -2,187 +2,101 @@
 
 ## _class_ `FileType(IntEnum)`
 
-文件类型枚举
+文件类型
 
-| 枚举项   | 枚举值 | 描述   |
-| -------- | ------ | ------ |
-| `FOLDER` | 0      | 文件夹 |
-| `FILE`   | 1      | 文件   |
+| 枚举项 | 枚举值 | 描述 |
+| --- | --- | --- |
+| `FOLDER` | 0 | 文件夹 |
+| `FILE` | 1 | 文件 |
 
 ## _class_ `FileItem(BaseModel)`
 
 文件信息
 
-| 字段名      | 类型     | 描述                         |
-| ----------- | -------- | ---------------------------- |
-| `name`      | str      | 文件或文件夹名称             |
-| `size`      | int      | 文件大小(单位: byte)         |
-| `time`      | str      | 文件修改时间                 |
-| `mode`      | int      | 文件操作权限(仅适用于 Linux) |
-| `type`      | FileType | 文件类型                     |
-| `daemonId`  | str      | 远程节点 uuid                |
-| `uuid`      | str      | 实例的 uiid                  |
-| `target`    | str      | 文件所在路径                 |
-| `file_name` | str      | 当前文件列表过滤条件         |
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `name` | str | 文件名 |
+| `size` | int | 文件大小(字节) |
+| `time` | str | 修改时间 |
+| `mode` | int | 权限 (仅 Linux) |
+| `type` | FileType | 文件类型 |
+| `daemonId` | str | 节点 UUID (SDK 注入) |
+| `uuid` | str | 实例 UUID (SDK 注入) |
+| `target` | str | 所在路径 (SDK 注入) |
 
-### _method_ `rename(self, new_name: str)`
+### 链式操作方法
 
-重命名该文件或文件夹
+所有方法均为 `async`，需要 `await` 调用。
 
-#### 参数
-
-- `new_name`: 源文件或文件夹的新名字
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `delete(self)`
-
-删除该文件或文件夹
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `copy2(self, target: str)`
-
-复制该文件或文件夹到目标路径
-
-### 参数
-
-- `target`: 目标路径
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `move(self, target: str)`
-
-移动该文件或文件夹到目标路径
-
-#### 参数
-
-- `target`: 目标路径
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `content(self)`
-
-获取文件内容
-
-#### 返回
-
-- `str`: 文件内容
-
-### _method_ `zip(self, targets: list[str])`
-
-压缩该文件或文件夹到指定位置
-
-#### 参数
-
-- `targets`: 要压缩到的目标文件的路径
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `unzip(self, target: str, code: Literal["utf-8", "gbk", "big5"] = "utf-8")`
-
-解压缩该 zip 文件到指定位置
-
-#### 参数
-
-- `target`: 解压到的目标路径
-- `code`: 压缩文件的编码方式
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `update(self, text: str)`
-
-更新该文件内容
-
-#### 参数
-
-- `text`: 文件内容
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `download(self)`
-
-"""下载该文件"""
-
-#### 返回
-
-- `str`: 文件下载的 URL
+| 方法 | 参数 | 返回 | 描述 |
+| --- | --- | --- | --- |
+| `rename(newName)` | newName: str | bool | 重命名 |
+| `delete()` | - | bool | 删除 |
+| `copy_to(target)` | target: str | bool | 复制到目标路径 |
+| `move(target)` | target: str | bool | 移动到目标路径 |
+| `content()` | - | str | 获取文件内容 |
+| `zip(targets)` | targets: list[str] | bool | 压缩 |
+| `unzip(target, code)` | target: str, code: str | bool | 解压 |
+| `update(text)` | text: str | bool | 更新文件内容 |
+| `download()` | - | FileDownloadConfig | 获取下载配置 |
 
 ## _class_ `FileList(BaseModel)`
 
 文件列表
 
-| 字段名         | 类型           | 描述                         |
-| -------------- | -------------- | ---------------------------- |
-| `items`        | list[FileItem] | 文件信息列表                 |
-| `page`         | int            | 当前页数                     |
-| `pageSize`     | int            | 文件列表单页大小             |
-| `total`        | int            | 总页数                       |
-| `absolutePath` | str            | 当前路径在远程节点的绝对路径 |
-| `daemonId`     | str            | 远程节点 uuid                |
-| `uuid`         | str            | 实例 uuid                    |
-| `target`       | str            | 文件（名称或目录）路径       |
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `items` | list[FileItem] | 文件列表 |
+| `page` | int | 当前页 |
+| `pageSize` | int | 每页大小 |
+| `total` | int | 总数 |
+| `absolutePath` | str | 远程节点上的绝对路径 |
+| `daemonId` | str | 节点 UUID (SDK 注入) |
+| `uuid` | str | 实例 UUID (SDK 注入) |
 
-### _method_ `upload(self, file: bytes, upload_dir: str)`
+### 链式操作方法
 
-::: tip
-此函数为异步函数
-:::
+| 方法 | 参数 | 返回 | 描述 |
+| --- | --- | --- | --- |
+| `upload(file, upload_dir)` | file: bytes, upload_dir: str | bool | 上传文件 |
+| `createFile(target)` | target: str | bool | 创建文件 |
+| `createFolder(target)` | target: str | bool | 创建文件夹 |
 
-上传文件到实例
+## _class_ `RemoteMappingEndpoint(BaseModel)`
 
-#### 参数
+远程映射端点
 
-- `file`: 要上传的文件内容
-- `upload_dir`: 文件上传到的目标路径
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `addr` | str | 地址 |
+| `prefix` | str | 前缀 |
 
-#### 返回
+## _class_ `RemoteMappingEntry(BaseModel)`
 
-- `bool`: 操作成功返回 True
+远程映射条目
 
-### _method_ `createFile(self, target: str)`
-
-创建文件
-
-#### 参数
-
-- `target`: 目标文件的路径，包含文件名
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
-
-### _method_ `createFolder(self, target: str)`
-
-创建文件夹
-
-#### 参数
-
-- `target`: 目标文件夹的路径
-
-#### 返回
-
-- `bool`: 操作成功后返回 True
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `from` | RemoteMappingEndpoint | 源端点 |
+| `to` | RemoteMappingEndpoint | 目标端点 |
 
 ## _class_ `FileDownloadConfig(BaseModel)`
 
 文件下载配置
 
-| 字段名     | 类型 | 描述         |
-| ---------- | ---- | ------------ |
-| `password` | str  | 文件下载密码 |
-| `addr`     | str  | 文件下载地址 |
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `password` | str | 文件下载密码 |
+| `addr` | str | 文件下载地址 |
+| `remoteMappings` | list[RemoteMappingEntry] | 远程端口映射 |
+
+## _class_ `StreamChannelResult(BaseModel)`
+
+数据流通道信息
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `password` | str | 通道密码 |
+| `addr` | str | 通道地址 |
+| `prefix` | str | 路径前缀 |
+| `remoteMappings` | list[RemoteMappingEntry] | 远程端口映射 |

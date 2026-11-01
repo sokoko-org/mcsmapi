@@ -1,29 +1,29 @@
-# Common Model
+# Common Models
 
 ## _class_ `CpuMemChart(BaseModel)`
 
-Resource usage information
+Resource usage info
 
-| Field | Type  | Description  |
-| ----- | ----- | ------------ |
-| `cpu` | float | CPU usage    |
-| `mem` | float | Memory usage |
+| Field | Type | Description |
+| --- | --- | --- |
+| `cpu` | float | CPU 使用率 |
+| `mem` | float | 内存使用率 |
 
 ## _class_ `ProcessInfo(BaseModel)`
 
-Process detailed information
+Process details
 
-| Field    | Type | Description            |
-| -------- | ---- | ---------------------- |
-| `cpu`    | int  | CPU usage (percentage) |
-| `memory` | int  | Memory usage (MB)      |
-| `cwd`    | str  | Working directory      |
+| Field | Type | Description |
+| --- | --- | --- |
+| `cpu` | int | CPU 使用率（百分比） |
+| `memory` | int | 内存使用量（字节） |
+| `cwd` | str | 工作路径 |
 
 ## _class_ `InstanceStat(BaseModel)`
 
-Instance statistics information
+Instance statistics
 
-| Field     | Type | Description                 |
-| --------- | ---- | --------------------------- |
-| `running` | int  | Number of running instances |
-| `total`   | int  | Total number of instances   |
+| Field | Type | Description |
+| --- | --- | --- |
+| `running` | int | 运行中实例数量 |
+| `total` | int | 全部实例数量 |

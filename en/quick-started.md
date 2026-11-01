@@ -3,13 +3,16 @@
 ![Supported MCSManager Versions](https://img.shields.io/badge/Supported%20MCSManager%20Versions-10.x-blue)
 ![Python Version](https://img.shields.io/badge/Python%20Version-%3E%3D3.10-blue)
 ![PyPI Downloads](https://img.shields.io/pypi/dm/mcsmapi)
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/molanp/mcsmapi)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/sokoko-org/mcsmapi)
 
 ## Introduction
 
-`mcsmapi` is a PyPI package based on [MCSManager](https://github.com/MCSManager/MCSManager) designed to simplify interaction with the MCSM API.
+`mcsmapi` is a fully async Python SDK for [MCSManager](https://github.com/MCSManager/MCSManager), built on **httpx** and **pydantic v2**.
 
-With this library, you can more easily access and operate the various functions provided by MCSM.
+- All APIs are `async`/`await`
+- Typed return models with IDE autocompletion
+- Instance-based `Request` (multi-instance safe)
+- Returned model objects support direct chain operations
 
 ## Installation
 
@@ -18,7 +21,7 @@ pip install mcsmapi
 ```
 
 If you need the latest build files, please visit
-[Actions](https://github.com/molanp/mcsmapi/actions/workflows/auto-build.yml)
+[Actions](https://github.com/sokoko-org/mcsmapi/actions/workflows/auto-build.yml)
 
 ## Supported MCSM Versions
 
@@ -28,7 +31,7 @@ If you need the latest build files, please visit
 
 ## Contributing
 
-If you find any issues or have suggestions for improvements, feel free to submit an [Issue](https://github.com/molanp/mcsmapi/issues) or create a [Pull Request](https://github.com/molanp/mcsmapi/pulls).
+If you find any issues or have suggestions for improvements, feel free to submit an [Issue](https://github.com/sokoko-org/mcsmapi/issues) or create a [Pull Request](https://github.com/sokoko-org/mcsmapi/pulls).
 
 ## License
 

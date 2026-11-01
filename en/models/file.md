@@ -1,188 +1,102 @@
-# File Model
+# File Models
 
 ## _class_ `FileType(IntEnum)`
 
-File type enumeration
+File type
 
-| Enum Item | Enum Value | Description |
-| --------- | ---------- | ----------- |
-| `FOLDER`  | 0          | Folder      |
-| `FILE`    | 1          | File        |
+| Variant | Value | Description |
+| --- | --- | --- |
+| `FOLDER` | 0 | 文件夹 |
+| `FILE` | 1 | 文件 |
 
 ## _class_ `FileItem(BaseModel)`
 
-File information
+File info
 
-| Field       | Type     | Description                             |
-| ----------- | -------- | --------------------------------------- |
-| `name`      | str      | File or folder name                     |
-| `size`      | int      | File size (unit: bytes)                 |
-| `time`      | str      | File modification time                  |
-| `mode`      | int      | File operation permissions (Linux only) |
-| `type`      | FileType | File type                               |
-| `daemonId`  | str      | Remote node UUID                        |
-| `uuid`      | str      | Instance UUID                           |
-| `target`    | str      | Path where the file is located          |
-| `file_name` | str      | Filter condition for current file list  |
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | str | 文件名 |
+| `size` | int | 文件大小(字节) |
+| `time` | str | 修改时间 |
+| `mode` | int | 权限 (仅 Linux) |
+| `type` | FileType | File type |
+| `daemonId` | str | 节点 UUID (SDK 注入) |
+| `uuid` | str | 实例 UUID (SDK 注入) |
+| `target` | str | 所在路径 (SDK 注入) |
 
-### _method_ `rename(self, new_name: str)`
+### Chain methods
 
-Rename this file or folder
+All methods are `async` and require `await`.
 
-#### Parameters
-
-- `new_name`: New name for the source file or folder
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `delete(self)`
-
-Delete this file or folder
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `copy2(self, target: str)`
-
-Copy this file or folder to the target path
-
-#### Parameters
-
-- `target`: Target path
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `move(self, target: str)`
-
-Move this file or folder to the target path
-
-#### Parameters
-
-- `target`: Target path
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `content(self)`
-
-Get the file content
-
-#### Returns
-
-- `str`: File content
-
-### _method_ `zip(self, targets: list[str])`
-
-Compress this file or folder to the specified location
-
-#### Parameters
-
-- `targets`: Target file path to compress to
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `unzip(self, target: str, code: Literal["utf-8", "gbk", "big5"] = "utf-8")`
-
-Unzip this zip file to the specified location
-
-#### Parameters
-
-- `target`: Target path to unzip to
-- `code`: Encoding of the compressed file
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `update(self, text: str)`
-
-Update the file content
-
-#### Parameters
-
-- `text`: File content
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `download(self)`
-
-Download this file
-
-#### Returns
-
-- `str`: File download URL
+| Method | Parameters | Return | Description |
+| --- | --- | --- | --- |
+| `rename(newName)` | newName: str | bool | 重命名 |
+| `delete()` | - | bool | 删除 |
+| `copy_to(target)` | target: str | bool | 复制到目标路径 |
+| `move(target)` | target: str | bool | 移动到目标路径 |
+| `content()` | - | str | 获取文件内容 |
+| `zip(targets)` | targets: list[str] | bool | 压缩 |
+| `unzip(target, code)` | target: str, code: str | bool | 解压 |
+| `update(text)` | text: str | bool | 更新文件内容 |
+| `download()` | - | FileDownloadConfig | 获取下载配置 |
 
 ## _class_ `FileList(BaseModel)`
 
 File list
 
-| Field          | Type           | Description                                               |
-| -------------- | -------------- | --------------------------------------------------------- |
-| `items`        | list[FileItem] | List of file information                                  |
-| `page`         | int            | Current page number                                       |
-| `pageSize`     | int            | Number of items per page in the file list                 |
-| `total`        | int            | Total number of pages                                     |
-| `absolutePath` | str            | Absolute path of the current directory on the remote node |
-| `daemonId`     | str            | Remote node UUID                                          |
-| `uuid`         | str            | Instance UUID                                             |
-| `target`       | str            | Path of the file (name or directory)                      |
+| Field | Type | Description |
+| --- | --- | --- |
+| `items` | list[FileItem] | File list |
+| `page` | int | 当前页 |
+| `pageSize` | int | 每页大小 |
+| `total` | int | 总数 |
+| `absolutePath` | str | 远程节点上的绝对路径 |
+| `daemonId` | str | 节点 UUID (SDK 注入) |
+| `uuid` | str | 实例 UUID (SDK 注入) |
 
-### _method_ `upload(self, file: bytes, upload_dir: str)`
+### Chain methods
 
-::: tip
-This function is asynchronous
-:::
+| Method | Parameters | Return | Description |
+| --- | --- | --- | --- |
+| `upload(file, upload_dir)` | file: bytes, upload_dir: str | bool | 上传文件 |
+| `createFile(target)` | target: str | bool | 创建文件 |
+| `createFolder(target)` | target: str | bool | 创建文件夹 |
 
-Upload a file to the instance
+## _class_ `RemoteMappingEndpoint(BaseModel)`
 
-#### Parameters
+Remote mapping endpoint
 
-- `file`: Content of the file to upload
-- `upload_dir`: Target path to upload the file to
+| Field | Type | Description |
+| --- | --- | --- |
+| `addr` | str | 地址 |
+| `prefix` | str | 前缀 |
 
-#### Returns
+## _class_ `RemoteMappingEntry(BaseModel)`
 
-- `bool`: Returns True if the operation is successful
+Remote mapping entry
 
-### _method_ `createFile(self, target: str)`
-
-Create a file
-
-#### Parameters
-
-- `target`: Path of the target file, including the filename
-
-#### Returns
-
-- `bool`: Returns True after successful operation
-
-### _method_ `createFolder(self, target: str)`
-
-Create a folder
-
-#### Parameters
-
-- `target`: Path of the target folder
-
-#### Returns
-
-- `bool`: Returns True after successful operation
+| Field | Type | Description |
+| --- | --- | --- |
+| `from` | RemoteMappingEndpoint | 源端点 |
+| `to` | RemoteMappingEndpoint | 目标端点 |
 
 ## _class_ `FileDownloadConfig(BaseModel)`
 
-File download configuration
+File download config
 
-| Field      | Type | Description                |
-| ---------- | ---- | -------------------------- |
-| `password` | str  | Password for file download |
-| `addr`     | str  | File download address      |
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | str | 文件下载密码 |
+| `addr` | str | 文件下载地址 |
+| `remoteMappings` | list[RemoteMappingEntry] | 远程端口映射 |
+
+## _class_ `StreamChannelResult(BaseModel)`
+
+Stream channel result
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `password` | str | 通道密码 |
+| `addr` | str | 通道地址 |
+| `prefix` | str | 路径前缀 |
+| `remoteMappings` | list[RemoteMappingEntry] | 远程端口映射 |

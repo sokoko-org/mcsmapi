@@ -1,10 +1,10 @@
-# 文件
+﻿# 文件
 
 ## _class_ `File`
 
 获取操作文件的子类
 
-```py
+```python
 api = mcsm.file
 ```
 
@@ -21,11 +21,24 @@ api = mcsm.file
 - `target`: 用于文件过滤的目标路径
 - `page`: 指定分页的页码
 - `page_size`: 获取文件列表的分页大小
-- `file_name`: 用于在文件列表中过滤出名称包含指定字符串的文件或文件夹
+- `file_name`: 用于过滤名称包含指定字符串的文件或文件夹
 
 #### 返回
 
-- `FileList`: 文件列表详情的模型
+- `FileList`: 文件列表详情模型
+
+### _method_ `status(daemonId: str, uuid: str)`
+
+获取文件管理状态
+
+#### 参数
+
+- `daemonId`: 节点的 UUID
+- `uuid`: 实例的 UUID
+
+#### 返回
+
+- `dict`: 文件管理状态信息
 
 ### _method_ `content(daemonId: str, uuid: str, target: str)`
 
@@ -56,6 +69,38 @@ api = mcsm.file
 
 - `bool`: 操作成功后返回 True
 
+### _method_ `chmod(daemonId: str, uuid: str, target: str, chmod: int, deep: bool)`
+
+修改文件权限
+
+#### 参数
+
+- `daemonId`: 节点的 UUID
+- `uuid`: 实例的 UUID
+- `target`: 目标文件路径
+- `chmod`: 权限值（如 755）
+- `deep`: 是否递归应用
+
+#### 返回
+
+- `bool`: 操作成功后返回 True
+
+### _method_ `chmod_batch(daemonId: str, uuid: str, targets: list[str], chmod: int, deep: bool)`
+
+批量修改文件权限
+
+#### 参数
+
+- `daemonId`: 节点的 UUID
+- `uuid`: 实例的 UUID
+- `targets`: 目标文件路径列表
+- `chmod`: 权限值
+- `deep`: 是否递归应用
+
+#### 返回
+
+- `bool`: 操作成功后返回 True
+
 ### _method_ `download(daemonId: str, uuid: str, file_name: str)`
 
 下载文件
@@ -64,17 +109,13 @@ api = mcsm.file
 
 - `daemonId`: 节点的 UUID
 - `uuid`: 实例的 UUID
-- `file_name`: 要下载的文件实例内完整路径, eg: /backup/world.zip
+- `file_name`: 要下载的文件实例内完整路径，如 `/backup/world.zip`
 
 #### 返回
 
 - `str`: 文件下载 URL
 
 ### _method_ `upload(daemonId: str, uuid: str, file: bytes, upload_dir: str)`
-
-::: tip
-此函数为异步函数
-:::
 
 上传文件
 
@@ -91,19 +132,19 @@ api = mcsm.file
 
 ### _method_ `copy_to(daemonId: str, uuid: str, copy_map: dict[str, str])`
 
-移动多个文件或文件夹到指定位置
+复制多个文件或文件夹到指定位置
 
 #### 参数
 
 - `daemonId`: 节点的 UUID
 - `uuid`: 实例的 UUID
-- `copy_map`: 复制映射，格式为 {源路径: 目标路径}
+- `copy_map`: 复制映射，格式为 `{源路径: 目标路径}`
 
 #### 返回
 
 - `bool`: 操作成功后返回 True
 
-### _mothod_ `copyOne(daemonId: str, uuid: str, source: str, target: str)`
+### _method_ `copyOne(daemonId: str, uuid: str, source: str, target: str)`
 
 复制单个文件或文件夹到指定位置
 
@@ -126,7 +167,7 @@ api = mcsm.file
 
 - `daemonId`: 节点的 UUID
 - `uuid`: 实例的 UUID
-- `copy_map`: 移动映射，格式为 {源路径: 目标路径}
+- `copy_map`: 移动映射，格式为 `{源路径: 目标路径}`
 
 #### 返回
 
@@ -171,7 +212,7 @@ api = mcsm.file
 - `daemonId`: 节点的 UUID
 - `uuid`: 实例的 UUID
 - `source`: 要压缩到的目标文件路径
-- `targets`: 需要压缩的文件路径
+- `targets`: 需要压缩的文件路径列表
 
 #### 返回
 
@@ -201,7 +242,7 @@ api = mcsm.file
 
 - `daemonId`: 节点的 UUID
 - `uuid`: 实例的 UUID
-- `targets`: 要删除的文件或文件夹的路径
+- `targets`: 要删除的文件或文件夹的路径列表
 
 #### 返回
 
@@ -216,6 +257,35 @@ api = mcsm.file
 - `daemonId`: 节点的 UUID
 - `uuid`: 实例的 UUID
 - `target`: 目标文件的路径，包含文件名
+
+#### 返回
+
+- `bool`: 操作成功后返回 True
+
+### _method_ `download_from_url(daemonId: str, uuid: str, url: str, file_name: str)`
+
+从 URL 下载文件到实例
+
+#### 参数
+
+- `daemonId`: 节点的 UUID
+- `uuid`: 实例的 UUID
+- `url`: 下载地址
+- `file_name`: 保存的文件名
+
+#### 返回
+
+- `bool`: 操作成功后返回 True
+
+### _method_ `download_from_url_stop(daemonId: str, uuid: str, taskId: str)`
+
+停止从 URL 下载文件的任务
+
+#### 参数
+
+- `daemonId`: 节点的 UUID
+- `uuid`: 实例的 UUID
+- `taskId`: 下载任务 ID
 
 #### 返回
 

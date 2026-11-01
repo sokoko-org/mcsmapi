@@ -1,10 +1,10 @@
-# 镜像
+﻿# 镜像
 
 ## _class_ `Image`
 
 获取操作镜像的子类
 
-```py
+```python
 api = mcsm.image
 ```
 
@@ -71,13 +71,38 @@ api = mcsm.image
 #### 参数
 
 - `daemonId`: 节点的 UUID
-- `dockerFile`: DockerFile Config 内容
+- `dockerFile`: Dockerfile 配置内容
 - `name`: 镜像名称
-- `tag`: 镜像版本
+- `tag`: 镜像版本标签
 
 #### 返回
 
 - `bool`: 操作成功后返回 True
+
+#### 例子
+
+```python
+await api.add("daemon-uuid", "FROM ubuntu:22.04", "myimage", "latest")
+```
+
+### _method_ `delete(daemonId: str, imageId: str)`
+
+删除指定镜像
+
+#### 参数
+
+- `daemonId`: 节点的 UUID
+- `imageId`: 镜像 ID
+
+#### 返回
+
+- `bool`: 操作成功后返回 True
+
+#### 例子
+
+```python
+await api.delete("daemon-uuid", "sha256:abc123...")
+```
 
 ### _method_ `progress(daemonId: str)`
 
@@ -89,10 +114,47 @@ api = mcsm.image
 
 #### 返回
 
-- `dict[str, int]`: {容器名称: 当前状态}
+- `dict[str, int]`: `{容器名称: 当前状态}`
 
 | 状态码 | 含义         |
 | ------ | ------------ |
 | -1     | 镜像构建失败 |
 | 1      | 镜像构建中   |
 | 2      | 镜像构建完成 |
+
+### _method_ `image_platforms(daemonId: str, imageName: str)`
+
+获取指定镜像支持的平台列表
+
+#### 参数
+
+- `daemonId`: 节点的 UUID
+- `imageName`: 镜像名称
+
+#### 返回
+
+- `list`: 支持的平台列表
+
+#### 例子
+
+```python
+platforms = await api.image_platforms("daemon-uuid", "ubuntu:22.04")
+```
+
+### _method_ `dockerhub_image_platforms(imageName: str)`
+
+从 Docker Hub 获取指定镜像支持的平台列表
+
+#### 参数
+
+- `imageName`: 镜像名称
+
+#### 返回
+
+- `list`: 支持的平台列表
+
+#### 例子
+
+```python
+platforms = await api.dockerhub_image_platforms("nginx:latest")
+```

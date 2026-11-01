@@ -4,262 +4,194 @@
 
 换行符
 
-| 枚举项 | 枚举值 |
-| ------ | ------ |
-| `LF`   | 0      |
-| `CR`   | 1      |
-| `CRLF` | 2      |
+| 枚举项 | 枚举值 | 描述 |
+| --- | --- | --- |
+| `LF` | 0 | LF |
+| `CR` | 1 | CR |
+| `CRLF` | 2 | CRLF |
 
 ## _class_ `Status(IntEnum)`
 
 实例状态
 
-| 枚举项     | 枚举值 | 描述     |
-| ---------- | ------ | -------- |
-| `BUSY`     | -1     | 维护中   |
-| `STOP`     | 0      | 未运行   |
-| `STOPPING` | 1      | 停止中   |
-| `STARTING` | 2      | 启动中   |
-| `RUNNING`  | 3      | 正在运行 |
+| 枚举项 | 枚举值 | 描述 |
+| --- | --- | --- |
+| `BUSY` | -1 | 维护中 |
+| `STOP` | 0 | 未运行 |
+| `STOPPING` | 1 | 停止中 |
+| `STARTING` | 2 | 启动中 |
+| `RUNNING` | 3 | 正在运行 |
 
-## _class_ `batchOperationDetail(TypedDict)`
+## _class_ `BatchOperationDetail(TypedDict)`
 
 批量操作的实例信息
 
-| 字段名     | 类型 | 描述      |
-| ---------- | ---- | --------- |
-| `uuid`     | str  | 实例 UUID |
-| `daemonId` | str  | 节点 UUID |
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `uuid` | str | 实例 UUID |
+| `daemonId` | str | 节点 UUID |
 
 ## _class_ `TerminalOption(BaseModel)`
 
 终端选项
 
-| 字段名         | 类型 | 描述                 |
-| -------------- | ---- | -------------------- |
-| `haveColor`    | bool | 是否启用前端颜色渲染 |
-| `pty`          | bool | 是否使用伪终端(PTY)  |
-| `ptyWindowCol` | int  | PTY 窗口列数         |
-| `ptyWindowRow` | int  | PTY 窗口行数         |
+| 字段名 | 类型 | 默认值 | 描述 |
+| --- | --- | --- | --- |
+| `haveColor` | bool | False | 是否启用前端颜色渲染 |
+| `pty` | bool | True | 是否使用伪终端 (PTY) |
+| `ptyWindowCol` | int | 164 | PTY 窗口列数 |
+| `ptyWindowRow` | int | 40 | PTY 窗口行数 |
 
 ## _class_ `EventTask(BaseModel)`
 
 事件任务
 
-| 字段名        | 类型 | 描述           |
-| ------------- | ---- | -------------- |
-| `autoStart`   | bool | 是否自动启动   |
-| `autoRestart` | bool | 是否自动重启   |
-| `ignore`      | bool | 是否忽略该任务 |
+| 字段名 | 类型 | 默认值 | 描述 |
+| --- | --- | --- | --- |
+| `autoStart` | bool | False | 是否自动启动 |
+| `autoRestart` | bool | False | 是否自动重启 |
+| `autoRestartMaxTimes` | int | -1 | 自动重启最大次数 (-1 无限) |
+| `ignore` | bool | False | 是否忽略 |
 
 ## _class_ `PingConfig(BaseModel)`
 
-服务器 Ping 配置(已弃用)
+服务器 Ping 配置
 
-| 字段名 | 类型 | 描述                       |
-| ------ | ---- | -------------------------- |
-| `ip`   | str  | 服务器 IP 地址             |
-| `port` | int  | 服务器端口                 |
-| `type` | int  | Ping 类型 (0: UDP, 1: TCP) |
+| 字段名 | 类型 | 默认值 | 描述 |
+| --- | --- | --- | --- |
+| `ip` | str | "" | 服务器 IP |
+| `port` | int | 25565 | 端口 |
+| `type` | int | 1 | Ping 类型 (0: UDP, 1: TCP) |
+
+## _class_ `ExtraServiceConfig(BaseModel)`
+
+额外服务配置
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `openFrpTunnelId` | str | OpenFrp 隧道 ID |
+| `openFrpToken` | str | OpenFrp Token |
+
+## _class_ `ActionCommand(BaseModel)`
+
+操作命令
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `name` | str | 命令名称 |
+| `command` | str | 命令内容 |
+
+## _class_ `JavaConfig(BaseModel)`
+
+Java 配置
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `id` | str | Java 路径 ID |
 
 ## _class_ `InstanceConfig(BaseModel)`
 
 实例配置信息
 
-| 字段名              | 类型           | 描述                                                             |
-| ------------------- | -------------- | ---------------------------------------------------------------- |
-| `nickname`          | str            | 实例名称                                                         |
-| `startCommand`      | str            | 启动命令                                                         |
-| `stopCommand`       | str            | 停止命令                                                         |
-| `cwd`               | str            | 工作目录                                                         |
-| `ie`                | str            | 输入编码                                                         |
-| `oe`                | str            | 输出编码                                                         |
-| `createDatetime`    | int            | 创建时间 (Unix 时间戳)                                           |
-| `lastDatetime`      | int            | 最后修改时间 (Unix 时间戳)                                       |
-| `type`              | str            | 实例类型 (universal, minecraft 等)                               |
-| `tag`               | list[str]      | 实例标签                                                         |
-| `endTime`           | int \| None    | 实例到期时间                                                     |
-| `fileCode`          | str            | 文件编码                                                         |
-| `processType`       | str            | 进程类型 (如 docker, general)                                    |
-| `updateCommand`     | str            | 更新命令                                                         |
-| `actionCommandList` | list[str]      | 实例可执行的操作命令列表                                         |
-| `crlf`              | CRLFType       | 换行符                                                           |
-| `docker`            | DockerConfig   | Docker 相关配置                                                  |
-| `enableRcon`        | bool           | 是否启用 RCON 远程控制                                           |
-| `rconPassword`      | str            | RCON 连接密码                                                    |
-| `rconPort`          | int            | RCON 端口                                                        |
-| `rconIp`            | str            | RCON IP 地址                                                     |
-| `terminalOption`    | TerminalOption | 终端选项配置                                                     |
-| `eventTask`         | EventTask      | 事件任务配置                                                     |
-| `pingConfig`        | PingConfig     | 服务器 Ping 监测配置(已弃用)                                     |
-| `runAs`             | str            | 运行该实例的系统用户，为空则使用启动面板的系统用户               |
-| `basePort`          | int            | 分配的起始端口，这个数字对应 到 的变量，每次新增实例都会递增分配 |
+| 字段名 | 类型 | 默认值 | 描述 |
+| --- | --- | --- | --- |
+| `nickname` | str | "Undefined" | 实例名称 |
+| `startCommand` | str | "" | 启动命令 |
+| `stopCommand` | str | "^C" | 停止命令 |
+| `stopTimeout` | int | 0 | 停止超时时间(秒) |
+| `cwd` | str | "" | 工作目录 |
+| `ie` | str | "utf-8" | 输入编码 |
+| `oe` | str | "utf-8" | 输出编码 |
+| `createDatetime` | int | 0 | 创建时间 (Unix 时间戳) |
+| `lastDatetime` | int | 0 | 最后修改时间 |
+| `type` | str | "universal" | 实例类型 |
+| `tag` | list[str] | [] | 实例标签 |
+| `endTime` | int | 0 | 到期时间 (0 为不限制) |
+| `fileCode` | str | "utf-8" | 文件编码 |
+| `processType` | str | "general" | 进程类型 (general, docker) |
+| `updateCommand` | str | "" | 更新命令 |
+| `actionCommandList` | list[ActionCommand] | [] | 自定义操作命令列表 |
+| `crlf` | CRLFType | CRLF | 换行符 |
+| `docker` | DockerConfig | DockerConfig() | Docker 配置 |
+| `enableRcon` | bool | False | 是否启用 RCON |
+| `rconPassword` | str | "" | RCON 密码 |
+| `rconPort` | int | 0 | RCON 端口 |
+| `rconIp` | str | "" | RCON IP |
+| `terminalOption` | TerminalOption | TerminalOption() | 终端选项 |
+| `eventTask` | EventTask | EventTask() | 事件任务 |
+| `pingConfig` | PingConfig | PingConfig() | Ping 配置 |
+| `extraServiceConfig` | ExtraServiceConfig | ExtraServiceConfig() | 额外服务配置 |
+| `runAs` | str | "" | 运行用户 |
+| `category` | int | 0 | 分类 ID |
+| `basePort` | int | 0 | 起始端口 |
+| `java` | JavaConfig | JavaConfig() | Java 配置 |
 
 ## _class_ `InstanceDetail(BaseModel)`
 
 实例详细信息
 
-| 字段名         | 类型           | 描述            |
-| -------------- | -------------- | --------------- |
-| `config`       | InstanceConfig | 实例的配置信息  |
-| `daemonId`     | str            | 所属的节点 UUID |
-| `instanceUuid` | str            | 实例 UUID       |
-| `started`      | int            | 实例的启动次数  |
-| `status`       | Status         | 实例状态        |
-
-### _method_ `start(self)`
-
-启动该实例
-
-#### 返回
-
-被启动的实例的 UUID
-
-### _method_ `stop(self)`
-
-停止该实例
-
-#### 返回
-
-被停止的实例的 UUID
-
-### _method_ `restart(self)`
-
-重启该实例
-
-#### 返回
-
-被重启的实例的 UUID
-
-### _method_ `kill(self)`
-
-强制关闭该实例
-
-#### 返回
-
-被强制关闭的实例的 UUID
-
-### _method_ `delete(self, deleteFile: bool = False)`
-
-删除该实例
-
-#### 参数
-
-- `deleteFile`: 是否删除关联的文件
-
-#### 返回
-
-被删除的实例的 uuid
-
-### _method_ `update(self)`
-
-升级实例
-
-#### 返回
-
-操作成功返回 True
-
-### _method_ `updateConfig(self, config: dict[str, Any])`
-
-更新该实例配置
-
-#### 参数
-
-- `config`: 新的实例配置，以字典形式提供，缺失内容由使用原实例配置填充
-
-#### 返回
-
-更新成功后返回更新的实例 UUID
-
-### _method_ `reinstall(self, targetUrl: str, title: str = "", description: str = "")`
-
-重装实例
-
-#### 参数
-
-- `targetUrl`: 重装文件的目标 URL
-- `title`: 重装文件的标题
-- `description`: 重装文件的描述，默认为空字符串
-
-#### 返回
-
-操作成功返回 True
-
-### _method_ `command(self, command: str)`
-
-发送命令给实例
-
-#### 参数
-
-- `command` 要发送的命令
-
-#### 返回
-
-被操作的实例的 UUID
-
-### _method_ `get_output(self, size: int | None = None)`
-
-获取实例的输出
-
-#### 参数
-
-- `size`: 要获取的输出大小
-
-#### 返回
-
-- `str`: 输出结果
-
-### _method_ `files(self, target: str = "", page: int = 0, page_size: int = 100, file_name: str = "")`
-
-获取实例的文件列表
-
-#### 参数
-
-- `target`: 用于文件过滤的目标路径默认为空字符串，表示不按路径过滤
-- `page`: 指定分页的页码
-- `page_size`: 指定每页的文件数量
-- `file_name`: 用于在文件列表中过滤出名称包含指定字符串的文件或文件夹
-
-#### 返回
-
-- `FileList`: 文件列表
-
-### _method_ `list_schedule(self)`
-
-获取实例的计划任务列表
-
-#### 返回
-
-- `list[ScheduleDetail]`: 计划任务列表
-
-### _method_ `create_schedule(self, config: SchedulePostBody)`
-
-创建计划任务
-
-#### 参数
-
-- `config`: 计划任务配置
-
-#### 返回
-
-- `bool`: 是否成功
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `config` | InstanceConfig | 实例的配置信息 |
+| `daemonId` | str | 所属的节点 UUID |
+| `instanceUuid` | str | 实例 UUID |
+| `started` | int | 启动次数 |
+| `status` | Status | 实例状态 |
+
+### 链式操作方法
+
+所有方法均为 `async`，需要 `await` 调用。
+
+| 方法 | 参数 | 返回 | 描述 |
+| --- | --- | --- | --- |
+| `start()` | - | str | 启动实例 |
+| `stop()` | - | str | 停止实例 |
+| `restart()` | - | str | 重启实例 |
+| `kill()` | - | str | 强制关闭实例 |
+| `delete(deleteFile=False)` | deleteFile: bool | InstanceDeleteResult | 删除实例 |
+| `update()` | - | bool | 升级实例 |
+| `updateConfig(config)` | config: dict | str | 更新配置（部分更新） |
+| `reinstall(title, description)` | title, description: str | bool | 重装实例 |
+| `command(command)` | command: str | str | 发送命令 |
+| `get_output(size=None)` | size: int \| None | str | 获取输出 |
+| `files(target, page, page_size, file_name)` | - | FileList | 获取文件列表 |
+| `list_schedule()` | - | list[ScheduleDetail] | 获取计划任务列表 |
+| `create_schedule(config)` | config: SchedulePostBody | bool | 创建计划任务 |
 
 ## _class_ `InstanceCreateResult(BaseModel)`
 
 实例创建结果
 
-| 字段名         | 类型           | 描述           |
-| -------------- | -------------- | -------------- |
-| `instanceUuid` | str            | 实例 UUID      |
-| `config`       | InstanceConfig | 实例的配置信息 |
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `instanceUuid` | str | 实例 UUID |
+| `config` | InstanceConfig | 实例配置 |
 
 ## _class_ `InstanceSearchList(BaseModel)`
 
 实例搜索列表
 
-| 字段名     | 类型                 | 描述             |
-| ---------- | -------------------- | ---------------- |
-| `pageSize` | int                  | 每页的实例数量   |
-| `maxPage`  | int                  | 最大页数         |
-| `data`     | list[InstanceDetail] | 实例详细信息列表 |
-| `daemonId` | str                  | 所属的节点 UUID  |
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `daemonId` | str | 所属节点 UUID |
+| `pageSize` | int | 每页实例数量 |
+| `maxPage` | int | 最大页数 |
+| `data` | list[InstanceDetail] | 实例详细信息列表 |
+
+## _class_ `InstanceDeleteItem(BaseModel)`
+
+删除实例返回的单条信息
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `instanceUuid` | str | 实例 UUID |
+| `nickname` | str | 实例名称 |
+
+## _class_ `InstanceDeleteResult(BaseModel)`
+
+实例删除结果
+
+| 字段名 | 类型 | 描述 |
+| --- | --- | --- |
+| `instanceUuids` | list[str] | 删除的实例 UUID 列表 |
+| `instances` | list[InstanceDeleteItem] | 删除的实例详细信息 |

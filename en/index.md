@@ -1,21 +1,25 @@
 ---
-# https://vitepress.dev/reference/default-theme-home-page
 layout: home
 
 hero:
   name: "MCSMAPI"
-  text: "A Python SDK to help developers better use MCSManager"
-  tagline: Lightweight and Easy to Use
+  text: "A py-SDK for MCSManager"
+  tagline: Async · Type-safe · Chainable
   actions:
     - theme: brand
-      text: Get Started
+      text: Quick Start
       link: /en/quick-started
     - theme: alt
-      text: Project Repository
+      text: GitHub
       target: _blank
-      link: https://github.com/molanp/mcsmapi
+      link: https://github.com/sokoko-org/mcsmapi
 
 features:
-  - title: Simple to Use
-    details: Supports action chain operations
+  - title: Fully Async
+    details: Built on httpx, all APIs are async/await
+  - title: Type-safe
+    details: Pydantic v2 models with IDE autocompletion
+  - title: Chainable
+    details: Returned model objects support direct method calls
 ---
+

@@ -1,74 +1,62 @@
-# Scheduled Task Model
+# Schedule Models
 
 ## _class_ `ScheduleActionType(Enum)`
 
-Scheduled Task Action
+Schedule action type
 
-| Enum Item | Enum Value | Description         |
-| --------- | ---------- | ------------------- |
-| `COMMAND` | command    | Send command        |
-| `DELAY`   | delay      | Wait x seconds      |
-| `STOP`    | stop       | Stop instance       |
-| `START`   | start      | Start instance      |
-| `RESTART` | restart    | Restart instance    |
-| `KILL`    | kill       | Force stop instance |
+| Variant | Value | Description |
+| --- | --- | --- |
+| `COMMAND` | command | 发送命令 |
+| `DELAY` | delay | 等待 x 秒 |
+| `STOP` | stop | 停止实例 |
+| `START` | start | 启动实例 |
+| `RESTART` | restart | 重启实例 |
+| `KILL` | kill | 强制停止实例 |
 
 ## _class_ `ScheduleType(IntEnum)`
 
-Schedule Task Type
+Schedule type
 
-| Enum Item  | Enum Value | Description    |
-| ---------- | ---------- | -------------- |
-| `INTERVAL` | 1          | Interval Task  |
-| `CYCLE`    | 2          | Periodic task  |
-| `SPECIFY`  | 3          | Scheduled task |
+| Variant | Value | Description |
+| --- | --- | --- |
+| `INTERVAL` | 1 | 间隔时间任务 |
+| `CYCLE` | 2 | 周期时间任务 |
+| `SPECIFY` | 3 | 指定时间任务 |
 
 ## _class_ `ScheduleAction(BaseModel)`
 
-Scheduled Action
+Schedule action type
 
-| Field Name | Type               | Description       |
-| ---------- | ------------------ | ----------------- |
-| `type`     | ScheduleActionType | Action Type       |
-| `payload`  | str                | Action Parameters |
+| Field | Type | Description |
+| --- | --- | --- |
+| `type` | ScheduleActionType | 动作类型 |
+| `payload` | str | 动作参数 |
 
 ## _class_ `SchedulePostBody(BaseModel)`
 
-Scheduled Task Configuration Parameters
+Schedule config params
 
-| Field Name | Type                 | Description                                                      |
-| ---------- | -------------------- | ---------------------------------------------------------------- |
-| `name`     | str                  | Scheduled task name                                              |
-| `count`    | int                  | Execution count, -1 indicates infinite                           |
-| `time`     | str                  | All fields are rcon strings except interval time tasks (seconds) |
-| `actions`  | list[ScheduleAction] | Action chain for the scheduled task                              |
-| `type`     | ScheduleType         | Type of the scheduled task                                       |
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | str | 计划任务名称 |
+| `count` | int | 执行次数，-1 表无限 |
+| `time` | str | 间隔秒数 (INTERVAL) 或 cron 字符串 (CYCLE/SPECIFY) |
+| `actions` | list[ScheduleAction] | Schedule action type链 |
+| `type` | ScheduleType | 任务类型 |
 
 ## _class_ `ScheduleDetail(SchedulePostBody)`
 
-Scheduled Task Information
+Schedule detail
 
-| Field Name     | Type | Description   |
-| -------------- | ---- | ------------- |
-| `instanceUuid` | str  | Instance UUID |
-| `daemonId`     | str  | Node ID       |
+| Field | Type | Description |
+| --- | --- | --- |
+| `instanceUuid` | str | 实例 UUID |
+| `daemonId` | str | 节点 ID |
 
-### _method_ `delete(self)`
+### _method_ `delete()`
 
-Delete Scheduled Task
+Delete this schedule
 
-#### Returns
+#### 返回
 
-- `bool`: Returns True if deletion succeeds
-
-### _method_ `update(self, config: SchedulePostBody)`
-
-Update Scheduled Task
-
-#### Parameters
-
-- `config`: Scheduled task configuration
-
-#### Returns
-
-- `bool`: Returns True if operation succeeds
+- `bool`

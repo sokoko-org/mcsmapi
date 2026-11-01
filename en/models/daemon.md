@@ -1,148 +1,113 @@
-# Node Model
-
-## _class_ `SystemInfo(BaseModel)`
-
-Node system information
-
-| Field      | Type                       | Description                                                                                              |
-| ---------- | -------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `type`     | str                        | System type                                                                                              |
-| `hostname` | str                        | Hostname                                                                                                 |
-| `platform` | str                        | Platform architecture                                                                                    |
-| `release`  | str                        | System version                                                                                           |
-| `uptime`   | float                      | System uptime (unit: seconds)                                                                            |
-| `cwd`      | str                        | Remote node runtime path                                                                                 |
-| `loadavg`  | tuple[float, float, float] | System load average (Linux and macOS only), representing CPU load over the past **1, 5, and 15 minutes** |
-| `freemem`  | int                        | Available memory (unit: bytes)                                                                           |
-| `cpuUsage` | float                      | CPU usage                                                                                                |
-| `memUsage` | float                      | Memory usage                                                                                             |
-| `totalmem` | int                        | Total memory (unit: bytes)                                                                               |
-
-## _class_ `DaemonSetting(BaseModel)`
-
-Node System Configuration Information
-
-| Field Name                    | Type | Description                                                  |
-| ----------------------------- | ---- | ------------------------------------------------------------ |
-| `language`                    | str  | Node language                                                |
-| `uploadSpeedRate`             | int  | Upload speed limit (0 = no limit, limit is (n \* 64)KB/s)    |
-| `downloadSpeedRate`           | int  | Download speed limit (0 = no limit, limit is (n \* 64) KB/s) |
-| `portRangeStart`              | int  | Port range start value                                       |
-| `portRangeEnd`                | int  | Port range end value                                         |
-| `portAssignInterval`          | int  | Unknown                                                      |
-| `port`                        | int  | Node listening port                                          |
-| `maxDownloadFromUrlFileCount` | int  | Maximum number of concurrent remote download tasks allowed   |
-
-## _class_ `DaemonSystemInfo(DaemonStatus)`
-
-Node Information
-
-| Field Name    | Type                             | Description                    |
-| ------------- | -------------------------------- | ------------------------------ |
-| `version`     | str \| None = None               | Node version                   |
-| `process`     | ProcessInfo \| None = None       | Node process info              |
-| `instance`    | InstanceStat \| None = None      | Node instance stats            |
-| `system`      | SystemInfo \| None = None        | Node system information        |
-| `cpuMemChart` | list[CpuMemChart] \| None = None | CPU and memory usage trends    |
-| `config`      | DaemonSetting \| None = None     | Node configuration information |
+# Daemon Models
 
 ## _class_ `DaemonOperation(BaseModel)`
 
-Node operation
+Daemon operation base
 
-| Field  | Type | Description |
-| ------ | ---- | ----------- |
-| `uuid` | str  | Node UUID   |
+| Field | Type | Description |
+| --- | --- | --- |
+| `uuid` | str | 节点 UUID |
+
+### _method_ `search_instances(page, page_size, instance_name, status)`
+
+Search instances on this node
+
+#### 参数
+
+- `page`: 页码，默认 1
+- `page_size`: 每页大小，默认 20
+- `instance_name`: 实例名称过滤
+- `status`: Instance status过滤
+
+#### 返回
+
+- `InstanceSearchList`
+
+### _method_ `detail(instanceUuid)`
+
+Get instance detail on this node
+
+#### 参数
+
+- `instanceUuid`: 实例 UUID
+
+#### 返回
+
+- `InstanceDetail`
 
 ### _method_ `delete()`
 
 Delete this node
 
-#### Returns
+#### 返回
 
-- `bool`: Returns True after successful operation
+- `bool`
 
 ### _method_ `link()`
 
-Attempt to connect to this node
+Connect this node
 
-#### Returns
+#### 返回
 
-- `bool`: Returns True after successful operation
+- `bool`
 
-### _method_ `updateConfig(self, config: dict[str, Any])`
+### _method_ `updateConfig(config)`
 
-Update the configuration of this node
+Update node config (partial)
 
-#### Parameters
+#### 参数
 
-- `config`: Node configuration provided as a dictionary, missing fields will be filled with the original node config
+- `config`: 要修改的字段 (dict)
 
-#### Returns
+#### 返回
 
-- `bool`: Returns True after successful operation
+- `bool`
 
-### _method_ `createInstance(self, config: dict[str, Any])`
+### _method_ `createInstance(config)`
 
-Create an instance on the current node
+Create instance on this node
 
-#### Parameters
+#### 参数
 
-- `config`: Instance configuration provided as a dictionary, missing fields will be supplemented by the InstanceConfig model
+- `config`: 实例配置 (dict)
 
-#### Returns
+#### 返回
 
-- `InstanceCreateResult`: An object containing the result of the newly created instance information
+- `InstanceCreateResult`
 
-### _method_ `deleteInstance(self, uuids: list[str], deleteFile=False)`
+### _method_ `deleteInstance(uuids, deleteFile)`
 
-Delete one or more instances on the current node
+Delete instances on this node
 
-#### Parameters
+#### 参数
 
-- `uuids`: List of instance UUIDs to delete
-- `deleteFile`: Whether to delete associated files
+- `uuids`: 实例 UUID 列表
+- `deleteFile`: 是否删除关联文件，默认 False
 
-#### Returns
+#### 返回
 
-- `list[str]`: List of UUIDs returned after the deletion operation
+- `InstanceDeleteResult`
 
 ## _class_ `DaemonConfig(BaseModel)`
 
-Node configuration information
+Daemon config
 
-| Field     | Type | Description             |
-| --------- | ---- | ----------------------- |
-| `ip`      | str  | Remote node IP          |
-| `port`    | int  | Remote node port        |
-| `prefix`  | str  | Remote node path prefix |
-| `remarks` | str  | Remote node remarks     |
-| `apiKey`  | str  | Remote node API key     |
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `ip` | str | "localhost" | 远程节点 IP |
+| `port` | int | 24444 | 远程节点端口 |
+| `prefix` | str | "" | 路径前缀 |
+| `remarks` | str | "" | 备注 |
+| `apiKey` | str | "" | API Key |
 
 ## _class_ `DaemonStatus(DaemonOperation)`
 
-Node status information
+Daemon status
 
-| Field       | Type | Description              |
-| ----------- | ---- | ------------------------ |
-| `ip`        | str  | Remote node IP           |
-| `port`      | int  | Remote node port         |
-| `prefix`    | str  | Remote node path prefix  |
-| `remarks`   | str  | Remote node remarks      |
-| `available` | bool | Node availability status |
-
-## _class_ `DaemonInfo(DaemonStatus)`
-
-Node information
-
-| Field       | Type                 | Description            |
-| ----------- | -------------------- | ---------------------- |
-| `instances` | list[InstanceDetail] | List of node instances |
-
-## _class_ `DaemonUpdateConfig(DaemonConfig)`
-
-Node update configuration information
-
-| Field     | Type          | Description          |
-| --------- | ------------- | -------------------- |
-| `setting` | DaemonSetting | Node system settings |
+| Field | Type | Description |
+| --- | --- | --- |
+| `available` | bool | 节点可用状态 |
+| `ip` | str | 节点 IP |
+| `port` | int | 节点端口 |
+| `prefix` | str | 路径前缀 |
+| `remarks` | str | 备注 |

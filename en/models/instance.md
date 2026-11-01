@@ -2,264 +2,196 @@
 
 ## _class_ `CRLFType(IntEnum)`
 
-Line break types.
+Line ending
 
-| Enumerated Value | Enumerated Value |
-| ---------------- | ---------------- |
-| `LF`             | 0                |
-| `CR`             | 1                |
-| `CRLF`           | 2                |
+| Variant | Value | Description |
+| --- | --- | --- |
+| `LF` | 0 | LF |
+| `CR` | 1 | CR |
+| `CRLF` | 2 | CRLF |
 
 ## _class_ `Status(IntEnum)`
 
-Instance status.
+Instance status
 
-| Enumerated Value | Enumerated Value | Description       |
-| ---------------- | ---------------- | ----------------- |
-| `BUSY`           | -1               | Under maintenance |
-| `STOP`           | 0                | Not running       |
-| `STOPPING`       | 1                | Stopping          |
-| `STARTING`       | 2                | Starting          |
-| `RUNNING`        | 3                | Running           |
+| Variant | Value | Description |
+| --- | --- | --- |
+| `BUSY` | -1 | 维护中 |
+| `STOP` | 0 | 未运行 |
+| `STOPPING` | 1 | 停止中 |
+| `STARTING` | 2 | 启动中 |
+| `RUNNING` | 3 | 正在运行 |
 
-## _class_ `batchOperationDetail(TypedDict)`
+## _class_ `BatchOperationDetail(TypedDict)`
 
-Batch operation instance information.
+Batch operation instance info
 
-| Field Name | Type | Description   |
-| ---------- | ---- | ------------- |
-| `uuid`     | str  | Instance UUID |
-| `daemonId` | str  | Node UUID     |
+| Field | Type | Description |
+| --- | --- | --- |
+| `uuid` | str | 实例 UUID |
+| `daemonId` | str | 节点 UUID |
 
 ## _class_ `TerminalOption(BaseModel)`
 
-Terminal options.
+Terminal options
 
-| Field Name     | Type | Description                     |
-| -------------- | ---- | ------------------------------- |
-| `haveColor`    | bool | Enable frontend color rendering |
-| `pty`          | bool | Use pseudo-terminal (PTY)       |
-| `ptyWindowCol` | int  | PTY window column count         |
-| `ptyWindowRow` | int  | PTY window row count            |
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `haveColor` | bool | False | 是否启用前端颜色渲染 |
+| `pty` | bool | True | 是否使用伪终端 (PTY) |
+| `ptyWindowCol` | int | 164 | PTY 窗口列数 |
+| `ptyWindowRow` | int | 40 | PTY 窗口行数 |
 
 ## _class_ `EventTask(BaseModel)`
 
-Event tasks.
+Event task
 
-| Field Name    | Type | Description           |
-| ------------- | ---- | --------------------- |
-| `autoStart`   | bool | Automatically start   |
-| `autoRestart` | bool | Automatically restart |
-| `ignore`      | bool | Ignore this task      |
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `autoStart` | bool | False | 是否自动启动 |
+| `autoRestart` | bool | False | 是否自动重启 |
+| `autoRestartMaxTimes` | int | -1 | 自动重启最大次数 (-1 无限) |
+| `ignore` | bool | False | 是否忽略 |
 
 ## _class_ `PingConfig(BaseModel)`
 
-Server ping configuration (deprecated).
+Server ping config
 
-| Field Name | Type | Description                |
-| ---------- | ---- | -------------------------- |
-| `ip`       | str  | Server IP address          |
-| `port`     | int  | Server port                |
-| `type`     | int  | Ping type (0: UDP, 1: TCP) |
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `ip` | str | "" | 服务器 IP |
+| `port` | int | 25565 | 端口 |
+| `type` | int | 1 | Ping 类型 (0: UDP, 1: TCP) |
+
+## _class_ `ExtraServiceConfig(BaseModel)`
+
+Extra service config
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `openFrpTunnelId` | str | OpenFrp 隧道 ID |
+| `openFrpToken` | str | OpenFrp Token |
+
+## _class_ `ActionCommand(BaseModel)`
+
+Action command
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `name` | str | 命令名称 |
+| `command` | str | 命令内容 |
+
+## _class_ `JavaConfig(BaseModel)`
+
+Java config
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `id` | str | Java 路径 ID |
 
 ## _class_ `InstanceConfig(BaseModel)`
 
-Instance configuration information.
+Instance config
 
-| Field Name          | Type           | Description                                                                                                                          |
-| ------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `nickname`          | str            | Instance name                                                                                                                        |
-| `startCommand`      | str            | Start command                                                                                                                        |
-| `stopCommand`       | str            | Stop command                                                                                                                         |
-| `cwd`               | str            | Working directory                                                                                                                    |
-| `ie`                | str            | Input encoding                                                                                                                       |
-| `oe`                | str            | Output encoding                                                                                                                      |
-| `createDatetime`    | int            | Creation time (Unix timestamp)                                                                                                       |
-| `lastDatetime`      | int            | Last modification time (Unix timestamp)                                                                                              |
-| `type`              | str            | Instance type (e.g., universal, minecraft)                                                                                           |
-| `tag`               | list[str]      | Instance tags                                                                                                                        |
-| `endTime`           | int \| None    | Instance expiration time                                                                                                             |
-| `fileCode`          | str            | File encoding                                                                                                                        |
-| `processType`       | str            | Process type (e.g., docker, general)                                                                                                 |
-| `updateCommand`     | str            | Update command                                                                                                                       |
-| `actionCommandList` | list[str]      | List of executable commands for the instance                                                                                         |
-| `crlf`              | CRLFType       | Line break type                                                                                                                      |
-| `docker`            | DockerConfig   | Docker-related configuration                                                                                                         |
-| `enableRcon`        | bool           | Enable RCON remote control                                                                                                           |
-| `rconPassword`      | str            | RCON connection password                                                                                                             |
-| `rconPort`          | int            | RCON port                                                                                                                            |
-| `rconIp`            | str            | RCON IP address                                                                                                                      |
-| `terminalOption`    | TerminalOption | Terminal option configuration                                                                                                        |
-| `eventTask`         | EventTask      | Event task configuration                                                                                                             |
-| `pingConfig`        | PingConfig     | Server ping monitoring configuration (deprecated)                                                                                    |
-| `runAs`             | str            | System user to run the instance, empty to use the panel's system user                                                                |
-| `basePort`          | int            | The allocated starting port; this number corresponds to the variable from to , and each new instance will be incrementally assigned. |
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `nickname` | str | "Undefined" | 实例名称 |
+| `startCommand` | str | "" | 启动命令 |
+| `stopCommand` | str | "^C" | 停止命令 |
+| `stopTimeout` | int | 0 | 停止超时时间(秒) |
+| `cwd` | str | "" | 工作目录 |
+| `ie` | str | "utf-8" | 输入编码 |
+| `oe` | str | "utf-8" | 输出编码 |
+| `createDatetime` | int | 0 | 创建时间 (Unix 时间戳) |
+| `lastDatetime` | int | 0 | 最后修改时间 |
+| `type` | str | "universal" | 实例类型 |
+| `tag` | list[str] | [] | 实例标签 |
+| `endTime` | int | 0 | 到期时间 (0 为不限制) |
+| `fileCode` | str | "utf-8" | 文件编码 |
+| `processType` | str | "general" | 进程类型 (general, docker) |
+| `updateCommand` | str | "" | 更新命令 |
+| `actionCommandList` | list[ActionCommand] | [] | 自定义Action command列表 |
+| `crlf` | CRLFType | CRLF | Line ending |
+| `docker` | DockerConfig | DockerConfig() | Docker 配置 |
+| `enableRcon` | bool | False | 是否启用 RCON |
+| `rconPassword` | str | "" | RCON 密码 |
+| `rconPort` | int | 0 | RCON 端口 |
+| `rconIp` | str | "" | RCON IP |
+| `terminalOption` | TerminalOption | TerminalOption() | Terminal options |
+| `eventTask` | EventTask | EventTask() | Event task |
+| `pingConfig` | PingConfig | PingConfig() | Ping 配置 |
+| `extraServiceConfig` | ExtraServiceConfig | ExtraServiceConfig() | Extra service config |
+| `runAs` | str | "" | 运行用户 |
+| `category` | int | 0 | 分类 ID |
+| `basePort` | int | 0 | 起始端口 |
+| `java` | JavaConfig | JavaConfig() | Java config |
 
 ## _class_ `InstanceDetail(BaseModel)`
 
-Instance detailed information.
-
-| Field Name     | Type           | Description                                   |
-| -------------- | -------------- | --------------------------------------------- |
-| `config`       | InstanceConfig | Instance configuration information            |
-| `daemonId`     | str            | Node UUID                                     |
-| `instanceUuid` | str            | Instance UUID                                 |
-| `started`      | int            | Number of times the instance has been started |
-| `status`       | Status         | Instance status                               |
-
-### _method_ `start(self)`
-
-Start the instance.
-
-#### Return
-
-UUID of the started instance.
-
-### _method_ `stop(self)`
-
-Stop the instance.
-
-#### Return
-
-UUID of the stopped instance.
-
-### _method_ `restart(self)`
-
-Restart the instance.
-
-#### Return
-
-UUID of the restarted instance.
-
-### _method_ `kill(self)`
-
-Forcefully shut down the instance.
-
-#### Return
-
-UUID of the instance that was force-closed.
-
-### _method_ `delete(self, deleteFile: bool = False)`
-
-Delete the instance.
-
-#### Parameters
-
-- `deleteFile`: Whether to delete associated files.
-
-#### Return
-
-UUID of the deleted instance.
-
-### _method_ `update(self)`
-
-Upgrade the instance.
-
-#### Return
-
-Returns `True` if the operation is successful.
-
-### _method_ `updateConfig(self, config: dict[str, Any])`
-
-Update the instance configuration.
-
-#### Parameters
-
-- `config`: New instance configuration provided as a dictionary. Missing values are filled with the original instance configuration.
-
-#### Return
-
-Returns the UUID of the updated instance upon success.
-
-### _method_ `reinstall(self, targetUrl: str, title: str = "", description: str = "")`
-
-Reinstall the instance.
-
-#### Parameters
-
-- `targetUrl`: Target URL of the reinstall file.
-- `title`: Title of the reinstall file.
-- `description`: Description of the reinstall file, defaults to an empty string.
-
-#### Return
-
-Returns `True` if the operation is successful.
-
-### _method_ `command(self, command: str)`
-
-Send a command to the instance.
-
-#### Parameters
-
-- `command`: Command to be sent.
-
-#### Return
-
-UUID of the instance that was operated on.
-
-### _method_ `get_output(self, size: int | None = None)`
-
-Get the instance output.
-
-#### Parameters
-
-- `size`: Size of the output to retrieve.
-
-#### Return
-
-- `str`: Output result.
-
-### _method_ `files(self, target: str = "", page: int = 0, page_size: int = 100, file_name: str = "")`
-
-Get the list of instance files.
-
-#### Parameters
-
-- `target`: Target path for file filtering, defaults to an empty string, indicating no filtering by path.
-- `page`: Page number for pagination.
-- `page_size`: Number of files per page.
-- `file_name`: String to filter files or folders whose names contain the specified string.
-
-#### Return
-
-- `FileList`: List of files.
-
-### _method_ `list_schedule(self)`
-
-Retrieves the list of scheduled tasks for the instance
-
-#### Returns
-
-- `list[ScheduleDetail]`: List of scheduled tasks
-
-### _method_ `create_schedule(self, config: SchedulePostBody)`
-
-Creates a scheduled task
-
-#### Parameters
-
-- `config`: Scheduled task configuration
-
-#### Returns
-
-- `bool`: Success status
+Instance detail
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `config` | InstanceConfig | 实例的配置信息 |
+| `daemonId` | str | 所属的节点 UUID |
+| `instanceUuid` | str | 实例 UUID |
+| `started` | int | 启动次数 |
+| `status` | Status | Instance status |
+
+### Chain methods
+
+All methods are `async` and require `await`.
+
+| Method | Parameters | Return | Description |
+| --- | --- | --- | --- |
+| `start()` | - | str | 启动实例 |
+| `stop()` | - | str | 停止实例 |
+| `restart()` | - | str | 重启实例 |
+| `kill()` | - | str | 强制关闭实例 |
+| `delete(deleteFile=False)` | deleteFile: bool | InstanceDeleteResult | 删除实例 |
+| `update()` | - | bool | 升级实例 |
+| `updateConfig(config)` | config: dict | str | 更新配置（部分更新） |
+| `reinstall(title, description)` | title, description: str | bool | 重装实例 |
+| `command(command)` | command: str | str | 发送命令 |
+| `get_output(size=None)` | size: int \| None | str | 获取输出 |
+| `files(target, page, page_size, file_name)` | - | FileList | 获取File list |
+| `list_schedule()` | - | list[ScheduleDetail] | 获取计划任务列表 |
+| `create_schedule(config)` | config: SchedulePostBody | bool | 创建计划任务 |
 
 ## _class_ `InstanceCreateResult(BaseModel)`
 
-Instance creation result.
+Instance creation result
 
-| Field Name     | Type           | Description            |
-| -------------- | -------------- | ---------------------- |
-| `instanceUuid` | str            | Instance UUID          |
-| `config`       | InstanceConfig | Instance configuration |
+| Field | Type | Description |
+| --- | --- | --- |
+| `instanceUuid` | str | 实例 UUID |
+| `config` | InstanceConfig | 实例配置 |
 
 ## _class_ `InstanceSearchList(BaseModel)`
 
-Instance search list.
+Instance search list
 
-| Field Name | Type                 | Description                  |
-| ---------- | -------------------- | ---------------------------- |
-| `pageSize` | int                  | Number of instances per page |
-| `maxPage`  | int                  | Maximum number of pages      |
-| `data`     | list[InstanceDetail] | List of instance details     |
-| `daemonId` | str                  | Node UUID                    |
+| Field | Type | Description |
+| --- | --- | --- |
+| `daemonId` | str | 所属节点 UUID |
+| `pageSize` | int | 每页实例数量 |
+| `maxPage` | int | 最大页数 |
+| `data` | list[InstanceDetail] | Instance detail列表 |
+
+## _class_ `InstanceDeleteItem(BaseModel)`
+
+Single delete result item
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `instanceUuid` | str | 实例 UUID |
+| `nickname` | str | 实例名称 |
+
+## _class_ `InstanceDeleteResult(BaseModel)`
+
+Instance delete result
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `instanceUuids` | list[str] | 删除的实例 UUID 列表 |
+| `instances` | list[InstanceDeleteItem] | 删除的Instance detail |

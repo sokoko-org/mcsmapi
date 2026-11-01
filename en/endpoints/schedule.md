@@ -2,7 +2,7 @@
 
 ## _class_ `Schedule`
 
-Subclass for managing scheduled tasks
+Get subclasses for managing scheduled tasks.
 
 ```python
 api = mcsm.schedule
@@ -12,55 +12,69 @@ api = mcsm.schedule
 
 ### _method_ `list(daemonId: str, uuid: str)`
 
-Retrieve list of scheduled tasks for an instance
+Retrieve the list of scheduled tasks for an instance.
 
 #### Parameters
 
-- `daemonId`: Node ID
-- `uuid`: Instance ID
+- `daemonId`: UUID of the daemon.
+- `uuid`: UUID of the instance.
 
 #### Returns
 
-- `list[ScheduleDetail]`: List of scheduled tasks
+- `list[ScheduleDetail]`
+
+#### Example
+
+```python
+tasks = await api.list("daemon-uuid", "instance-uuid")
+for task in tasks:
+    print(task.name)
+```
 
 ### _method_ `delete(daemonId: str, uuid: str, task_name: str)`
 
-Delete a scheduled task
+Delete a scheduled task.
 
 #### Parameters
 
-- `daemonId`: Node ID
-- `uuid`: Instance ID
-- `task_name`: Scheduled task name
+- `daemonId`: UUID of the daemon.
+- `uuid`: UUID of the instance.
+- `task_name`: Name of the scheduled task.
 
 #### Returns
 
-- `bool`: Success status
+- `bool`: Returns `True` after successful operation.
+
+#### Example
+
+```python
+await api.delete("daemon-uuid", "instance-uuid", "auto-restart")
+```
 
 ### _method_ `create(daemonId: str, uuid: str, config: SchedulePostBody)`
 
-Create a scheduled task
+Create a scheduled task.
 
 #### Parameters
 
-- `daemonId`: Node ID
-- `uuid`: Instance ID
-- `config`: Scheduled task configuration
+- `daemonId`: UUID of the daemon.
+- `uuid`: UUID of the instance.
+- `config`: Scheduled task configuration.
 
 #### Returns
 
-- `bool`: Success status
+- `bool`: Returns `True` after successful operation.
 
-### _method_ `update(daemonId: str, uuid: str, config: SchedulePostBody)`
+#### Example
 
-Update scheduled task
+```python
+from mcsmapi.models.schedule import SchedulePostBody, ScheduleAction, ScheduleType
 
-#### Parameters
-
-- `daemonId`: Node ID
-- `uuid`: Instance ID
-- `config`: Scheduled task configuration
-
-#### Returns
-
-- `bool`: Success status
+task = SchedulePostBody(
+    name="auto-restart",
+    action=ScheduleAction.RESTART,
+    type=ScheduleType.INTERVAL,
+    time="3600"
+)
+await api.create("daemon-uuid", "instance-uuid", task)
+```

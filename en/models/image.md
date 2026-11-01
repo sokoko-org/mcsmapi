@@ -1,168 +1,178 @@
-# Image Model
+# Image Models
 
 ::: tip
-For detailed definitions, refer to:
+Docker 相关模型详细定义参考:
 
-https://docs.docker.com/engine/api/v1.37/#tag/Image/operation/ImageList
-
-https://docs.docker.com/engine/api/v1.37/#tag/Network/operation/NetworkList
-
-https://docs.docker.com/engine/api/v1.37/#tag/Container/operation/ContainerList
-
-Field meanings are based on Docker documentation
+- [Image API](https://docs.docker.com/engine/api/v1.37/#tag/Image/operation/ImageList)
+- [Network API](https://docs.docker.com/engine/api/v1.37/#tag/Network/operation/NetworkList)
+- [Container API](https://docs.docker.com/engine/api/v1.37/#tag/Container/operation/ContainerList)
 :::
 
 ## _class_ `DockerConfig(BaseModel)`
 
-Docker container configuration
+Docker Docker container config
 
-| Field              | Type      | Description                                      |
-| ------------------ | --------- | ------------------------------------------------ |
-| `containerName`    | str       | Container name                                   |
-| `image`            | str       | Image name                                       |
-| `ports`            | list[str] | Container port mappings, eg: ["25565:25565/tcp"] |
-| `extraVolumes`     | list[str] | Extra mounted volume paths                       |
-| `memory`           | int       | Memory allocated to container (unit: MB)         |
-| `memorySwap`       | int       | Swap memory allocated to container (unit: MB)    |
-| `memorySwappiness` | int       | Virtual memory usage tendency (0-100)            |
-| `networkMode`      | str       | Network mode (e.g., bridge, host)                |
-| `networkAliases`   | list[str] | List of network aliases                          |
-| `maxSpace`         | int       | Maximum disk space container can use (unit: MB)  |
-| `network`          | int       | Container network configuration (deprecated)     |
-| `io`               | int       | Container I/O limit (unit: MB)                   |
-| `cpusetCpus`       | str       | Bound CPU cores, eg: `0,1`                       |
-| `cpuUsage`         | int       | CPU usage limit (unit: %)                        |
-| `workingDir`       | str       | Container working directory                      |
-| `env`              | list[str] | Environment variables                            |
-| `changeWorkdir`    | bool      | Whether to change the default working directory  |
+| Field | Type | Default | Description |
+| --- | --- | --- | --- |
+| `containerName` | str | "" | 容器名称 |
+| `image` | str | "" | 镜像名称 |
+| `updateCommandImage` | str | "HOST" | 更新命令使用的镜像 |
+| `ports` | list[str] | [] | 端口映射, eg: ["25565:25565/tcp"] |
+| `extraVolumes` | list[str] | [] | 额外挂载卷 |
+| `memory` | int | 0 | 内存(MB) |
+| `memorySwap` | int \| None | None | swap 内存(MB) |
+| `memorySwappiness` | int \| None | None | 虚拟内存倾向(0-100) |
+| `networkMode` | str | "bridge" | 网络模式 |
+| `networkAliases` | list[str] | [] | 网络别名 |
+| `maxSpace` | int | 0 | 最大磁盘空间(MB) |
+| `network` | int | 0 | 网络限速 |
+| `io` | int | 0 | IO 限制 |
+| `cpusetCpus` | str | "" | 绑定 CPU 核心 |
+| `cpuUsage` | int | 0 | CPU 限制(%) |
+| `workingDir` | str | "/data" | 工作目录 |
+| `env` | list[str] | [] | 环境变量 |
+| `labels` | list[str] | [] | 容器标签 |
+| `changeWorkdir` | bool | True | 是否更变默认工作目录 |
+| `uploadSpeedLimit` | int | 0 | 上传速度限制 |
+| `downloadSpeedLimit` | int | 0 | 下载速度限制 |
+| `capAdd` | list[str] | [] | 添加的 capabilities |
+| `capDrop` | list[str] | [] | 移除的 capabilities |
+| `devices` | list[str] | [] | 映射设备 |
+| `privileged` | bool | False | 特权模式 |
+| `gpuEnabled` | bool | False | 启用 GPU |
+| `gpuCount` | int | -1 | GPU 数量 (-1 全部) |
+| `gpuDeviceIds` | list[str] | [] | GPU 设备 ID |
+| `gpuDriver` | str | "nvidia" | GPU 驱动 |
+| `deviceReadBps` | list[str] | [] | 设备读取速率限制 |
+| `deviceWriteBps` | list[str] | [] | 设备写入速率限制 |
 
 ## _class_ `DockerImageItem(BaseModel)`
 
-Docker image information
+Docker image info
 
-| Field         | Type           | Description                                   |
-| ------------- | -------------- | --------------------------------------------- |
-| `Id`          | str            | Unique image ID                               |
-| `ParentId`    | str            | Parent image ID                               |
-| `RepoTags`    | list[str]      | Image repository tags, eg: ["ubuntu:latest"]  |
-| `RepoDigests` | list[str]      | Image digests                                 |
-| `Created`     | int            | Image creation time (Unix timestamp)          |
-| `Size`        | int            | Image size (unit: bytes)                      |
-| `VirtualSize` | int            | Virtual size of the image                     |
-| `SharedSize`  | int            | Shared storage space size                     |
-| `Labels`      | dict[str, str] | Image labels                                  |
-| `Containers`  | int            | Number of containers running using this image |
+| Field | Type | Description |
+| --- | --- | --- |
+| `Id` | str | 镜像 ID |
+| `ParentId` | str | 父镜像 ID |
+| `RepoTags` | list[str] | 仓库标签 |
+| `RepoDigests` | list[str] | 镜像摘要 |
+| `Created` | int | 创建时间 |
+| `Size` | int | 大小(字节) |
+| `VirtualSize` | int | 虚拟大小 |
+| `SharedSize` | int | 共享空间 |
+| `Labels` | dict[str, str] | 标签 |
+| `Containers` | int | 容器数量 |
 
 ## _class_ `DockerContainerItemPort(BaseModel)`
 
-Docker container port mapping
+Container port mapping
 
-| Field         | Type                  | Description             |
-| ------------- | --------------------- | ----------------------- |
-| `PrivatePort` | int                   | Internal container port |
-| `PublicPort`  | int \| None           | Port mapped to the host |
-| `Type`        | Literal["tcp", "udp"] | Port type               |
+| Field | Type | Description |
+| --- | --- | --- |
+| `PrivatePort` | int | 内部端口 |
+| `PublicPort` | int \| None | 宿主机端口 |
+| `Type` | Literal["tcp", "udp"] | 端口类型 |
 
 ## _class_ `DockerContainerItemNetworkSettingsNetwork(BaseModel)`
 
-Docker container network settings information
+Container network info
 
-| Field                 | Type | Description                |
-| --------------------- | ---- | -------------------------- |
-| `NetworkID`           | str  | Network ID                 |
-| `EndpointID`          | str  | Network endpoint ID        |
-| `Gateway`             | str  | Gateway address            |
-| `IPAddress`           | str  | Assigned IP address        |
-| `IPPrefixLen`         | int  | IP address prefix length   |
-| `IPv6Gateway`         | str  | IPv6 gateway address       |
-| `GlobalIPv6Address`   | str  | IPv6 address               |
-| `GlobalIPv6PrefixLen` | int  | IPv6 address prefix length |
-| `MacAddress`          | str  | MAC address                |
+| Field | Type | Description |
+| --- | --- | --- |
+| `NetworkID` | str | 网络 ID |
+| `EndpointID` | str | 端点 ID |
+| `Gateway` | str | 网关 |
+| `IPAddress` | str | IP 地址 |
+| `IPPrefixLen` | int | 前缀长度 |
+| `IPv6Gateway` | str | IPv6 网关 |
+| `GlobalIPv6Address` | str | IPv6 地址 |
+| `GlobalIPv6PrefixLen` | int | IPv6 前缀长度 |
+| `MacAddress` | str | MAC 地址 |
 
 ## _class_ `DockerContainerItemNetworkSettings(BaseModel)`
 
-Docker container network settings information
+Container network settings
 
-| Field      | Type                                                 | Description                                |
-| ---------- | ---------------------------------------------------- | ------------------------------------------ |
-| `Networks` | dict[str, DockerContainerItemNetworkSettingsNetwork] | All networks the container is connected to |
+| Field | Type | Description |
+| --- | --- | --- |
+| `Networks` | dict[str, ...Network] | 所有网络 |
 
 ## _class_ `DockerContainerItemMount(BaseModel)`
 
-Container mount point information
+Container mount
 
-| Field         | Type | Description                   |
-| ------------- | ---- | ----------------------------- |
-| `Name`        | str  | Mount name                    |
-| `Source`      | str  | Source path                   |
-| `Destination` | str  | Destination path              |
-| `Driver`      | str  | Driver type                   |
-| `Mode`        | str  | Mount mode                    |
-| `RW`          | bool | Whether read-write is allowed |
-| `Propagation` | str  | Propagation mode              |
+| Field | Type | Description |
+| --- | --- | --- |
+| `Name` | str | 挂载名称 |
+| `Source` | str | 源路径 |
+| `Destination` | str | 目标路径 |
+| `Driver` | str | 驱动 |
+| `Mode` | str | 模式 |
+| `RW` | bool | 读写 |
+| `Propagation` | str | 传播模式 |
 
 ## _class_ `DockerContainerItemHostConfig(BaseModel)`
 
-Docker host configuration
+Host config
 
-| Field         | Type | Description  |
-| ------------- | ---- | ------------ |
-| `NetworkMode` | str  | Network mode |
+| Field | Type | Description |
+| --- | --- | --- |
+| `NetworkMode` | str | 网络模式 |
 
 ## _class_ `DockerContainerItem(BaseModel)`
 
-Docker container detailed information
+Docker container detail
 
-| Field             | Type                               | Description                              |
-| ----------------- | ---------------------------------- | ---------------------------------------- |
-| `Id`              | str                                | Container ID                             |
-| `Names`           | list[str]                          | List of container names                  |
-| `Image`           | str                                | Name of the running image                |
-| `ImageID`         | str                                | Image ID                                 |
-| `Command`         | str                                | Container startup command                |
-| `Created`         | int                                | Container creation time (Unix timestamp) |
-| `State`           | str                                | Container state                          |
-| `Status`          | str                                | Container running status description     |
-| `Ports`           | list[DockerContainerItemPort]      | Port mapping information                 |
-| `Labels`          | dict[str, str]                     | Container label information              |
-| `SizeRw`          | int                                | Read-write layer size (unit: bytes)      |
-| `SizeRootFs`      | int                                | Root filesystem size (unit: bytes)       |
-| `HostConfig`      | DockerContainerItemHostConfig      | Host configuration                       |
-| `NetworkSettings` | DockerContainerItemNetworkSettings | Container network configuration          |
-| `Mounts`          | list[DockerContainerItemMount]     | Container mount information              |
+| Field | Type | Description |
+| --- | --- | --- |
+| `Id` | str | 容器 ID |
+| `Names` | list[str] | 名称列表 |
+| `Image` | str | 镜像名称 |
+| `ImageID` | str | 镜像 ID |
+| `Command` | str | 启动命令 |
+| `Created` | int | 创建时间 |
+| `State` | str | 容器状态 |
+| `Status` | str | 状态描述 |
+| `Ports` | list[...Port] | 端口映射 |
+| `Labels` | dict[str, str] | 标签 |
+| `SizeRw` | int | 读写层大小 |
+| `SizeRootFs` | int | 根文件系统大小 |
+| `HostConfig` | ...HostConfig | Host config |
+| `NetworkSettings` | ...NetworkSettings | 网络配置 |
+| `Mounts` | list[...Mount] | 挂载信息 |
 
 ## _class_ `DockerNetworkItemIPAMConfig(BaseModel)`
 
-Docker network IPAM configuration information
+IPAM config
 
-| Field    | Type | Description    |
-| -------- | ---- | -------------- |
-| `Subnet` | str  | Subnet address |
+| Field | Type | Description |
+| --- | --- | --- |
+| `Subnet` | str | 子网地址 |
 
 ## _class_ `DockerNetworkItemIPAM(BaseModel)`
 
-Docker network IP address management
+IPAM management
 
-| Field    | Type                              | Description        |
-| -------- | --------------------------------- | ------------------ |
-| `Driver` | str                               | Driver type        |
-| `Config` | list[DockerNetworkItemIPAMConfig] | IPAM configuration |
+| Field | Type | Description |
+| --- | --- | --- |
+| `Driver` | str | 驱动类型 |
+| `Config` | list[...IPAMConfig] | 配置 |
 
 ## _class_ `DockerNetworkItem(BaseModel)`
 
-Docker network detailed information
+Docker network info
 
-| Field        | Type                  | Description                                         |
-| ------------ | --------------------- | --------------------------------------------------- |
-| `Name`       | str                   | Network name                                        |
-| `Id`         | str                   | Network ID                                          |
-| `Created`    | str                   | Network creation time                               |
-| `Scope`      | str                   | Scope (local/global)                                |
-| `Driver`     | str                   | Network driver type                                 |
-| `EnableIPv6` | bool                  | Whether IPv6 is enabled                             |
-| `Internal`   | bool                  | Whether it is an internal network                   |
-| `Attachable` | bool                  | Whether it is attachable                            |
-| `Ingress`    | bool                  | Whether it is an ingress network                    |
-| `IPAM`       | DockerNetworkItemIPAM | IPAM configuration information                      |
-| `Options`    | dict[str, str]        | Network options                                     |
-| `Containers` | dict[str, dict]       | Information of containers connected to this network |
+| Field | Type | Description |
+| --- | --- | --- |
+| `Name` | str | 网络名称 |
+| `Id` | str | 网络 ID |
+| `Created` | str | 创建时间 |
+| `Scope` | str | 作用范围 |
+| `Driver` | str | 驱动类型 |
+| `EnableIPv6` | bool | 启用 IPv6 |
+| `Internal` | bool | 内部网络 |
+| `Attachable` | bool | 可附加 |
+| `Ingress` | bool | 入口网络 |
+| `IPAM` | ...IPAM | IPAM config |
+| `Options` | dict[str, str] | 网络选项 |
+| `Containers` | dict[str, dict] | 容器信息 |

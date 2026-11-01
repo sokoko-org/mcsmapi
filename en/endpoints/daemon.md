@@ -1,10 +1,10 @@
-# Node
+# Daemon
 
 ## _class_ `Daemon`
 
-Obtain the subclass for node operations
+Get subclasses for daemon (node) operations.
 
-```py
+```python
 api = mcsm.daemon
 ```
 
@@ -12,73 +12,92 @@ api = mcsm.daemon
 
 ### _method_ `config()`
 
-Get configuration information for all nodes
+Get configuration information for all daemons.
 
 #### Returns
 
-- `list[DaemonStatus]`: List of node configuration information
+- `list[DaemonStatus]`: List of daemon configuration information.
 
-### _method_ `info()`
+#### Example
 
-Get information for all nodes
-
-#### Returns
-
-- `list[DaemonInfo]`: List of node information
-
-### _method_ `system()`
-
-Get system information for all nodes
-
-#### Returns
-
-- `list[DaemonSystemInfo]`: List of node system information
+```python
+daemons = await api.config()
+for d in daemons:
+    print(d.remarks, d.ip, d.port)
+```
 
 ### _method_ `add(config: DaemonConfig)`
 
-Add a new node
+Add a new daemon.
 
 #### Parameters
 
-- `config`: Node configuration information
+- `config`: Daemon configuration.
 
 #### Returns
 
-- `str`: UUID of the newly added node
+- `str`: UUID of the newly added daemon.
+
+#### Example
+
+```python
+from mcsmapi.models.daemon import DaemonConfig
+
+uuid = await api.add(DaemonConfig(ip="192.168.1.100", port=24444, apiKey="your-key"))
+print("New daemon UUID:", uuid)
+```
 
 ### _method_ `delete(daemonId: str)`
 
-Delete a node
+Delete a daemon.
 
 #### Parameters
 
-- `daemonId`: UUID of the node
+- `daemonId`: UUID of the daemon.
 
 #### Returns
 
-- `bool`: Returns True after successful operation
+- `bool`: Returns `True` after successful operation.
+
+#### Example
+
+```python
+await api.delete("daemon-uuid")
+```
 
 ### _method_ `link(daemonId: str)`
 
-Connect to a node
+Connect to a daemon.
 
 #### Parameters
 
-- `daemonId`: UUID of the node
+- `daemonId`: UUID of the daemon.
 
 #### Returns
 
-- `bool`: Returns True after successful operation
+- `bool`: Returns `True` after successful operation.
+
+#### Example
+
+```python
+await api.link("daemon-uuid")
+```
 
 ### _method_ `update(daemonId: str, config: dict[str, Any])`
 
-Update the configuration of a node
+Update the configuration of a daemon.
 
 #### Parameters
 
-- `daemonId`: UUID of the node
-- `config`: Node configuration provided as a dictionary, missing fields will be supplemented by the `DaemonUpdateConfig` model
+- `daemonId`: UUID of the daemon.
+- `config`: Daemon configuration provided as a dictionary. Only the fields that need to be modified need to be provided.
 
 #### Returns
 
-- `bool`: Returns True after successful operation
+- `bool`: Returns `True` after successful operation.
+
+#### Example
+
+```python
+await api.update("daemon-uuid", {"remarks": "New nickname"})
+```

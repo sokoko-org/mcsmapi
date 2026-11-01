@@ -1,4 +1,4 @@
-# 计划任务
+﻿# 计划任务
 
 ## _class_ `Schedule`
 
@@ -23,6 +23,14 @@ api = mcsm.schedule
 
 - `list[ScheduleDetail]`: 计划任务列表
 
+#### 例子
+
+```python
+tasks = await api.list("daemon-uuid", "instance-uuid")
+for task in tasks:
+    print(task.name)
+```
+
 ### _method_ `delete(daemonId: str, uuid: str, task_name: str)`
 
 删除计划任务
@@ -36,6 +44,12 @@ api = mcsm.schedule
 #### 返回
 
 - `bool`: 是否成功
+
+#### 例子
+
+```python
+await api.delete("daemon-uuid", "instance-uuid", "auto-restart")
+```
 
 ### _method_ `create(daemonId: str, uuid: str, config: SchedulePostBody)`
 
@@ -51,16 +65,15 @@ api = mcsm.schedule
 
 - `bool`: 是否成功
 
-### _method_ `update(daemonId: str, uuid: str, config: SchedulePostBody)`
+#### 例子
 
-更新计划任务
+```python
+from mcsmapi.models.schedule import SchedulePostBody, ScheduleAction
 
-#### 参数
-
-- `daemonId`: 节点 ID
-- `uuid`: 实例 ID
-- `config`: 计划任务配置
-
-#### 返回
-
-- `bool`: 是否成功
+await api.create("daemon-uuid", "instance-uuid", SchedulePostBody(
+    name="auto-restart",
+    count=0,
+    time="0 3 * * *",
+    action=[ScheduleAction(type=2)]
+))
+```

@@ -6,7 +6,7 @@ export const sharedConfig = defineConfig({
   },
   metaChunk: true,
   sitemap: {
-    hostname: "https://mcsmapi.awkchan.top",
+    hostname: "https://mcsmapi.sokoko.org",
   },
   lang: "zh-CN",
   title: "MCSMAPI | Easy Interfacing with MCSManager",
@@ -51,7 +51,7 @@ export const sharedConfig = defineConfig({
       label: "Directory",
     },
     socialLinks: [
-      { icon: "github", link: "https://github.com/molanp/mcsmapi" },
+      { icon: "github", link: "https://github.com/sokoko-org/mcsmapi" },
     ],
   },
 });

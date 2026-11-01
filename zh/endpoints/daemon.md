@@ -1,10 +1,10 @@
-# 节点
+﻿# 节点
 
 ## _class_ `Daemon`
 
 获取操作节点的子类
 
-```py
+```python
 api = mcsm.daemon
 ```
 
@@ -18,21 +18,13 @@ api = mcsm.daemon
 
 - `list[DaemonStatus]`: 节点的配置信息列表
 
-### _method_ `info()`
+#### 例子
 
-获取全部节点信息
-
-#### 返回
-
-- `list[DaemonInfo]`: 节点信息列表
-
-### _method_ `system()`
-
-获取全部节点的系统信息
-
-#### 返回
-
-- `list[DaemonSystemInfo]`: 节点的系统信息列表
+```python
+daemons = await api.config()
+for d in daemons:
+    print(d)
+```
 
 ### _method_ `add(config: DaemonConfig)`
 
@@ -46,6 +38,19 @@ api = mcsm.daemon
 
 - `str`: 新增节点的 UUID
 
+#### 例子
+
+```python
+from mcsmapi.models.daemon import DaemonConfig
+
+daemon_id = await api.add(DaemonConfig(
+    ip="127.0.0.1",
+    port=24444,
+    remarks="新节点"
+))
+print("新节点 ID:", daemon_id)
+```
+
 ### _method_ `delete(daemonId: str)`
 
 删除一个节点
@@ -57,6 +62,12 @@ api = mcsm.daemon
 #### 返回
 
 - `bool`: 操作成功后返回 True
+
+#### 例子
+
+```python
+await api.delete("daemon-uuid")
+```
 
 ### _method_ `link(daemonId: str)`
 
@@ -70,6 +81,12 @@ api = mcsm.daemon
 
 - `bool`: 操作成功后返回 True
 
+#### 例子
+
+```python
+await api.link("daemon-uuid")
+```
+
 ### _method_ `update(daemonId: str, config: dict[str, Any])`
 
 更新一个节点的配置
@@ -82,3 +99,9 @@ api = mcsm.daemon
 #### 返回
 
 - `bool`: 操作成功后返回 True
+
+#### 例子
+
+```python
+await api.update("daemon-uuid", {"remarks": "新的备注名"})
+```

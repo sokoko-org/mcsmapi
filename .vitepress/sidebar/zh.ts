@@ -5,8 +5,8 @@ export const zhSidebar: DefaultTheme.Sidebar = {
       text: "使用指南",
       collapsed: false,
       items: [
-        { text: "快速开始", link: `/quick-started` },
-        { text: "初始化", link: `/initialization` },
+        { text: "快速开始", link: /quick-started },
+        { text: "初始化", link: /initialization },
       ],
     },
     {
@@ -19,6 +19,9 @@ export const zhSidebar: DefaultTheme.Sidebar = {
         { text: "文件", link: "/endpoints/file" },
         { text: "节点", link: "/endpoints/daemon" },
         { text: "计划任务", link: "/endpoints/schedule" },
+        { text: "Java 管理", link: "/endpoints/java" },
+        { text: "Mod 管理", link: "/endpoints/mod" },
+        { text: "升级", link: "/endpoints/upgrade" },
       ],
     },
     {
@@ -33,6 +36,9 @@ export const zhSidebar: DefaultTheme.Sidebar = {
         { text: "节点模型", link: "/models/daemon" },
         { text: "通用模型", link: "/models/common" },
         { text: "计划任务模型", link: "/models/schedule" },
+        { text: "Java 模型", link: "/models/java" },
+        { text: "Mod 模型", link: "/models/mod" },
+        { text: "升级模型", link: "/models/upgrade" },
       ],
     },
   ],
