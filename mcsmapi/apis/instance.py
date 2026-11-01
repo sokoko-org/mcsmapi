@@ -274,3 +274,74 @@ class Instance:
             params={"uuid": uuid, "daemonId": daemonId},
             data={"targetUrl": targetUrl, "title": title, "description": description},
         )
+
+
+    async def quick_install_list(self) -> list[dict[str, Any]]:
+        """获取应用市场快速安装列表"""
+        return await self._req.send(
+            "GET",
+            f"{ApiPool.INSTANCE}/quick_install_list",
+        )
+
+    async def process_config_list(
+        self, daemonId: str, uuid: str, files: list[str]
+    ) -> list[dict[str, Any]]:
+        """
+        获取实例的配置文件列表
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params files: 要查询的配置文件路径列表
+        """
+        return await self._req.send(
+            "POST",
+            f"{ApiPool.PROTECTED_INSTANCE}/process_config/list",
+            params={"daemonId": daemonId, "uuid": uuid},
+            data={"files": files},
+        )
+
+    async def process_config_get(
+        self, daemonId: str, uuid: str, fileName: str, type: str = ""
+    ) -> Any:
+        """
+        获取实例的指定配置文件内容
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params fileName: 配置文件名
+        :params type: 配置文件类型
+        """
+        return await self._req.send(
+            "GET",
+            f"{ApiPool.PROTECTED_INSTANCE}/process_config/file",
+            params={
+                "daemonId": daemonId,
+                "uuid": uuid,
+                "fileName": fileName,
+                "type": type,
+            },
+        )
+
+    async def process_config_update(
+        self, daemonId: str, uuid: str, fileName: str, config: Any, type: str = ""
+    ) -> Any:
+        """
+        更新实例的指定配置文件
+
+        :params daemonId: 节点的UUID
+        :params uuid: 实例的UUID
+        :params fileName: 配置文件名
+        :params config: 新的配置内容
+        :params type: 配置文件类型
+        """
+        return await self._req.send(
+            "PUT",
+            f"{ApiPool.PROTECTED_INSTANCE}/process_config/file",
+            params={
+                "daemonId": daemonId,
+                "uuid": uuid,
+                "fileName": fileName,
+                "type": type,
+            },
+            data=config,
+        )

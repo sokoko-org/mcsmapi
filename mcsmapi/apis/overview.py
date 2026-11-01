@@ -64,7 +64,7 @@ class Overview:
         return await self._req.send("GET", f"{ApiPool.LOG}/search", params=params)
 
     async def setting(self) -> dict[str, Any]:
-        """获取面板配置项 (管理员)"""
+        """获取面板配置项（管理员）"""
         return await self._req.send("GET", f"{ApiPool.OVERVIEW}/setting")
 
     async def update_setting(self, config: dict[str, Any]) -> str:
@@ -74,3 +74,19 @@ class Overview:
         :params config: 要修改的配置字段
         """
         return await self._req.send("PUT", f"{ApiPool.OVERVIEW}/setting", data=config)
+
+    async def layout(self) -> dict[str, Any]:
+        """获取前端布局配置（公开接口）"""
+        return await self._req.send("GET", f"{ApiPool.OVERVIEW}/layout")
+
+    async def set_layout(self, config: dict[str, Any]) -> bool:
+        """
+        设置前端布局（管理员）
+
+        :params config: 布局配置
+        """
+        return await self._req.send("POST", f"{ApiPool.OVERVIEW}/layout", data=config)
+
+    async def reset_layout(self) -> bool:
+        """重置前端布局为默认值（管理员）"""
+        return await self._req.send("DELETE", f"{ApiPool.OVERVIEW}/layout")

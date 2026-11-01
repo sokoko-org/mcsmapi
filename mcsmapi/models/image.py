@@ -35,7 +35,7 @@ class DockerConfig(BaseModel):
     """绑定的 CPU 核心, eg: ,1"""
     cpuUsage: int = 0
     """限制CPU 使用率(单位: %)"""
-    workingDir: str = "/workspace/"
+    workingDir: str = "/data"
     """工作目录"""
     env: list[str] = []
     """环境变量设置"""
@@ -241,3 +241,4 @@ class DockerNetworkItem(BaseModel):
     """网络选项"""
     Containers: dict[str, dict] = {}
     """连接到此网络的容器信息"""
+

@@ -91,10 +91,16 @@ class ActionCommand(BaseModel):
     """命令内容"""
 
 
+class JavaConfig(BaseModel):
+    """Java 配置"""
+
+    id: str = ""
+    """Java 路径 ID"""
+
 class InstanceConfig(BaseModel):
     """实例配置信息"""
 
-    nickname: str = "New Name"
+    nickname: str = "Undefined"
     """实例名称"""
     startCommand: str = ""
     """启动命令"""
@@ -152,6 +158,8 @@ class InstanceConfig(BaseModel):
     """分类 ID"""
     basePort: int = 0
     """分配的起始端口"""
+    java: JavaConfig = JavaConfig()
+    """Java 配置"""
 
 
 class InstanceDetail(BaseModel):
@@ -340,3 +348,5 @@ class InstanceSearchList(BaseModel):
                     if isinstance(instance, dict):
                         instance["daemonId"] = daemon_id
         return v
+
+
