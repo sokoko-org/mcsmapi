@@ -5,6 +5,7 @@ export const sharedConfig = defineConfig({
     "zh/:rest*": ":rest*",
   },
   metaChunk: true,
+  srcExclude: ["**/MCSManager-master/**", "**/mcsmanager/**", "**/mcsmapi/**", "**/node_modules/**"],
   sitemap: {
     hostname: "https://mcsmapi.sokoko.org",
   },

@@ -5,8 +5,8 @@ export const enSidebar: DefaultTheme.Sidebar = {
       text: "User Guide",
       collapsed: false,
       items: [
-        { text: "Quick Start", link: /en/quick-started },
-        { text: "Initialization", link: /en/initialization },
+        { text: "Quick Start", link: "/en/quick-started" },
+        { text: "Initialization", link: "/en/initialization" },
       ],
     },
     {
