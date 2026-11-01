@@ -1,8 +1,6 @@
 from typing import Any
 import httpx
-import urllib.parse
 
-from mcsmapi.pool import ApiPool
 from .exceptions import MCSMError
 
 
@@ -17,6 +15,7 @@ class Request:
     def _get_client(self) -> httpx.AsyncClient:
         if self._client is None or self._client.is_closed:
             self._client = httpx.AsyncClient(
+                base_url=self.mcsm_url,
                 timeout=self.timeout,
                 headers={"X-Requested-With": "XMLHttpRequest"},
             )
@@ -31,9 +30,7 @@ class Request:
     async def set_timeout(self, timeout: int):
         """设置超时并重建连接"""
         self.timeout = timeout
-        if self._client is not None and not self._client.is_closed:
-            await self._client.aclose()
-            self._client = None
+        await self.close()
 
     def set_apikey(self, apikey: str):
         self.apikey = apikey
@@ -44,31 +41,24 @@ class Request:
     async def send(
         self,
         method: str,
-        endpoint: str | ApiPool,
+        endpoint: str,
         params: dict | None = None,
-        data: Any | None = None,
+        data: Any = None,
     ) -> Any:
         """发送 HTTP 请求"""
         if params is None:
             params = {}
-        if isinstance(endpoint, ApiPool):
-            endpoint = endpoint.value
-
-        url = urllib.parse.urljoin(self.mcsm_url, endpoint)
         if self.apikey is not None:
             params["apikey"] = self.apikey
         if self.token is not None:
             params["token"] = self.token
 
         client = self._get_client()
-
-        kwargs: dict[str, Any] = {
-            "params": params,
-        }
+        kwargs: dict[str, Any] = {"params": params}
         if data is not None:
             kwargs["json"] = data
 
-        response = await client.request(method.upper(), url, **kwargs)
+        response = await client.request(method, endpoint, **kwargs)
         try:
             response.raise_for_status()
             return response.json()["data"]
@@ -78,12 +68,9 @@ class Request:
             ) from e
 
     async def upload(self, url: str, file: bytes) -> bool:
-        """上传文件"""
+        """上传文件（使用绝对 URL）"""
         client = self._get_client()
-        response = await client.post(
-            url,
-            files={"file": file},
-        )
+        response = await client.post(url, files={"file": file})
         try:
             response.raise_for_status()
             return True

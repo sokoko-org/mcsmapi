@@ -184,29 +184,26 @@ class InstanceDetail(BaseModel):
         super().__init__(**data)
         self._req = _req
 
+    @property
+    def _instance_api(self):
+        from mcsmapi.apis.instance import Instance
+        return Instance(self._req)
+
     async def start(self):
         """启动该实例"""
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).start(self.daemonId, self.instanceUuid)
+        return await self._instance_api.start(self.daemonId, self.instanceUuid)
 
     async def stop(self):
         """停止该实例"""
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).stop(self.daemonId, self.instanceUuid)
+        return await self._instance_api.stop(self.daemonId, self.instanceUuid)
 
     async def restart(self):
         """重启该实例"""
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).restart(self.daemonId, self.instanceUuid)
+        return await self._instance_api.restart(self.daemonId, self.instanceUuid)
 
     async def kill(self):
         """强制关闭该实例"""
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).kill(self.daemonId, self.instanceUuid)
+        return await self._instance_api.kill(self.daemonId, self.instanceUuid)
 
     async def delete(self, deleteFile: bool = False) -> "InstanceDeleteResult":
         """
@@ -214,15 +211,11 @@ class InstanceDetail(BaseModel):
 
         :params deleteFile: 是否删除关联的文件
         """
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).delete(self.daemonId, [self.instanceUuid], deleteFile)
+        return await self._instance_api.delete(self.daemonId, [self.instanceUuid], deleteFile)
 
     async def update(self):
         """升级实例"""
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).update(self.daemonId, self.instanceUuid)
+        return await self._instance_api.update(self.daemonId, self.instanceUuid)
 
     async def updateConfig(self, config: dict[str, Any]):
         """
@@ -230,9 +223,7 @@ class InstanceDetail(BaseModel):
 
         :params config: 要修改的配置字段
         """
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).updateConfig(self.daemonId, self.instanceUuid, config)
+        return await self._instance_api.updateConfig(self.daemonId, self.instanceUuid, config)
 
     async def reinstall(self, title: str, description: str):
         """
@@ -241,9 +232,7 @@ class InstanceDetail(BaseModel):
         :params title: 预设标题（需与应用市场一致）
         :params description: 预设描述（需与应用市场一致）
         """
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).reinstall(
+        return await self._instance_api.reinstall(
             self.daemonId, self.instanceUuid, title, description
         )
 
@@ -253,9 +242,7 @@ class InstanceDetail(BaseModel):
 
         :params command: 要发送的命令
         """
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).command(self.daemonId, self.instanceUuid, command)
+        return await self._instance_api.command(self.daemonId, self.instanceUuid, command)
 
     async def get_output(self, size: int | None = None) -> str:
         """
@@ -263,9 +250,7 @@ class InstanceDetail(BaseModel):
 
         :params size: 要获取的输出大小
         """
-        from mcsmapi.apis.instance import Instance
-
-        return await Instance(self._req).get_output(self.daemonId, self.instanceUuid, size)
+        return await self._instance_api.get_output(self.daemonId, self.instanceUuid, size)
 
     async def files(
         self, target: str = ".", page: int = 0, page_size: int = 100, file_name: str = ""
@@ -279,7 +264,6 @@ class InstanceDetail(BaseModel):
         :params file_name: 文件名过滤
         """
         from mcsmapi.apis.file import File
-
         return await File(self._req).show(
             self.daemonId, self.instanceUuid, target, page, page_size, file_name
         )
@@ -287,7 +271,6 @@ class InstanceDetail(BaseModel):
     async def list_schedule(self) -> list[ScheduleDetail]:
         """获取实例的计划任务列表"""
         from mcsmapi.apis.schedule import Schedule
-
         return await Schedule(self._req).list(self.daemonId, self.instanceUuid)
 
     async def create_schedule(self, config: SchedulePostBody) -> bool:
@@ -297,7 +280,6 @@ class InstanceDetail(BaseModel):
         :param config: 计划任务配置
         """
         from mcsmapi.apis.schedule import Schedule
-
         return await Schedule(self._req).create(self.daemonId, self.instanceUuid, config)
 
 

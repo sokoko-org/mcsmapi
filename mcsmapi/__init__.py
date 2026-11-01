@@ -1,4 +1,6 @@
 import urllib.parse
+from functools import cached_property
+
 from mcsmapi.pool import ApiPool
 from mcsmapi.apis.file import File
 from mcsmapi.apis.java import Java
@@ -32,9 +34,7 @@ class MCSMAPI:
 
     def __init__(self, url: str, timeout: int = 5):
         split_url = urllib.parse.urlsplit(url)
-        mcsm_url = urllib.parse.urljoin(
-            f"{split_url.scheme}://{split_url.netloc}", ""
-        )
+        mcsm_url = f"{split_url.scheme}://{split_url.netloc}/"
         self._req = Request(mcsm_url, timeout)
 
     async def __aenter__(self):
@@ -77,82 +77,42 @@ class MCSMAPI:
         """关闭底层 HTTP 连接"""
         await self._req.close()
 
-    @property
+    @cached_property
     def overview(self) -> Overview:
-        try:
-            return self._overview
-        except AttributeError:
-            self._overview = Overview(self._req)
-            return self._overview
+        return Overview(self._req)
 
-    @property
+    @cached_property
     def instance(self) -> Instance:
-        try:
-            return self._instance
-        except AttributeError:
-            self._instance = Instance(self._req)
-            return self._instance
+        return Instance(self._req)
 
-    @property
+    @cached_property
     def user(self) -> User:
-        try:
-            return self._user
-        except AttributeError:
-            self._user = User(self._req)
-            return self._user
+        return User(self._req)
 
-    @property
+    @cached_property
     def daemon(self) -> Daemon:
-        try:
-            return self._daemon
-        except AttributeError:
-            self._daemon = Daemon(self._req)
-            return self._daemon
+        return Daemon(self._req)
 
-    @property
+    @cached_property
     def file(self) -> File:
-        try:
-            return self._file
-        except AttributeError:
-            self._file = File(self._req)
-            return self._file
+        return File(self._req)
 
-    @property
+    @cached_property
     def image(self) -> Image:
-        try:
-            return self._image
-        except AttributeError:
-            self._image = Image(self._req)
-            return self._image
+        return Image(self._req)
 
-    @property
+    @cached_property
     def schedule(self) -> Schedule:
-        try:
-            return self._schedule
-        except AttributeError:
-            self._schedule = Schedule(self._req)
-            return self._schedule
+        return Schedule(self._req)
 
-    @property
+    @cached_property
     def java(self) -> Java:
-        try:
-            return self._java
-        except AttributeError:
-            self._java = Java(self._req)
-            return self._java
+        return Java(self._req)
 
-    @property
+    @cached_property
     def mod(self) -> Mod:
-        try:
-            return self._mod
-        except AttributeError:
-            self._mod = Mod(self._req)
-            return self._mod
+        return Mod(self._req)
 
-    @property
+    @cached_property
     def upgrade(self) -> Upgrade:
-        try:
-            return self._upgrade
-        except AttributeError:
-            self._upgrade = Upgrade(self._req)
-            return self._upgrade
+        return Upgrade(self._req)

@@ -23,7 +23,6 @@ class Daemon:
         return [DaemonStatus(**daemon, _req=self._req) for daemon in daemons]
 
 
-
     async def add(self, config: DaemonConfig) -> str:
         """
         新增节点

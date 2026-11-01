@@ -1,9 +1,5 @@
-from enum import Enum
-
-
-class ApiPool(Enum):
-    def __str__(self):
-        return self.value
+class ApiPool:
+    """API 路径常量"""
 
     AUTH = "api/auth"
     OVERVIEW = "api/overview"

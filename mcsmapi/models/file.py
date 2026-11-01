@@ -43,77 +43,51 @@ class FileItem(BaseModel):
         super().__init__(**data)
         self._req = _req
 
+    @property
+    def _path(self) -> str:
+        """当前文件的完整远程路径"""
+        return posixpath.join(self.target, self.name)
+
+    @property
+    def _file_api(self):
+        from mcsmapi.apis.file import File
+        return File(self._req)
+
     async def rename(self, newName: str):
         """重命名"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).rename(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name), newName
-        )
+        return await self._file_api.rename(self.daemonId, self.uuid, self._path, newName)
 
     async def delete(self):
         """删除"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).delete(
-            self.daemonId, self.uuid, [posixpath.join(self.target, self.name)]
-        )
+        return await self._file_api.delete(self.daemonId, self.uuid, [self._path])
 
     async def copy_to(self, target: str):
         """复制到目标路径"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).copyOne(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name), target
-        )
+        return await self._file_api.copyOne(self.daemonId, self.uuid, self._path, target)
 
     async def move(self, target: str):
         """移动到目标路径"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).moveOne(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name), target
-        )
+        return await self._file_api.moveOne(self.daemonId, self.uuid, self._path, target)
 
     async def content(self):
         """获取文件内容"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).content(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name)
-        )
+        return await self._file_api.content(self.daemonId, self.uuid, self._path)
 
     async def zip(self, targets: list[str]):
         """压缩到指定位置"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).zip(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name), targets
-        )
+        return await self._file_api.zip(self.daemonId, self.uuid, self._path, targets)
 
     async def unzip(self, target: str, code: Literal["utf-8", "gbk", "big5"] = "utf-8"):
         """解压到目标路径"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).unzip(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name), target, code
-        )
+        return await self._file_api.unzip(self.daemonId, self.uuid, self._path, target, code)
 
     async def update(self, text: str):
         """更新文件内容"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).update(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name), text
-        )
+        return await self._file_api.update(self.daemonId, self.uuid, self._path, text)
 
     async def download(self):
         """获取下载URL"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).download(
-            self.daemonId, self.uuid, posixpath.join(self.target, self.name)
-        )
+        return await self._file_api.download(self.daemonId, self.uuid, self._path)
 
 
 class FileList(BaseModel):
@@ -173,23 +147,22 @@ class FileList(BaseModel):
                         item["uuid"] = uuid
         return v
 
+    @property
+    def _file_api(self):
+        from mcsmapi.apis.file import File
+        return File(self._req)
+
     async def upload(self, file: bytes, upload_dir: str) -> bool:
         """上传文件"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).upload(self.daemonId, self.uuid, file, upload_dir)
+        return await self._file_api.upload(self.daemonId, self.uuid, file, upload_dir)
 
     async def createFile(self, target: str) -> bool:
         """创建文件"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).createFile(self.daemonId, self.uuid, target)
+        return await self._file_api.createFile(self.daemonId, self.uuid, target)
 
     async def createFolder(self, target: str) -> bool:
         """创建文件夹"""
-        from mcsmapi.apis.file import File
-
-        return await File(self._req).createFolder(self.daemonId, self.uuid, target)
+        return await self._file_api.createFolder(self.daemonId, self.uuid, target)
 
 
 class RemoteMappingEndpoint(BaseModel):
