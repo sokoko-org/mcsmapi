@@ -7,8 +7,10 @@ from mcsmapi.models.instance import (
     InstanceDetail,
     InstanceCreateResult,
     InstanceConfig,
+    InstanceDeleteResult,
     BatchOperationDetail,
 )
+from mcsmapi.models.file import StreamChannelResult
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
@@ -126,21 +128,21 @@ class Instance:
         )
         return result["instanceUuid"]
 
-    async def delete(self, daemonId: str, uuids: list[str], deleteFile: bool = False) -> dict[str, Any]:
+    async def delete(self, daemonId: str, uuids: list[str], deleteFile: bool = False) -> InstanceDeleteResult:
         """
         删除实例
 
         :params daemonId: 节点的UUID
         :params uuids: 实例UUID列表
         :params deleteFile: 是否删除关联文件
-        :returns: {"instances": [{"instanceUuid": ..., "nickname": ...}]}
         """
-        return await self._req.send(
+        result = await self._req.send(
             "DELETE",
             ApiPool.INSTANCE,
             params={"daemonId": daemonId},
             data={"uuids": uuids, "deleteFile": deleteFile},
         )
+        return InstanceDeleteResult(**result)
 
     async def start(self, daemonId: str, uuid: str) -> str:
         """
@@ -384,16 +386,16 @@ class Instance:
             data={"taskId": taskId} if taskId else {},
         )
 
-    async def stream_channel(self, daemonId: str, uuid: str) -> dict[str, Any]:
+    async def stream_channel(self, daemonId: str, uuid: str) -> StreamChannelResult:
         """
         请求建立数据流通道
 
         :params daemonId: 节点的UUID
         :params uuid: 实例的UUID
-        :returns: {"password": ..., "addr": ..., "prefix": ..., "remoteMappings": [...]}
         """
-        return await self._req.send(
+        result = await self._req.send(
             "POST",
             f"{ApiPool.PROTECTED_INSTANCE}/stream_channel",
             params={"daemonId": daemonId, "uuid": uuid},
         )
+        return StreamChannelResult(**result)

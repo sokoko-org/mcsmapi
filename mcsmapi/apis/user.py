@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal
 from mcsmapi.pool import ApiPool
-from mcsmapi.models.user import SearchUserModel, UserCreateResult
+from mcsmapi.models.user import SearchUserModel, UserCreateResult, UserInfo, LoginInfo, PanelStatus, UserOverviewItem
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
@@ -11,17 +11,18 @@ class User:
     def __init__(self, req: Request):
         self._req = req
 
-    async def info(self, advanced: bool = False) -> dict[str, Any]:
+    async def info(self, advanced: bool = False) -> UserInfo:
         """
         获取当前登录用户信息
 
         :params advanced: 是否返回高级数据（实例详情等）
         """
-        return await self._req.send(
+        result = await self._req.send(
             "GET",
             ApiPool.AUTH,
             params={"advanced": str(advanced).lower()},
         )
+        return UserInfo(**result)
 
     async def search(
         self,
@@ -50,9 +51,10 @@ class User:
         )
         return SearchUserModel(**result, _req=self._req)
 
-    async def overview(self) -> list[dict[str, Any]]:
+    async def overview(self) -> list[UserOverviewItem]:
         """获取全部用户概览列表（管理员）"""
-        return await self._req.send("GET", f"{ApiPool.AUTH}/overview")
+        result = await self._req.send("GET", f"{ApiPool.AUTH}/overview")
+        return [UserOverviewItem(**item) for item in result]
 
     async def create(self, username: str, password: str, permission: int = 1) -> UserCreateResult:
         """
@@ -115,13 +117,15 @@ class User:
         """
         return await self._req.send("DELETE", ApiPool.AUTH, data=uuids)
 
-    async def login_info(self) -> dict[str, Any]:
+    async def login_info(self) -> LoginInfo:
         """获取登录页面信息文本（公开接口）"""
-        return await self._req.send("GET", f"{ApiPool.AUTH}/login_info")
+        result = await self._req.send("GET", f"{ApiPool.AUTH}/login_info")
+        return LoginInfo(**result)
 
-    async def status(self) -> dict[str, Any]:
+    async def status(self) -> PanelStatus:
         """获取面板公开状态信息（安装状态、语言、设置等）"""
-        return await self._req.send("GET", f"{ApiPool.AUTH}/status")
+        result = await self._req.send("GET", f"{ApiPool.AUTH}/status")
+        return PanelStatus(**result)
 
     async def token(self) -> str:
         """获取当前会话的 Token"""
@@ -131,7 +135,7 @@ class User:
         """生成双因素认证二维码"""
         return await self._req.send("POST", f"{ApiPool.AUTH}/bind2fa")
 
-    async def confirm2fa(self, enable: bool, totp_code: str) -> Any:
+    async def confirm2fa(self, enable: bool, totp_code: str) -> bool:
         """
         确认或关闭双因素认证
 

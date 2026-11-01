@@ -208,7 +208,7 @@ class InstanceDetail(BaseModel):
 
         return await Instance(self._req).kill(self.daemonId, self.instanceUuid)
 
-    async def delete(self, deleteFile: bool = False):
+    async def delete(self, deleteFile: bool = False) -> "InstanceDeleteResult":
         """
         删除该实例
 
@@ -348,3 +348,19 @@ class InstanceSearchList(BaseModel):
         return v
 
 
+class InstanceDeleteItem(BaseModel):
+    """删除实例返回的单条信息"""
+
+    instanceUuid: str
+    """实例UUID"""
+    nickname: str = ""
+    """实例名称"""
+
+
+class InstanceDeleteResult(BaseModel):
+    """实例删除结果"""
+
+    instanceUuids: list[str] = []
+    """删除的实例UUID列表"""
+    instances: list[InstanceDeleteItem] = []
+    """删除的实例详细信息"""

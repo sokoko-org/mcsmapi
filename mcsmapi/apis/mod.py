@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 from mcsmapi.pool import ApiPool
+from mcsmapi.models.mod import ModSearchResult, ModInfoDetail, ModVersion, ModListResult
 if TYPE_CHECKING:
     from mcsmapi.request import Request
 
@@ -9,7 +10,7 @@ class Mod:
     def __init__(self, req: Request):
         self._req = req
 
-    async def mc_versions(self) -> Any:
+    async def mc_versions(self) -> list[str]:
         """
         获取 Minecraft 版本列表
         """
@@ -26,7 +27,7 @@ class Mod:
         pageSize: int = 50,
         folder: str | None = None,
         search: str | None = None,
-    ) -> Any:
+    ) -> ModListResult:
         """
         获取实例 Mod 列表
 
@@ -47,23 +48,27 @@ class Mod:
             params["folder"] = folder
         if search is not None:
             params["search"] = search
-        return await self._req.send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.MOD}/list",
             params=params,
         )
+        return ModListResult(**result)
 
-    async def info(self, hash: str) -> Any:
+    async def info(self, hash: str) -> ModInfoDetail | None:
         """
         获取 Mod 详细信息
 
         :param hash: Mod 文件哈希值
         """
-        return await self._req.send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.MOD}/info",
             params={"hash": hash},
         )
+        if result is None:
+            return None
+        return ModInfoDetail(**result)
 
     async def search(
         self,
@@ -75,7 +80,7 @@ class Mod:
         type: str = "all",
         loader: str = "all",
         environment: str = "all",
-    ) -> Any:
+    ) -> ModSearchResult:
         """
         搜索 Mod 资源
 
@@ -88,7 +93,7 @@ class Mod:
         :param loader: 模组加载器
         :param environment: 运行环境
         """
-        return await self._req.send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.MOD}/search",
             params={
@@ -102,19 +107,21 @@ class Mod:
                 "environment": environment,
             },
         )
+        return ModSearchResult(**result)
 
-    async def versions(self, projectId: str, source: str = "Modrinth") -> Any:
+    async def versions(self, projectId: str, source: str = "Modrinth") -> list[ModVersion]:
         """
         获取 Mod 项目的版本列表
 
         :param projectId: 项目ID
         :param source: 资源来源
         """
-        return await self._req.send(
+        result = await self._req.send(
             "GET",
             f"{ApiPool.MOD}/versions",
             params={"projectId": projectId, "source": source},
         )
+        return [ModVersion(**item) for item in result]
 
     async def download(
         self,
@@ -125,7 +132,7 @@ class Mod:
         projectType: str,
         fallbackUrl: str | None = None,
         extraInfo: Any | None = None,
-    ) -> Any:
+    ) -> bool:
         """
         下载 Mod 文件到实例
 
@@ -160,7 +167,7 @@ class Mod:
         uuid: str,
         fileName: str,
         type: str,
-    ) -> Any:
+    ) -> bool:
         """
         停止文件传输任务
 
@@ -209,7 +216,7 @@ class Mod:
             },
         )
 
-    async def toggle(self, daemonId: str, uuid: str, fileName: str) -> Any:
+    async def toggle(self, daemonId: str, uuid: str, fileName: str) -> bool:
         """
         启用/禁用 Mod
 
@@ -227,7 +234,7 @@ class Mod:
             },
         )
 
-    async def delete(self, daemonId: str, uuid: str, fileName: str) -> Any:
+    async def delete(self, daemonId: str, uuid: str, fileName: str) -> bool:
         """
         删除 Mod 文件
 

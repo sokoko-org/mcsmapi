@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, PrivateAttr
-from mcsmapi.models.instance import InstanceCreateResult, InstanceDetail
+from mcsmapi.models.instance import InstanceCreateResult, InstanceDetail, InstanceDeleteResult
 from mcsmapi.models.common import ProcessInfo, InstanceStat, CpuMemChart
 from mcsmapi.models.file import RemoteMappingEntry
 
@@ -135,7 +135,7 @@ class DaemonOperation(BaseModel):
 
         return await Instance(self._req).create(self.uuid, config)
 
-    async def deleteInstance(self, uuids: list[str], deleteFile=False) -> dict:
+    async def deleteInstance(self, uuids: list[str], deleteFile=False) -> InstanceDeleteResult:
         """
         删除当前节点的实例
 

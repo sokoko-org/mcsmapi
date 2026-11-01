@@ -215,3 +215,16 @@ class FileDownloadConfig(BaseModel):
     """文件下载地址"""
     remoteMappings: list[RemoteMappingEntry] = []
     """远程端口映射"""
+
+
+class StreamChannelResult(BaseModel):
+    """数据流通道信息"""
+
+    password: str
+    """通道密码"""
+    addr: str
+    """通道地址"""
+    prefix: str = ""
+    """路径前缀"""
+    remoteMappings: list[RemoteMappingEntry] = []
+    """远程端口映射"""

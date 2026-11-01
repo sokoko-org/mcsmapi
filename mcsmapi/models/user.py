@@ -117,3 +117,82 @@ class SearchUserModel(BaseModel):
         self._req = _req
         for user in self.data:
             user._req = _req
+
+
+class UserInfo(BaseModel):
+    """当前登录用户信息（GET /api/auth）"""
+
+    uuid: str = ""
+    """用户UUID"""
+    userName: str = ""
+    """用户名"""
+    loginTime: str = ""
+    """最后登录时间"""
+    registerTime: str = ""
+    """注册时间"""
+    instances: list[UserInstances] = []
+    """用户拥有的实例列表"""
+    permission: UserPermission = UserPermission.USER
+    """用户权限级别"""
+    apiKey: str = ""
+    """API 密钥（掩码值）"""
+    isInit: bool = False
+    """是否为初始化用户"""
+    open2FA: bool = False
+    """是否启用双因素认证"""
+    token: str = ""
+    """当前会话 Token"""
+
+
+class LoginInfo(BaseModel):
+    """登录页面信息（GET /api/auth/login_info）"""
+
+    loginInfo: str | None = None
+    """登录页面自定义文本"""
+
+
+class PanelStatusSettings(BaseModel):
+    """面板状态中的设置项"""
+
+    businessMode: bool = False
+    """是否为商业模式"""
+    businessId: str = ""
+    """商业模式 ID"""
+    canFileManager: bool | None = None
+    """是否允许文件管理（登录后可见）"""
+    allowUsePreset: bool | None = None
+    """是否允许使用预设（登录后可见）"""
+    allowChangeCmd: bool | None = None
+    """是否允许修改启动命令（登录后可见）"""
+    panelId: str | None = None
+    """面板 ID（登录后可见）"""
+    ssoEnabled: bool | None = None
+    """是否启用 SSO（登录后可见）"""
+
+
+class PanelStatus(BaseModel):
+    """面板公开状态信息（GET /api/auth/status）"""
+
+    isInstall: bool
+    """面板是否已安装"""
+    language: str | None = None
+    """面板语言"""
+    settings: PanelStatusSettings = PanelStatusSettings()
+    """面板设置项"""
+
+
+class UserOverviewItem(BaseModel):
+    """用户概览条目（GET /api/auth/overview）"""
+
+    uuid: str
+    """用户UUID"""
+    userName: str
+    """用户名"""
+    permission: UserPermission
+    """用户权限级别"""
+    instances: list[UserInstances] = []
+    """用户拥有的实例列表"""
+    loginTime: str = ""
+    """最后登录时间"""
+    registerTime: str = ""
+    """注册时间"""
