@@ -131,15 +131,15 @@ class User:
         """生成双因素认证二维码"""
         return await self._req.send("POST", f"{ApiPool.AUTH}/bind2fa")
 
-    async def confirm2fa(self, enable: bool, code: str) -> Any:
+    async def confirm2fa(self, enable: bool, totp_code: str) -> Any:
         """
         确认或关闭双因素认证
 
         :params enable: True 启用，False 关闭
-        :params code: 验证码
+        :params totp_code: TOTP 验证码
         """
         return await self._req.send(
             "POST",
             f"{ApiPool.AUTH}/confirm2fa",
-            data={"enable": enable, "code": code},
+            data={"enable": enable, "TOTPCode": totp_code},
         )

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from mcsmapi.pool import ApiPool
 from mcsmapi.models.file import FileDownloadConfig, FileList
 import urllib.parse
-import os
+import posixpath
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
@@ -150,8 +150,7 @@ class File:
         )
         result = FileDownloadConfig(**result)
         protocol = self._req.mcsm_url.split("://")[0]
-        base_url = urllib.parse.urljoin(f"{protocol}://{result.addr}", "download")
-        return urllib.parse.urljoin(base_url, f"{result.password}/{file_name}")
+        return f"{protocol}://{result.addr}/download/{result.password}/{urllib.parse.quote(file_name, safe='/')}"
 
     async def upload(self, daemonId: str, uuid: str, file: bytes, upload_dir: str) -> bool:
         """
@@ -237,8 +236,8 @@ class File:
         :params source: 源路径
         :params new_name: 新名称
         """
-        directory = os.path.dirname(source)
-        target = os.path.join(directory, new_name)
+        directory = posixpath.dirname(source)
+        target = posixpath.join(directory, new_name)
         return await self.moveOne(daemonId, uuid, source, target)
 
     async def zip(self, daemonId: str, uuid: str, source: str, targets: list[str]) -> bool:

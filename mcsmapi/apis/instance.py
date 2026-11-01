@@ -1,4 +1,5 @@
 from __future__ import annotations
+import json
 from typing import TYPE_CHECKING, Any, Literal
 from mcsmapi.pool import ApiPool
 from mcsmapi.models.instance import (
@@ -6,7 +7,7 @@ from mcsmapi.models.instance import (
     InstanceDetail,
     InstanceCreateResult,
     InstanceConfig,
-    batchOperationDetail,
+    BatchOperationDetail,
 )
 
 if TYPE_CHECKING:
@@ -47,7 +48,7 @@ class Instance:
                 "page_size": page_size,
                 "instance_name": instance_name,
                 "status": status,
-                "tag": tag,
+                "tag": json.dumps(tag),
             },
         )
         return InstanceSearchList(**result, daemonId=daemonId, _req=self._req)
@@ -198,7 +199,7 @@ class Instance:
 
     async def batchOperation(
         self,
-        instances: list[batchOperationDetail],
+        instances: list[BatchOperationDetail],
         operation: Literal["start", "stop", "restart", "kill"],
     ) -> bool:
         """

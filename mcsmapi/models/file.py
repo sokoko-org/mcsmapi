@@ -2,7 +2,7 @@ from __future__ import annotations
 from enum import IntEnum
 from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, PrivateAttr, field_validator
-import os
+import posixpath
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
@@ -48,7 +48,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).rename(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name), newName
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name), newName
         )
 
     async def delete(self):
@@ -56,7 +56,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).delete(
-            self.daemonId, self.uuid, [os.path.join(self.target, self.name)]
+            self.daemonId, self.uuid, [posixpath.join(self.target, self.name)]
         )
 
     async def copy_to(self, target: str):
@@ -64,7 +64,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).copyOne(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name), target
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name), target
         )
 
     async def move(self, target: str):
@@ -72,7 +72,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).moveOne(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name), target
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name), target
         )
 
     async def content(self):
@@ -80,7 +80,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).content(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name)
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name)
         )
 
     async def zip(self, targets: list[str]):
@@ -88,7 +88,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).zip(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name), targets
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name), targets
         )
 
     async def unzip(self, target: str, code: Literal["utf-8", "gbk", "big5"] = "utf-8"):
@@ -96,7 +96,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).unzip(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name), target, code
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name), target, code
         )
 
     async def update(self, text: str):
@@ -104,7 +104,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).update(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name), text
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name), text
         )
 
     async def download(self):
@@ -112,7 +112,7 @@ class FileItem(BaseModel):
         from mcsmapi.apis.file import File
 
         return await File(self._req).download(
-            self.daemonId, self.uuid, os.path.join(self.target, self.name)
+            self.daemonId, self.uuid, posixpath.join(self.target, self.name)
         )
 
 
@@ -193,8 +193,11 @@ class FileList(BaseModel):
 
 
 class FileDownloadConfig(BaseModel):
+    """文件下载配置"""
 
     password: str
     """文件下载密码"""
     addr: str
     """文件下载地址"""
+    remoteMappings: dict[str, str] = {}
+    """远程端口映射"""

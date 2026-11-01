@@ -1,4 +1,5 @@
 from __future__ import annotations
+import urllib.parse
 from typing import TYPE_CHECKING, Any
 from mcsmapi.pool import ApiPool
 from mcsmapi.models.overview import OverviewModel, LogDetail
@@ -97,7 +98,11 @@ class Overview:
 
         :params file: 文件内容
         """
-        return await self._req.upload(
-            f"{self._req.mcsm_url}{ApiPool.OVERVIEW}/upload_assets?token={self._req.token or ''}",
-            file,
-        )
+        params = {}
+        if self._req.token:
+            params["token"] = self._req.token
+        if self._req.apikey:
+            params["apikey"] = self._req.apikey
+        qs = urllib.parse.urlencode(params)
+        url = f"{self._req.mcsm_url}{ApiPool.OVERVIEW}/upload_assets?{qs}"
+        return await self._req.upload(url, file)

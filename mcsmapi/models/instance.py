@@ -27,7 +27,7 @@ class Status(IntEnum):
     RUNNING = 3
 
 
-class batchOperationDetail(TypedDict):
+class BatchOperationDetail(TypedDict):
     """批量操作的实例信息"""
 
     uuid: str

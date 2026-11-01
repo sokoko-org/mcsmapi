@@ -31,14 +31,12 @@ class Request:
     def set_mcsm_url(self, url: str):
         self.mcsm_url = url
 
-    def set_timeout(self, timeout: int):
+    async def set_timeout(self, timeout: int):
+        """设置超时并重建连接"""
         self.timeout = timeout
-        # 重建 client 以应用新超时
         if self._client is not None and not self._client.is_closed:
-            self._client = httpx.AsyncClient(
-                timeout=self.timeout,
-                headers={"X-Requested-With": "XMLHttpRequest"},
-            )
+            await self._client.aclose()
+            self._client = None
 
     def set_apikey(self, apikey: str):
         self.apikey = apikey
