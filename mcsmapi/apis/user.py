@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal
 from mcsmapi.pool import ApiPool
-from mcsmapi.models.user import SearchUserModel, UserCreateResult, UserInfo, LoginInfo, PanelStatus, UserOverviewItem
+from mcsmapi.models.user import SearchUserModel, UserCreateResult, UserInfo, LoginInfo, PanelStatus, UserOverviewItem, UserPermission
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
@@ -29,7 +29,7 @@ class User:
         username: str = "",
         page: int = 1,
         page_size: int = 20,
-        role: Literal[-1, 1, 10, ""] = "",
+        role: UserPermission | Literal[""] = "",
     ) -> SearchUserModel:
         """
         搜索用户（管理员）

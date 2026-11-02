@@ -2,7 +2,7 @@ from __future__ import annotations
 import urllib.parse
 from typing import TYPE_CHECKING, Any
 from mcsmapi.pool import ApiPool
-from mcsmapi.models.overview import OverviewModel, LogDetail
+from mcsmapi.models.overview import OverviewModel, LogDetail, LogType, LogLevel, LogSearchResult
 
 if TYPE_CHECKING:
     from mcsmapi.request import Request
@@ -30,13 +30,13 @@ class Overview:
         self,
         page: int = 1,
         page_size: int = 20,
-        type: str | None = None,
-        level: str | None = None,
+        type: LogType | None = None,
+        level: LogLevel | None = None,
         operator_name: str | None = None,
         start_time: int | None = None,
         end_time: int | None = None,
         keyword: str | None = None,
-    ) -> dict[str, Any]:
+    ) -> LogSearchResult:
         """
         分页搜索操作日志
 
@@ -51,9 +51,9 @@ class Overview:
         """
         params: dict[str, Any] = {"page": page, "page_size": page_size}
         if type is not None:
-            params["type"] = type
+            params["type"] = type.value if isinstance(type, LogType) else type
         if level is not None:
-            params["level"] = level
+            params["level"] = level.value if isinstance(level, LogLevel) else level
         if operator_name is not None:
             params["operator_name"] = operator_name
         if start_time is not None:
@@ -62,7 +62,8 @@ class Overview:
             params["end_time"] = end_time
         if keyword is not None:
             params["keyword"] = keyword
-        return await self._req.send("GET", f"{ApiPool.LOG}/search", params=params)
+        result = await self._req.send("GET", f"{ApiPool.LOG}/search", params=params)
+        return LogSearchResult(**result)
 
     async def setting(self) -> dict[str, Any]:
         """获取面板配置项（管理员）"""

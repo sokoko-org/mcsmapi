@@ -9,6 +9,7 @@ from mcsmapi.models.instance import (
     InstanceConfig,
     InstanceDeleteResult,
     BatchOperationDetail,
+    Status,
 )
 from mcsmapi.models.file import StreamChannelResult
 
@@ -26,7 +27,7 @@ class Instance:
         page: int = 1,
         page_size: int = 20,
         instance_name: str = "",
-        status: Literal[-1, 0, 1, 2, 3, ""] = "",
+        status: Status | Literal[""] = "",
         tag: list[str] | None = None,
     ) -> InstanceSearchList:
         """
@@ -60,7 +61,7 @@ class Instance:
         page: int = 1,
         page_size: int = 20,
         instance_name: str = "",
-        status: Literal[-1, 0, 1, 2, 3, ""] = "",
+        status: Status | Literal[""] = "",
     ) -> dict[str, Any]:
         """
         跨所有节点搜索实例

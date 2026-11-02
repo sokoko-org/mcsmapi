@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Literal
 from pydantic import BaseModel, ConfigDict, PrivateAttr
-from mcsmapi.models.instance import InstanceCreateResult, InstanceDetail, InstanceDeleteResult
+from mcsmapi.models.instance import InstanceCreateResult, InstanceDetail, InstanceDeleteResult, Status
 
 
 if TYPE_CHECKING:
@@ -28,7 +28,7 @@ class DaemonOperation(BaseModel):
         page: int = 1,
         page_size: int = 20,
         instance_name: str = "",
-        status: Literal[-1, 0, 1, 2, 3, ""] = "",
+        status: Status | Literal[""] = "",
     ) -> InstanceSearchList:
         """
         搜索当前节点的实例列表

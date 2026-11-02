@@ -1,5 +1,4 @@
 from enum import Enum
-from typing import Literal
 from pydantic import BaseModel
 from mcsmapi.models.common import CpuMemChart, InstanceStat, ProcessInfo
 
@@ -275,6 +274,18 @@ class LogType(Enum):
     """SSO 解绑"""
 
 
+
+class LogLevel(str, Enum):
+    """日志等级"""
+
+    INFO = "info"
+    """信息"""
+    WARNING = "warning"
+    """警告"""
+    ERROR = "error"
+    """错误"""
+
+
 class LogDetail(BaseModel):
     """操作日志详情"""
 
@@ -286,7 +297,7 @@ class LogDetail(BaseModel):
     """操作时间戳"""
     operator_ip: str
     """操作者IP"""
-    operation_level: Literal["info", "warning", "error", "unknown"]
+    operation_level: LogLevel
     """日志等级"""
     type: LogType
     """操作类型"""
@@ -302,3 +313,19 @@ class LogDetail(BaseModel):
     """被操作的文件"""
     task_name: str | None = None
     """任务名称"""
+
+
+class LogSearchResult(BaseModel):
+    """操作日志搜索结果"""
+
+    page: int
+    """当前页码"""
+    pageSize: int
+    """每页条数"""
+    maxPage: int
+    """最大页码"""
+    total: int
+    """总记录数"""
+    data: list[LogDetail]
+    """日志详情列表"""
+
