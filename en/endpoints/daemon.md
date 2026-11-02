@@ -85,12 +85,16 @@ await api.link("daemon-uuid")
 
 ### _method_ `update(daemonId: str, config: dict[str, Any])`
 
-Update the configuration of a daemon.
+Update the configuration of a daemon (partial update, only the provided fields are sent).
+
+::: tip
+This endpoint supports partial updates. Only the fields you provide will be modified; fields not included will remain unchanged.
+:::
 
 #### Parameters
 
 - `daemonId`: UUID of the daemon.
-- `config`: Daemon configuration provided as a dictionary. Only the fields that need to be modified need to be provided.
+- `config`: Configuration fields to modify.
 
 #### Returns
 

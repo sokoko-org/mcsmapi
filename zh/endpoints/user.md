@@ -29,7 +29,7 @@ info = await api.info()
 print(info.userName)
 ```
 
-### _method_ `search(username: str = "", page: int = 1, page_size: int = 20, role: Literal[-1, 1, 10, ""] = "")`
+### _method_ `search(username: str = "", page: int = 1, page_size: int = 20, role: UserPermission | Literal[\"\"] = "")`
 
 根据用户名和角色搜索用户信息
 
@@ -92,7 +92,7 @@ print("新用户 UUID:", result.uuid)
 #### 参数
 
 - `uuid`: 用户的 UUID
-- `config`: 新的用户信息，以字典形式提供，缺失内容由 `UserModel` 模型提供默认值
+- `config`: 要修改的字段
 
 #### 返回
 

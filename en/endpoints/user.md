@@ -29,7 +29,7 @@ user = await api.info()
 print(user.userName, user.permission)
 ```
 
-### _method_ `search(username: str = "", page: int = 1, page_size: int = 20, role: Literal[-1, 1, 10, ""] = "")`
+### _method_ `search(username: str = "", page: int = 1, page_size: int = 20, role: UserPermission | Literal[\"\"] = "")`
 
 Search for users by username and role.
 
@@ -100,7 +100,7 @@ This method is not recommended for direct use. It is suggested to call `search` 
 #### Parameters
 
 - `uuid`: User's UUID.
-- `config`: New user information, provided as a dictionary. Missing values are filled with default values from the `UserModel` model.
+- `config`: Fields to modify.
 
 #### Returns
 

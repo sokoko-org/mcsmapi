@@ -45,7 +45,7 @@ for log in logs:
     print(log)
 ```
 
-### _method_ `log_search(page: int = 1, page_size: int = 20, type: str | None = None, level: str | None = None, operator_name: str | None = None, start_time: int | None = None, end_time: int | None = None, keyword: str | None = None)`
+### _method_ `log_search(page: int = 1, page_size: int = 20, type: LogType | None = None, level: LogLevel | None = None, operator_name: str | None = None, start_time: int | None = None, end_time: int | None = None, keyword: str | None = None)`
 
 Search panel logs with filters.
 
@@ -53,8 +53,8 @@ Search panel logs with filters.
 
 - `page`: Page number, defaults to 1.
 - `page_size`: Number of items per page, defaults to 20.
-- `type`: Log type filter.
-- `level`: Log level filter.
+- `type`: Log type filter (`LogType` enum).
+- `level`: Log level filter (`LogLevel` enum: `INFO`/`WARNING`/`ERROR`).
 - `operator_name`: Operator name filter.
 - `start_time`: Start timestamp filter.
 - `end_time`: End timestamp filter.
@@ -62,12 +62,21 @@ Search panel logs with filters.
 
 #### Returns
 
-- `dict[str, Any]`
+- `LogSearchResult`: Search result model (contains `page`, `pageSize`, `maxPage`, `total`, `data` fields)
 
 #### Example
 
 ```python
-result = await api.log_search(keyword="login", page_size=10)
+from mcsmapi.models.overview import LogType, LogLevel
+
+result = await api.log_search(
+    type=LogType.USER_LOGIN,
+    level=LogLevel.INFO,
+    page_size=10,
+)
+print(f"Total: {result.total}")
+for log in result.data:
+    print(log.operator_name, log.operation_level)
 ```
 
 ### _method_ `setting()`
@@ -86,11 +95,15 @@ settings = await api.setting()
 
 ### _method_ `update_setting(config: dict[str, Any])`
 
-Update panel settings.
+Update panel settings (partial update, only the provided fields are sent).
+
+::: tip
+This endpoint supports partial updates. Only the fields you provide will be modified; fields not included will remain unchanged.
+:::
 
 #### Parameters
 
-- `config`: Settings dictionary. Only the fields that need to be modified need to be provided.
+- `config`: Settings fields to modify.
 
 #### Returns
 

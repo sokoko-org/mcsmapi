@@ -10,7 +10,7 @@ api = mcsm.instance
 
 ---
 
-### _method_ `search(daemonId: str, page: int = 1, page_size: int = 20, instance_name: str = "", status: Literal[-1, 0, 1, 2, 3, ""] = "", tag: list[str] | None = None)`
+### _method_ `search(daemonId: str, page: int = 1, page_size: int = 20, instance_name: str = "", status: Status | Literal[""] = "", tag: list[str] | None = None)`
 
 Search for instance information on a specific daemon.
 
@@ -35,7 +35,7 @@ for inst in result.data:
     print(inst.config.nickname)
 ```
 
-### _method_ `search_global(page: int = 1, page_size: int = 20, instance_name: str = "", status: Literal[-1, 0, 1, 2, 3, ""] = "")`
+### _method_ `search_global(page: int = 1, page_size: int = 20, instance_name: str = "", status: Status | Literal[\"\"] = "")`
 
 Search for instances across all daemons.
 
@@ -102,13 +102,17 @@ print("Created:", result.instanceUuid)
 
 ### _method_ `updateConfig(daemonId: str, uuid: str, config: dict[str, Any])`
 
-Update the configuration of an instance.
+Update the configuration of an instance (partial update, only the provided fields are sent).
+
+::: tip
+This endpoint supports partial updates. Only the fields you provide will be modified; fields not included will remain unchanged.
+:::
 
 #### Parameters
 
 - `daemonId`: UUID of the daemon.
 - `uuid`: UUID of the instance.
-- `config`: New configuration, provided as a dictionary. Missing values are filled with default values from the `InstanceConfig` model.
+- `config`: Configuration fields to modify.
 
 #### Returns
 

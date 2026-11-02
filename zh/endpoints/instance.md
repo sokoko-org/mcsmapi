@@ -10,7 +10,7 @@ api = mcsm.instance
 
 ---
 
-### _method_ `search(daemonId: str, page: int = 1, page_size: int = 20, instance_name: str = "", status: Literal[-1, 0, 1, 2, 3, ""] = "", tag: list[str] | None = None)`
+### _method_ `search(daemonId: str, page: int = 1, page_size: int = 20, instance_name: str = "", status: Status | Literal[""] = "", tag: list[str] | None = None)`
 
 根据指定的参数搜索实例信息
 
@@ -35,7 +35,7 @@ for inst in result.data:
     print(inst.config.nickname, inst.status)
 ```
 
-### _method_ `search_global(page: int = 1, page_size: int = 20, instance_name: str = "", status: Literal[-1, 0, 1, 2, 3, ""] = "")`
+### _method_ `search_global(page: int = 1, page_size: int = 20, instance_name: str = "", status: Status | Literal[\"\"] = "")`
 
 在所有节点中全局搜索实例
 
@@ -101,13 +101,17 @@ print("新实例 UUID:", result.instanceUuid)
 
 ### _method_ `updateConfig(daemonId: str, uuid: str, config: dict[str, Any])`
 
-更新实例配置
+更新实例配置（部分更新，只发送提供的字段）
+
+::: tip
+此接口支持部分更新，只需传入要修改的字段，未传入的字段不会被覆盖。
+:::
 
 #### 参数
 
 - `daemonId`: 节点的 UUID
 - `uuid`: 实例的 UUID
-- `config`: 新的配置，以字典形式提供，缺失内容由 `InstanceConfig` 模型提供默认值
+- `config`: 要修改的配置字段
 
 #### 返回
 

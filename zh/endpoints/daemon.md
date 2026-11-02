@@ -89,12 +89,16 @@ await api.link("daemon-uuid")
 
 ### _method_ `update(daemonId: str, config: dict[str, Any])`
 
-更新一个节点的配置
+更新一个节点的配置（部分更新，只发送提供的字段）
+
+::: tip
+此接口支持部分更新，只需传入要修改的字段，未传入的字段不会被覆盖。
+:::
 
 #### 参数
 
 - `daemonId`: 节点的 UUID
-- `config`: 节点的配置信息，以字典形式提供，缺失内容由 `DaemonUpdateConfig` 模型补全
+- `config`: 要修改的配置字段
 
 #### 返回
 
