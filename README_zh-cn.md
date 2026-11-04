@@ -11,10 +11,10 @@
 
 mcsmapi 是 [MCSManager](https://github.com/MCSManager/MCSManager) 的异步 Python SDK，基于 httpx + pydantic 构建。
 
-- 全异步 (sync/await)
+- 全异步 (async/await)
 - 类型化模型，IDE 自动补全
 - 返回对象支持链式操作
-- 支持 sync with 上下文管理器
+- 支持 async with 上下文管理器
 
 ## 文档
 
@@ -24,9 +24,9 @@ mcsmapi 是 [MCSManager](https://github.com/MCSManager/MCSManager) 的异步 Pyt
 
 ## 安装
 
-`ash
+```bash
 pip install mcsmapi
-`
+```
 
 最新构建: [Actions](https://github.com/molanp/mcsmapi/actions/workflows/auto-build.yml)
 
@@ -51,7 +51,7 @@ pip install mcsmapi
 
 ## 快速示例
 
-`python
+```python
 import asyncio
 from mcsmapi import MCSMAPI
 
@@ -87,7 +87,7 @@ async def main():
 
 
 asyncio.run(main())
-`
+```
 
 更多用法见 [example/](example/)。
 

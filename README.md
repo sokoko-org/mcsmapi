@@ -17,16 +17,16 @@ English|[Chinese Simplified](README_zh-cn.md)
 
 mcsmapi is an async Python SDK for [MCSManager](https://github.com/MCSManager/MCSManager), built on httpx + pydantic.
 
-- Fully async (sync/await)
+- Fully async (async/await)
 - Typed models with IDE autocompletion
 - Chainable operations on returned objects
-- Supports sync with context manager
+- Supports async with context manager
 
 ## Installation
 
-`ash
+```bash
 pip install mcsmapi
-`
+```
 
 For the latest build: [Actions](https://github.com/molanp/mcsmapi/actions/workflows/auto-build.yml)
 
@@ -51,7 +51,7 @@ For the latest build: [Actions](https://github.com/molanp/mcsmapi/actions/workfl
 
 ## Quick Example
 
-`python
+```python
 import asyncio
 from mcsmapi import MCSMAPI
 
@@ -87,7 +87,7 @@ async def main():
 
 
 asyncio.run(main())
-`
+```
 
 See [example/](example/) for more usage patterns.
 
