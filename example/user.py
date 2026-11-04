@@ -4,6 +4,7 @@
 
 import asyncio
 from mcsmapi import MCSMAPI
+from mcsmapi.models.user import UserPermission
 
 
 async def main():
@@ -16,7 +17,7 @@ async def main():
         print(f"{u.userName} (权限: {u.permission.name})")
 
     # 按权限搜索管理员
-    admins = await mcsm.user.search(role=10)
+    admins = await mcsm.user.search(role=UserPermission.ADMIN)
     print(f"管理员数量: {admins.total}")
 
     # 创建新用户
